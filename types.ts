@@ -15,6 +15,7 @@ export interface Message {
     parts: { text: string }[];
     timestamp: string;
     error?: boolean;
+    imageUrl?: string; // For UI rendering
 }
 
 export interface Conversation {

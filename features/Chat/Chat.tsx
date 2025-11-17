@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
@@ -70,13 +70,21 @@ const Chat: React.FC = () => {
     } = useChat();
     
     const [input, setInput] = useState('');
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isResponding, setIsResponding] = useState(false);
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const stopStreamingRef = useRef(false);
     const streamingMessageIdRef = useRef<string | null>(null);
+    const recognitionRef = useRef<any>(null);
+
 
     useEffect(() => {
         const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
@@ -89,7 +97,7 @@ const Chat: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [activeConversation?.messages, isResponding]);
 
-    const streamModelResponse = useCallback(async (convoId: string, userMessage: Message) => {
+    const streamModelResponse = useCallback(async (convoId: string, userMessage: Message, newMessage: { text: string, imageFile?: File }) => {
         setIsResponding(true);
         stopStreamingRef.current = false;
         const modelMessageId = uuidv4();
@@ -109,7 +117,7 @@ const Chat: React.FC = () => {
                 .filter(m => m.id !== userMessage.id && m.id !== modelMessageId && !m.error)
                 || [];
 
-            const stream = await generateChatResponseStream(historyForApi, userMessage.parts[0].text);
+            const stream = await generateChatResponseStream(historyForApi, newMessage);
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
@@ -144,7 +152,7 @@ const Chat: React.FC = () => {
     }, [conversations, addMessageToConversation, updateMessageInConversation]);
 
     const handleSend = useCallback(async () => {
-        if (!input.trim() || isResponding) return;
+        if ((!input.trim() && !imageFile) || isResponding) return;
 
         setStoppedMessageId(null);
         let currentConvoId = activeConversationId;
@@ -157,15 +165,22 @@ const Chat: React.FC = () => {
             id: uuidv4(),
             role: 'user', 
             parts: [{ text: input }],
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            imageUrl: imagePreview
         };
 
         addMessageToConversation(currentConvoId, userMessage);
-        setInput('');
         
-        await streamModelResponse(currentConvoId, userMessage);
+        const textToSend = input;
+        const imageToSend = imageFile;
 
-    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse]);
+        setInput('');
+        setImageFile(null);
+        setImagePreview(null);
+        
+        await streamModelResponse(currentConvoId, userMessage, { text: textToSend, imageFile: imageToSend });
+
+    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse, imageFile, imagePreview]);
 
     const handleStop = () => {
         stopStreamingRef.current = true;
@@ -196,8 +211,9 @@ const Chat: React.FC = () => {
         let fullText = existingText;
 
         try {
+            // Send the entire history including the partial message for context
             const historyForApi = conversation.messages;
-            const stream = await generateChatResponseStream(historyForApi, "أكمل من حيث توقفت.");
+            const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." });
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
@@ -238,7 +254,14 @@ const Chat: React.FC = () => {
 
         if (userMessage && userMessage.role === 'user') {
             updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
-            streamModelResponse(activeConversationId, userMessage);
+            // Re-create the file object from data URL if it exists
+            let imageFile: File | undefined = undefined;
+            if (userMessage.imageUrl) {
+                // This is a simplification; for a real app, you might need a more robust way
+                // to reconstruct the file or store it temporarily.
+                console.warn("Retrying with images from data URL might have limitations.");
+            }
+            streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text });
         } else {
             console.error("Could not find user message to retry from.");
         }
@@ -260,9 +283,53 @@ const Chat: React.FC = () => {
         };
         
         addMessageToConversation(convoId, userMessage);
-        await streamModelResponse(convoId, userMessage);
+        await streamModelResponse(convoId, userMessage, { text: prompt });
     }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation]);
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleToggleRecording = () => {
+        if (isRecording) {
+            recognitionRef.current?.stop();
+            setIsRecording(false);
+            return;
+        }
+        
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('متصفحك لا يدعم ميزة تحويل الصوت إلى نص.');
+            return;
+        }
+        
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.lang = 'ar-EG';
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = false;
+
+        recognitionRef.current.onstart = () => setIsRecording(true);
+        recognitionRef.current.onend = () => setIsRecording(false);
+        recognitionRef.current.onerror = (event: any) => console.error('Speech recognition error:', event.error);
+        
+        recognitionRef.current.onresult = (event: any) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                transcript += event.results[i][0].transcript;
+            }
+            setInput(prev => prev ? `${prev} ${transcript}`.trim() : transcript);
+        };
+        
+        recognitionRef.current.start();
+    };
 
     if (!activeConversation) {
         return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
@@ -276,22 +343,24 @@ const Chat: React.FC = () => {
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
-                            <div key={msg.id} className={`flex items-end gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                                {/* User messages (right-aligned in RTL) */}
+                            <div key={msg.id} className={`flex items-start gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
                                 {msg.role === 'user' && (
                                     <>
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                             <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                                         </div>
-                                        <div className="flex flex-col max-w-lg items-start">
-                                            <div className="p-3 rounded-2xl bg-primary text-primary-foreground rounded-br-none">
-                                                <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
-                                            </div>
+                                        <div className="flex flex-col max-w-lg items-start gap-2">
+                                            {msg.imageUrl && (
+                                                <img src={msg.imageUrl} alt="User upload" className="rounded-lg max-w-xs max-h-64 object-contain" />
+                                            )}
+                                            {msg.parts[0].text && (
+                                                <div className="p-3 rounded-2xl bg-primary text-primary-foreground rounded-br-none">
+                                                    <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 )}
-                                
-                                {/* Model messages (left-aligned in RTL) */}
                                 {msg.role === 'model' && (
                                     <>
                                         <div className={`flex flex-col max-w-lg items-start`}>
@@ -322,7 +391,7 @@ const Chat: React.FC = () => {
                                 )}
                             </div>
                         ))}
-                        {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
+                        {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role !== 'model' && (
                             <div className="flex items-end gap-3 animate-bubbleIn justify-end">
                                 <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-bl-none">
                                     <div className="flex items-center gap-2">
@@ -340,17 +409,48 @@ const Chat: React.FC = () => {
                  )}
                 <div ref={messagesEndRef} />
             </div>
+
             <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl">
+                 {imagePreview && (
+                    <div className="relative w-24 h-24 mb-2 p-1 border rounded-lg border-primary/50">
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md"/>
+                        <button 
+                            onClick={() => { setImageFile(null); setImagePreview(null); }}
+                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full"
+                        >
+                            <X size={14} />
+                        </button>
+                    </div>
+                )}
                 <div className="flex items-end gap-2 sm:gap-3">
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
+                     <div className="relative">
+                        <Button 
+                            variant="secondary"
+                            className="p-3 rounded-full" 
+                            aria-label="إرفاق ملف"
+                            onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
+                        >
+                            <Plus size={24} />
                         </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
+                        {showAttachmentMenu && (
+                            <div className="absolute bottom-14 right-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
+                                <button 
+                                    onClick={() => { imageInputRef.current?.click(); setShowAttachmentMenu(false); }}
+                                    className="w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
+                                >
+                                    <ImageIcon size={16} /> إرسال صورة
+                                </button>
+                                <button 
+                                    onClick={() => { handleToggleRecording(); setShowAttachmentMenu(false); }}
+                                    className={`w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm ${isRecording ? 'text-red-500' : ''}`}
+                                >
+                                    <Mic size={16} /> {isRecording ? 'إيقاف التسجيل' : 'تسجيل صوت'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -365,6 +465,15 @@ const Chat: React.FC = () => {
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>

@@ -70,17 +70,53 @@ const callGemini = async (
     });
 };
 
-// 1. Chat (Streaming)
-export const generateChatResponseStream = async (history: Message[], newMessage: string) => {
+// 1. Chat (Streaming) - Now supports multimodal input
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => {
     return withApiKeyRotation(async (ai) => {
-        const chatParams = {
-            model: 'gemini-flash-latest',
+        // Use the more capable model for vision tasks
+        const modelName = newMessage.imageFile ? 'gemini-2.5-pro' : 'gemini-flash-latest';
+
+        // Reconstruct history with multimodal parts if they exist
+        const historyForApi = history.map(msg => {
+            const parts: any[] = [];
+            // Add text part only if there is text
+            if (msg.parts[0]?.text) {
+                parts.push({ text: msg.parts[0].text });
+            }
+            
+            if (msg.imageUrl && msg.role === 'user') {
+                const [header, base64Data] = msg.imageUrl.split(',');
+                if (base64Data) {
+                    const mimeTypeMatch = header.match(/:(.*?);/);
+                    if (mimeTypeMatch && mimeTypeMatch[1]) {
+                        parts.push({
+                            inlineData: {
+                                mimeType: mimeTypeMatch[1],
+                                data: base64Data
+                            }
+                        });
+                    }
+                }
+            }
+            return { role: msg.role, parts };
+        }).filter(msg => msg.parts.length > 0); // Ensure no empty parts are sent
+
+        const chat = ai.chats.create({
+            model: modelName,
             config: { systemInstruction: CHAT_PERSONA_INSTRUCTION },
-            // Cast is necessary because the SDK expects a specific 'Content' type
-            history: history.map(msg => ({ role: msg.role, parts: msg.parts })) as Content[],
-        };
-        const chat = ai.chats.create(chatParams);
-        const resultStream = await chat.sendMessageStream({ message: newMessage });
+            history: historyForApi as Content[],
+        });
+        
+        const messageParts: any[] = [];
+        if (newMessage.text) {
+            messageParts.push({ text: newMessage.text });
+        }
+        if (newMessage.imageFile) {
+            const imagePart = await fileToGenerativePart(newMessage.imageFile);
+            messageParts.push(imagePart);
+        }
+
+        const resultStream = await chat.sendMessageStream({ message: messageParts });
         return resultStream;
     });
 };

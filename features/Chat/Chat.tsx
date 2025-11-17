@@ -139,9 +139,19 @@ const Chat: React.FC = () => {
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
-        updateMessageInConversation(activeConversationId, failedMessage.id, { error: false });
-        streamModelResponse(activeConversationId, failedMessage);
-    }, [activeConversationId, updateMessageInConversation, streamModelResponse]);
+        
+        const messages = activeConversation?.messages || [];
+        const failedMessageIndex = messages.findIndex(m => m.id === failedMessage.id);
+        const userMessage = messages[failedMessageIndex - 1];
+
+        if (userMessage && userMessage.role === 'user') {
+            updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
+            streamModelResponse(activeConversationId, userMessage);
+        } else {
+            console.error("Could not find user message to retry from.");
+        }
+    }, [activeConversationId, activeConversation?.messages, updateMessageInConversation, streamModelResponse]);
+
 
     const handleSuggestionClick = useCallback(async (prompt: string) => {
         const newConvo = createNewConversation();
@@ -164,53 +174,58 @@ const Chat: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col h-full max-w-4xl mx-auto bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
+        <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
             <div className="flex-1 overflow-y-auto p-2 sm:p-6 space-y-6">
                 {activeConversation.messages.map((msg) => (
-                    <div key={msg.id} className={`flex items-end gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        
-                        {msg.role === 'model' && (
-                             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-primary" />
-                            </div>
+                    <div key={msg.id} className={`flex items-end gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+                        {/* User messages (right-aligned in RTL) */}
+                        {msg.role === 'user' && (
+                            <>
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                    <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                                </div>
+                                <div className="flex flex-col max-w-lg items-start">
+                                    <div className="p-3 rounded-2xl bg-primary text-primary-foreground rounded-br-none">
+                                        <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
+                                    </div>
+                                </div>
+                            </>
                         )}
                         
-                        <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                            <div className={`p-3 rounded-2xl ${
-                                msg.role === 'user' 
-                                ? 'bg-primary text-primary-foreground rounded-br-none' 
-                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
-                            }`}>
-                                <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
-                            </div>
-                            {msg.error && (
-                                <div className="mt-1.5 flex items-center gap-2">
-                                    <span className="text-xs text-red-500">{ msg.role === 'user' ? "فشل الإرسال" : "فشل الرد" }</span>
-                                    <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
-                                        <RefreshCw size={14} />
-                                    </button>
+                        {/* Model messages (left-aligned in RTL) */}
+                        {msg.role === 'model' && (
+                            <>
+                                <div className={`flex flex-col max-w-lg items-start`}>
+                                    <div className={`p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`}>
+                                        <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text || ' '}</p>
+                                    </div>
+                                    {msg.error && (
+                                        <div className="mt-1.5 flex items-center gap-2">
+                                            <span className="text-xs text-red-500">فشل الرد</span>
+                                            <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
+                                                <RefreshCw size={14} />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-
-                        {msg.role === 'user' && (
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-                            </div>
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <Bot className="w-5 h-5 text-primary" />
+                                </div>
+                            </>
                         )}
                     </div>
                 ))}
                  {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
-                     <div className="flex items-end gap-3 animate-bubbleIn justify-start">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                            <Bot className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700">
+                     <div className="flex items-end gap-3 animate-bubbleIn justify-end">
+                        <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-bl-none">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
                                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
                             </div>
+                        </div>
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Bot className="w-5 h-5 text-primary" />
                         </div>
                      </div>
                  )}
@@ -218,6 +233,15 @@ const Chat: React.FC = () => {
             </div>
             <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl">
                 <div className="flex items-end gap-2 sm:gap-3">
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -232,15 +256,6 @@ const Chat: React.FC = () => {
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />
-                     {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
                 </div>
             </div>
         </div>

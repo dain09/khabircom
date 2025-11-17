@@ -1,18 +1,19 @@
+
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
 import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
+import { useTool } from '../hooks/useTool';
 
 interface SidebarProps {
-    activeToolId: string;
-    setActiveToolId: (id: string) => void;
     isSidebarOpen: boolean;
     setSidebarOpen: (isOpen: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId, isSidebarOpen, setSidebarOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen }) => {
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
+    const { activeToolId, setActiveToolId } = useTool();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
 

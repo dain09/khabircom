@@ -1,12 +1,15 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
-import { Message } from '../../types';
+import { Message, Tool } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import { useGemini } from '../../hooks/useGemini';
+import { useTool } from '../../hooks/useTool';
+import { TOOLS } from '../../constants';
 
 const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const staticSuggestions = [
@@ -68,6 +71,7 @@ const Chat: React.FC = () => {
         activeConversationId,
         conversations
     } = useChat();
+    const { setActiveToolId } = useTool();
     
     const [input, setInput] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -330,6 +334,34 @@ const Chat: React.FC = () => {
         
         recognitionRef.current.start();
     };
+    
+    const renderMessageWithToolLinks = (text: string) => {
+        const toolRegex = /\[TOOL:(.*?)\]/g;
+        const parts = text.split(toolRegex);
+
+        return parts.map((part, index) => {
+            // Even indices are regular text, odd indices are tool IDs
+            if (index % 2 === 1) {
+                const toolId = part.trim();
+                const tool = TOOLS.find(t => t.id === toolId);
+                if (tool) {
+                    const Icon = tool.icon;
+                    return (
+                        <button
+                            key={`${tool.id}-${index}`}
+                            onClick={() => setActiveToolId(tool.id)}
+                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm"
+                        >
+                            <Icon size={18} className={tool.color} />
+                            <span>{tool.title}</span>
+                        </button>
+                    );
+                }
+                return `[TOOL:${part}]`; // Fallback if tool ID is not found
+            }
+            return <span key={index}>{part}</span>;
+        });
+    };
 
     if (!activeConversation) {
         return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
@@ -343,65 +375,56 @@ const Chat: React.FC = () => {
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
-                            <div key={msg.id} className={`flex items-start gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                                {msg.role === 'user' && (
-                                    <>
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                            <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                            <div key={msg.id} className={`flex items-start gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-end flex-row-reverse' : 'justify-start'}`}>
+                                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary/20'}`}>
+                                    {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary" />}
+                                </div>
+                                
+                                <div className={`flex flex-col max-w-lg items-start gap-1`}>
+                                    {msg.role === 'user' && msg.imageUrl && (
+                                        <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                            <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
                                         </div>
-                                        <div className="flex flex-col max-w-lg items-start gap-2">
-                                            {msg.imageUrl && (
-                                                <img src={msg.imageUrl} alt="User upload" className="rounded-lg max-w-xs max-h-64 object-contain" />
-                                            )}
-                                            {msg.parts[0].text && (
-                                                <div className="p-3 rounded-2xl bg-primary text-primary-foreground rounded-br-none">
-                                                    <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
-                                                </div>
-                                            )}
+                                    )}
+                                    <div className={`p-3 rounded-2xl ${
+                                        msg.role === 'user' 
+                                        ? 'bg-primary text-primary-foreground rounded-bl-none' 
+                                        : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                    }`}>
+                                        <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+                                            {msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text || ' ') : msg.parts[0].text}
                                         </div>
-                                    </>
-                                )}
-                                {msg.role === 'model' && (
-                                    <>
-                                        <div className={`flex flex-col max-w-lg items-start`}>
-                                            <div className={`p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`}>
-                                                <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text || ' '}</p>
-                                            </div>
-                                            {msg.error && (
-                                                <div className="mt-1.5 flex items-center gap-2">
-                                                    <span className="text-xs text-red-500">فشل الرد</span>
-                                                    <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
-                                                        <RefreshCw size={14} />
-                                                    </button>
-                                                </div>
-                                            )}
-                                            {!msg.error && msg.id === stoppedMessageId && !isResponding && (
-                                                <div className="mt-1.5 flex items-center gap-2">
-                                                    <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
-                                                    <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
-                                                        <Play size={14} />
-                                                    </button>
-                                                </div>
-                                            )}
+                                    </div>
+                                    {msg.error && (
+                                        <div className="mt-1.5 flex items-center gap-2">
+                                            <span className="text-xs text-red-500">فشل الرد</span>
+                                            <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
+                                                <RefreshCw size={14} />
+                                            </button>
                                         </div>
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <Bot className="w-5 h-5 text-primary" />
+                                    )}
+                                    {!msg.error && msg.id === stoppedMessageId && !isResponding && (
+                                        <div className="mt-1.5 flex items-center gap-2">
+                                            <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
+                                            <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
+                                                <Play size={14} />
+                                            </button>
                                         </div>
-                                    </>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         ))}
                         {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role !== 'model' && (
-                            <div className="flex items-end gap-3 animate-bubbleIn justify-end">
-                                <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-bl-none">
+                             <div className="flex items-end gap-3 animate-bubbleIn justify-start">
+                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <Bot className="w-5 h-5 text-primary" />
+                                </div>
+                                <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-br-none">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
                                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
                                     </div>
-                                </div>
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <Bot className="w-5 h-5 text-primary" />
                                 </div>
                             </div>
                         )}

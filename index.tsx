@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ChatProvider } from './contexts/ChatContext';
+import { ToolProvider } from './contexts/ToolContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -15,7 +16,9 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <ChatProvider>
-        <App />
+        <ToolProvider>
+          <App />
+        </ToolProvider>
       </ChatProvider>
     </ThemeProvider>
   </React.StrictMode>

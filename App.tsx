@@ -1,6 +1,5 @@
 
-
-import React, { useState, useMemo, Suspense, useEffect } from 'react';
+import React, { useMemo, Suspense, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { TOOLS } from './constants';
@@ -8,6 +7,7 @@ import { Tool } from './types';
 import { useTheme } from './hooks/useTheme';
 import { Loader } from './components/ui/Loader';
 import { initializeApiKeys } from './services/apiKeyManager';
+import { useTool } from './hooks/useTool';
 
 // Dynamic import for all feature components
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
@@ -35,8 +35,8 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
 };
 
 const App: React.FC = () => {
-    const [activeToolId, setActiveToolId] = useState<string>('chat');
-    const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
+    const { activeToolId, setActiveToolId } = useTool();
+    const [isSidebarOpen, setSidebarOpen] = React.useState<boolean>(true);
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
@@ -50,8 +50,6 @@ const App: React.FC = () => {
     return (
         <div className={`flex h-full bg-transparent text-foreground dark:text-dark-foreground font-sans`}>
             <Sidebar 
-                activeToolId={activeToolId} 
-                setActiveToolId={setActiveToolId}
                 isSidebarOpen={isSidebarOpen}
                 setSidebarOpen={setSidebarOpen}
             />

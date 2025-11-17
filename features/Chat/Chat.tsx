@@ -1,11 +1,12 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, Loader2, RefreshCw } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
 const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const suggestions = [
@@ -49,16 +50,18 @@ const Chat: React.FC = () => {
     } = useChat();
     
     const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isResponding, setIsResponding] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+    const stopStreamingRef = useRef(false);
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [activeConversation?.messages, isLoading]);
+    }, [activeConversation?.messages, isResponding]);
 
     const streamModelResponse = useCallback(async (convoId: string, userMessage: Message) => {
-        setIsLoading(true);
+        setIsResponding(true);
+        stopStreamingRef.current = false;
         const modelMessageId = uuidv4();
 
         addMessageToConversation(convoId, {
@@ -78,6 +81,10 @@ const Chat: React.FC = () => {
             const stream = await generateChatResponseStream(historyForApi, userMessage.parts[0].text);
 
             for await (const chunk of stream) {
+                if (stopStreamingRef.current) {
+                    console.log("Streaming stopped by user.");
+                    break;
+                }
                 const chunkText = chunk.text;
                 if (chunkText) {
                     fullText += chunkText;
@@ -89,18 +96,22 @@ const Chat: React.FC = () => {
 
         } catch (error) {
             console.error("Streaming Error:", error);
+            const errorText = fullText 
+                ? `${fullText}\n\n[عذراً، حصل خطأ أثناء إكمال الرد]` 
+                : "[عذراً، حصل خطأ في التواصل مع الخبير]";
             updateMessageInConversation(convoId, modelMessageId, {
-                parts: [{ text: fullText ? `${fullText}\n\n[عذراً، حصل خطأ أثناء توليد الرد]` : "[عذراً، حصل خطأ]" }],
+                parts: [{ text: errorText }],
                 error: true,
             });
         } finally {
-            setIsLoading(false);
+            setIsResponding(false);
+            stopStreamingRef.current = false;
             inputRef.current?.focus();
         }
     }, [conversations, addMessageToConversation, updateMessageInConversation]);
 
     const handleSend = useCallback(async () => {
-        if (!input.trim() || isLoading) return;
+        if (!input.trim() || isResponding) return;
 
         let currentConvoId = activeConversationId;
         if (!currentConvoId) {
@@ -120,7 +131,12 @@ const Chat: React.FC = () => {
         
         await streamModelResponse(currentConvoId, userMessage);
 
-    }, [input, isLoading, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse]);
+    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse]);
+
+    const handleStop = () => {
+        stopStreamingRef.current = true;
+        setIsResponding(false);
+    };
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
@@ -168,9 +184,9 @@ const Chat: React.FC = () => {
                             }`}>
                                 <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
                             </div>
-                            {msg.error && msg.role === 'user' && (
+                            {msg.error && (
                                 <div className="mt-1.5 flex items-center gap-2">
-                                    <span className="text-xs text-red-500">فشل الإرسال</span>
+                                    <span className="text-xs text-red-500">{ msg.role === 'user' ? "فشل الإرسال" : "فشل الرد" }</span>
                                     <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
                                         <RefreshCw size={14} />
                                     </button>
@@ -185,23 +201,47 @@ const Chat: React.FC = () => {
                         )}
                     </div>
                 ))}
+                 {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
+                     <div className="flex items-end gap-3 animate-bubbleIn justify-start">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Bot className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                            </div>
+                        </div>
+                     </div>
+                 )}
                 <div ref={messagesEndRef} />
             </div>
             <div className="p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg rounded-b-xl">
-                <div className="flex items-center gap-2">
-                    <input
+                <div className="flex items-start gap-2">
+                    <AutoGrowTextarea
                         ref={inputRef}
-                        type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="اسأل أي حاجة..."
-                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                        placeholder="اسأل أي حاجة... (Shift+Enter لسطر جديد)"
+                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40"
                         aria-label="اكتب رسالتك هنا"
                     />
-                    <Button onClick={handleSend} disabled={!input.trim() || isLoading} className="p-3" aria-label="إرسال الرسالة">
-                        {isLoading ? <Loader2 className="animate-spin" size={20}/> : <Send size={20} />}
-                    </Button>
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white" aria-label="إيقاف التوليد">
+                            <StopCircle size={20} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3" aria-label="إرسال الرسالة">
+                            <Send size={20} />
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>

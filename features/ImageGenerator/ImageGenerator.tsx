@@ -9,6 +9,7 @@ import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { Download } from 'lucide-react';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
 const ImageGenerator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'image-generator')!;
@@ -29,11 +30,12 @@ const ImageGenerator: React.FC = () => {
             introText="اكتب أي وصف يجي في خيالك، والخبير هيحولهولك لصورة فنية. كل ما كان وصفك أدق، كل ما كانت الصورة أحسن."
         >
             <div className="space-y-4">
-                <textarea
+                <AutoGrowTextarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="مثال: قطة لابسة نظارة شمس وقاعدة على الشط..."
-                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 min-h-[100px] resize-none"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-64"
+                    rows={4}
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!prompt.trim()}>
                     ولّد الصورة

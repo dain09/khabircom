@@ -8,6 +8,7 @@ import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
 interface DreamResult {
     logical: string;
@@ -34,11 +35,12 @@ const DreamInterpreter: React.FC = () => {
             introText="احكي حلمك بالتفصيل، والخبير هيفسرهولك 3 تفسيرات: واحد منطقي، وواحد ساخر، ومعاهم نصيحة غريبة."
         >
             <div className="space-y-4">
-                <textarea
+                <AutoGrowTextarea
                     value={dream}
                     onChange={(e) => setDream(e.target.value)}
                     placeholder="احكيلي حلمك بالتفصيل..."
-                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 min-h-[120px] resize-none"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!dream.trim()}>
                     فسّر الحلم

@@ -8,6 +8,7 @@ import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
 interface SummaryResult {
     short_summary: string;
@@ -45,11 +46,12 @@ const PdfSummarizer: React.FC = () => {
                     <input type="file" accept=".pdf" onChange={handleFileChange} className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"/>
                 </div>
                 <p className="text-center text-gray-500 font-semibold">أو</p>
-                <textarea
+                <AutoGrowTextarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder="الصق النص الطويل هنا..."
-                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 min-h-[200px] resize-none"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-96"
+                    rows={8}
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
                     لخّص

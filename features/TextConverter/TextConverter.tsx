@@ -8,6 +8,7 @@ import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
 const STYLES = [
     { id: 'formal', text: 'فصحى رسمية' },
@@ -46,11 +47,12 @@ const TextConverter: React.FC = () => {
             introText="اكتب أي نص واختار الأسلوب اللي عايزه، شوف الخبير هيحول كلامك العادي لكلام فخم أو كوميدي إزاي."
         >
             <div className="space-y-4">
-                <textarea
+                <AutoGrowTextarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder="اكتب النص الأصلي هنا..."
-                    className={`${baseInputClasses} min-h-[120px] resize-none`}
+                    className={`${baseInputClasses} resize-none max-h-72`}
+                    rows={5}
                 />
                 <select
                     value={selectedStyle}

@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
+import { Tool } from '../types';
 
 interface SidebarProps {
     activeToolId: string;
@@ -15,6 +16,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
+
+    const toolsByCategory = useMemo(() => {
+        const categories: Record<string, Tool[]> = {};
+        TOOLS.filter(tool => tool.id !== 'chat').forEach(tool => {
+            if (!categories[tool.category]) {
+                categories[tool.category] = [];
+            }
+            categories[tool.category].push(tool);
+        });
+        return categories;
+    }, []);
+
 
     const handleRename = (id: string, currentTitle: string) => {
         setEditingId(id);
@@ -129,20 +142,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
 
                     <div>
                         <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
-                        <ul>
-                            {TOOLS.filter(tool => tool.id !== 'chat').map((tool) => ( // More robust filtering
-                                <li key={tool.id}>
-                                    <button
-                                        onClick={() => handleToolClick(tool.id)}
-                                        className={`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:-translate-x-1 ${
-                                            activeToolId === tool.id && !activeConversationId
-                                                ? 'bg-primary/10 text-primary font-bold'
-                                                : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
-                                        }`}
-                                    >
-                                        <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
-                                        <span>{tool.title}</span>
-                                    </button>
+                        <ul className='space-y-1'>
+                            {Object.entries(toolsByCategory).map(([category, tools]) => (
+                                <li key={category}>
+                                    <details className="group" open>
+                                        <summary className="flex items-center justify-between p-3 rounded-md cursor-pointer list-none hover:bg-slate-200/50 dark:hover:bg-dark-card/50">
+                                            <span className="font-semibold text-sm">{category}</span>
+                                            <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
+                                        </summary>
+                                        <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
+                                            {tools.map((tool) => (
+                                                <li key={tool.id}>
+                                                    <button
+                                                        onClick={() => handleToolClick(tool.id)}
+                                                        className={`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:translate-x-1 ${
+                                                            activeToolId === tool.id && !activeConversationId
+                                                                ? 'bg-primary/10 text-primary font-bold'
+                                                                : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
+                                                        }`}
+                                                    >
+                                                        <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
+                                                        <span className='text-sm'>{tool.title}</span>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </details>
                                 </li>
                             ))}
                         </ul>

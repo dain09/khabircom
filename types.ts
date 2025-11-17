@@ -6,6 +6,7 @@ export interface Tool {
     description: string;
     icon: LucideIcon;
     color: string;
+    category: string;
 }
 
 export interface Message {

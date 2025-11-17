@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
                 }`}
                 onClick={() => setSidebarOpen(false)}
             ></div>
-            <aside className={`fixed top-0 right-0 h-full bg-slate-100/60 dark:bg-slate-900/60 backdrop-blur-xl border-s border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
+            <aside className={`fixed top-0 right-0 h-full bg-slate-100/60 dark:bg-slate-900/60 backdrop-blur-xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
                 <div className="flex justify-between items-center p-4 border-b border-slate-200/50 dark:border-slate-700/50 flex-shrink-0">
                     <h1 className="text-xl font-bold text-primary">خبيركم</h1>
                     <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white" aria-label="إغلاق الشريط الجانبي">
@@ -148,6 +148,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
                         </ul>
                     </div>
                 </nav>
+
+                <div className="flex-shrink-0 p-4 mt-auto text-center border-t border-slate-200/50 dark:border-slate-700/50">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        تم التطوير بواسطة <br />
+                        <span className="font-bold text-primary">عبدالله إبراهيم @D_ai_n</span>
+                    </p>
+                </div>
             </aside>
         </>
     );

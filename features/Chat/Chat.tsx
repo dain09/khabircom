@@ -138,11 +138,22 @@ const Chat: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 {activeConversation.messages.map((msg) => (
                     <div key={msg.id} className={`flex items-end gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                        {msg.role === 'model' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"><Bot className="w-5 h-5 text-primary" /></div>}
                         
-                        <div className="flex flex-col items-end">
-                            <div className={`max-w-lg p-3 rounded-2xl ${msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-bl-none' : 'bg-slate-200 dark:bg-slate-700 rounded-br-none'}`}>
-                                <p className="text-sm whitespace-pre-wrap text-foreground dark:text-dark-foreground">{msg.parts[0].text}</p>
+                        {/* User Icon (DOM: 1st for user) */}
+                        {msg.role === 'user' && (
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                            </div>
+                        )}
+                        
+                        {/* Bubble Container */}
+                        <div className="flex flex-col">
+                            <div className={`max-w-lg p-3 rounded-2xl ${
+                                msg.role === 'user' 
+                                ? 'bg-primary text-primary-foreground rounded-br-none' 
+                                : 'bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none'
+                            }`}>
+                                <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
                             </div>
                             {msg.error && msg.role === 'user' && (
                                 <div className="mt-1.5 flex items-center gap-2">
@@ -154,13 +165,18 @@ const Chat: React.FC = () => {
                             )}
                         </div>
 
-                        {msg.role === 'user' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center"><User className="w-5 h-5 text-slate-600 dark:text-slate-300" /></div>}
+                        {/* Model Icon (DOM: 2nd for model) */}
+                        {msg.role === 'model' && (
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-primary" />
+                            </div>
+                        )}
                     </div>
                 ))}
                  {isLoading && (
                     <div className="flex items-end gap-3 justify-end animate-bubbleIn">
                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"><Bot className="w-5 h-5 text-primary" /></div>
-                         <div className="max-w-md p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-br-none">
+                         <div className="max-w-md p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-bl-none">
                             <div className="flex items-center space-x-2" dir="ltr">
                                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse delay-75"></span>
                                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse delay-150"></span>

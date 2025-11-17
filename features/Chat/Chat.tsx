@@ -168,7 +168,7 @@ const Chat: React.FC = () => {
         <div className="flex flex-col h-full max-w-4xl mx-auto bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 {activeConversation.messages.map((msg) => (
-                    <div key={msg.id} className={`flex items-end gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div key={msg.id} className={`flex items-end gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
                         
                         {msg.role === 'model' && (
                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -176,11 +176,11 @@ const Chat: React.FC = () => {
                             </div>
                         )}
                         
-                        <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div className={`flex flex-col ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                             <div className={`max-w-lg p-3 rounded-2xl ${
                                 msg.role === 'user' 
-                                ? 'bg-primary text-primary-foreground rounded-br-none' 
-                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                ? 'bg-primary text-primary-foreground rounded-bl-none' 
+                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none ${msg.error ? 'border border-red-500/50' : ''}`
                             }`}>
                                 <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
                             </div>
@@ -202,7 +202,7 @@ const Chat: React.FC = () => {
                     </div>
                 ))}
                  {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
-                     <div className="flex items-end gap-3 animate-bubbleIn justify-start">
+                     <div className="flex items-end gap-3 animate-bubbleIn justify-end">
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                             <Bot className="w-5 h-5 text-primary" />
                         </div>
@@ -219,15 +219,6 @@ const Chat: React.FC = () => {
             </div>
             <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl">
                 <div className="flex items-end gap-2 sm:gap-3">
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -242,6 +233,15 @@ const Chat: React.FC = () => {
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={!input.trim()} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>

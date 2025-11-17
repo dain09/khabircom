@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -5,6 +6,37 @@ import { generateChatResponse } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
+
+const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
+    const suggestions = [
+        "اكتبلي نكتة عن المبرمجين",
+        "لخصلي مفهوم الثقب الأسود",
+        "اقترح فكرة مشروع جديدة"
+    ];
+    return (
+        <div className="flex flex-col h-full items-center justify-center text-center p-4">
+            <div className="w-20 h-20 mb-4 bg-primary/20 rounded-full flex items-center justify-center animate-bubbleIn">
+                <Bot size={48} className="text-primary" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2 animate-slideInUp" style={{ animationDelay: '100ms' }}>خبيركم تحت أمرك</h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp" style={{ animationDelay: '200ms' }}>
+                اسأل أي سؤال، اطلب أي طلب، أو اختار اقتراح من دول عشان نبدأ الكلام.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp" style={{ animationDelay: '300ms' }}>
+                {suggestions.map((s, i) => (
+                    <button 
+                        key={s} 
+                        onClick={() => onSuggestionClick(s)}
+                        className="p-2 px-4 bg-slate-200/60 dark:bg-dark-card/60 backdrop-blur-sm border border-white/20 dark:border-slate-700/30 rounded-full text-sm font-medium hover:bg-slate-300/60 dark:hover:bg-dark-card/80 transition-all hover:scale-105"
+                        style={{ animationDelay: `${400 + i * 100}ms` }}
+                    >
+                        {s}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const Chat: React.FC = () => {
     const { 
@@ -29,9 +61,8 @@ const Chat: React.FC = () => {
         setIsLoading(true);
         try {
             const currentConvo = conversations.find(c => c.id === convoId);
-            // Fix: Pass the full Message object to the service function. The service handles mapping to the required API format.
             const historyForApi = currentConvo?.messages
-                .filter(m => m.id !== userMessage.id && !m.error) // Exclude failed messages from history
+                .filter(m => m.id !== userMessage.id && !m.error)
                 || [];
             
             const responseText = await generateChatResponse(historyForApi, userMessage.parts[0].text);
@@ -82,15 +113,24 @@ const Chat: React.FC = () => {
         fetchModelResponse(activeConversationId, failedMessage);
     }, [activeConversationId, updateMessageInConversation, fetchModelResponse]);
 
+    const handleSuggestionClick = useCallback(async (prompt: string) => {
+        const newConvo = createNewConversation();
+        const convoId = newConvo.id;
+        
+        const userMessage: Message = { 
+            id: uuidv4(),
+            role: 'user', 
+            parts: [{ text: prompt }],
+            timestamp: new Date().toISOString()
+        };
+        
+        addMessageToConversation(convoId, userMessage);
+        await fetchModelResponse(convoId, userMessage);
+    }, [createNewConversation, addMessageToConversation, fetchModelResponse]);
+
 
     if (!activeConversation) {
-        return (
-            <div className="flex flex-col h-full items-center justify-center text-center">
-                <Bot size={48} className="text-slate-400 mb-4" />
-                <h2 className="text-2xl font-bold">ابدأ محادثة جديدة</h2>
-                <p className="text-slate-500">اختار محادثة من الجنب أو ابدأ واحدة جديدة بالضغط على الزر في الشريط الجانبي.</p>
-            </div>
-        );
+        return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
     }
 
     return (

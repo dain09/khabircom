@@ -2,7 +2,7 @@
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap
+    Lightbulb, Target, Zap, Paintbrush
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -11,6 +11,7 @@ export const TOOLS: Tool[] = [
     { id: 'text-roast', title: 'تحفيل على الكلام', description: 'ابعت أي جملة وأنا هروّق عليها', icon: Flame, color: 'text-green-500' },
     { id: 'image-roast', title: 'تحفيل على الصور', description: 'وريني أي صورة وأنا هقولك رأيي بصراحة', icon: ImageIcon, color: 'text-orange-500' },
     { id: 'meme-generator', title: 'صانع الميمز', description: 'حوّل صورك لميمز تفرط من الضحك', icon: Smile, color: 'text-red-500' },
+    { id: 'image-generator', title: 'رسام الخبير', description: 'حوّل خيالك لصور فنية بالذكاء الاصطناعي', icon: Paintbrush, color: 'text-teal-500' },
     { id: 'dialect-converter', title: 'مترجم اللهجات', description: 'ترجم أي كلام لأي لهجة بمزاج', icon: Languages, color: 'text-purple-500' },
     { id: 'news-summarizer', title: 'ملخص الأخبار الفوري', description: 'لخّص أي خبر في ثواني، بجد أو بهزار', icon: Newspaper, color: 'text-yellow-500' },
     { id: 'moods-generator', title: 'مولد المود', description: 'قولي مودك وأنا هظبطك', icon: Sparkles, color: 'text-gray-500' },

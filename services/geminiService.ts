@@ -106,8 +106,28 @@ export const generateMemeSuggestions = async (imageFile: File) => {
     return JSON.parse(result).suggestions;
 };
 
+// 5. Image Generator
+export const generateImage = async (prompt: string): Promise<string> => {
+    return withApiKeyRotation(async (ai) => {
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+              numberOfImages: 1,
+              outputMimeType: 'image/png',
+              aspectRatio: '1:1',
+            },
+        });
 
-// 5. Dialect Converter
+        const base64ImageBytes: string | undefined = response.generatedImages[0]?.image?.imageBytes;
+        if (!base64ImageBytes) {
+            throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف.");
+        }
+        return `data:image/png;base64,${base64ImageBytes}`;
+    });
+};
+
+// 6. Dialect Converter
 export const convertDialect = async (text: string, dialect: string) => {
     const prompt = `حول النص ده: "${text}" للهجة "${dialect}" وخليها طبيعية ومظبوطة. اديني النص المتحول بس من غير أي كلام زيادة.`;
     const result = await callGemini('gemini-flash-latest', prompt);
@@ -115,7 +135,7 @@ export const convertDialect = async (text: string, dialect: string) => {
 };
 
 
-// 6. News Summarizer
+// 7. News Summarizer
 export const summarizeNews = async (newsText: string) => {
     const prompt = `لخص الخبر ده:\n"${newsText}"\n\nالرد يكون بصيغة JSON بالSchema دي:\n{\n  "serious_summary": "string",\n  "comic_summary": "string",\n  "advice": "string"\n}\n\n- **serious_summary**: ملخص جد في 3 سطور.\n- **comic_summary**: ملخص كوميدي وتحفيل على الخبر في 3 سطور.\n- **advice**: نصيحة مفيدة من قلب الخبر.`;
     const result = await callGemini('gemini-2.5-pro', prompt, true);
@@ -123,7 +143,7 @@ export const summarizeNews = async (newsText: string) => {
 };
 
 
-// 7. Moods Generator
+// 8. Moods Generator
 export const generateMoodContent = async (mood: string) => {
     const prompts: { [key: string]: string } = {
         laugh: 'قولي نكتة مصرية جديدة ومضحكة.',

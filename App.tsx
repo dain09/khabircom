@@ -14,6 +14,7 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'text-roast': React.lazy(() => import('./features/TextRoast/TextRoast')),
     'image-roast': React.lazy(() => import('./features/ImageRoast/ImageRoast')),
     'meme-generator': React.lazy(() => import('./features/MemeGenerator/MemeGenerator')),
+    'image-generator': React.lazy(() => import('./features/ImageGenerator/ImageGenerator')),
     'dialect-converter': React.lazy(() => import('./features/DialectConverter/DialectConverter')),
     'news-summarizer': React.lazy(() => import('./features/NewsSummarizer/NewsSummarizer')),
     'moods-generator': React.lazy(() => import('./features/MoodsGenerator/MoodsGenerator')),

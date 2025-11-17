@@ -29,28 +29,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
         setNewName('');
     };
     
-    const handleToolClick = (toolId: string) => {
-        setActiveToolId(toolId);
-        setActiveConversationId(null); // Deselect any active chat
+    const closeSidebarOnMobile = () => {
         if (window.innerWidth < 768) {
             setSidebarOpen(false);
         }
+    };
+
+    const handleToolClick = (toolId: string) => {
+        setActiveToolId(toolId);
+        setActiveConversationId(null); // Deselect any active chat
+        closeSidebarOnMobile();
     };
     
     const handleConversationClick = (id: string) => {
         setActiveToolId('chat');
         setActiveConversationId(id);
-         if (window.innerWidth < 768) {
-            setSidebarOpen(false);
-        }
+        closeSidebarOnMobile();
     }
     
     const handleNewChat = () => {
         createNewConversation();
         setActiveToolId('chat');
-        if (window.innerWidth < 768) {
-            setSidebarOpen(false);
-        }
+        closeSidebarOnMobile();
     }
 
     return (

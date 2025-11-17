@@ -9,42 +9,41 @@ const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي 
 const getGeminiClient = () => {
     const apiKey = getCurrentApiKey();
     if (!apiKey) {
-        throw new Error("لا يوجد مفتاح API. برجاء التأكد من إعداد متغير البيئة VITE_API_KEYS.");
+        throw new Error("لم يتم العثور على مفتاح API. تأكد من إعداده بشكل صحيح.");
     }
     return new GoogleGenAI({ apiKey });
 };
 
-// This is a smart wrapper that handles API calls and key rotation on rate limit errors.
+// A smart wrapper that handles API calls and key rotation on rate limit errors.
 const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
     const totalKeys = getApiKeys().length;
     if (totalKeys === 0) {
-        throw new Error("لا يوجد مفاتيح API. برجاء التأكد من إعداد متغير البيئة VITE_API_KEYS.");
+        throw new Error("لم يتم تكوين أي مفاتيح API. لا يمكن للتطبيق العمل بدونها.");
     }
 
+    // We will try each key at most once.
     for (let i = 0; i < totalKeys; i++) {
         try {
-            const ai = getGeminiClient();
-            return await apiCall(ai);
+            const ai = getGeminiClient(); // Gets the current key based on localStorage index
+            return await apiCall(ai); // Attempt the API call
         } catch (error: any) {
-            // Check for rate limit error (often a 429 status code)
             const isRateLimitError = error.message?.includes('429') || error.status === 'RESOURCE_EXHAUSTED';
             
-            if (isRateLimitError && i < totalKeys - 1) {
+            if (isRateLimitError) {
                 console.warn(`API key rate limited. Rotating to the next key...`);
-                rotateToNextKey(); // Move to the next key
-                continue; // Retry the loop with the new key
+                rotateToNextKey(); // Rotate to the next key for the next attempt in the loop
+                // The loop will continue to the next iteration.
             } else {
-                // If it's another error or the last key also failed, throw the error
-                console.error("Gemini API Error:", error);
-                const finalMessage = isRateLimitError 
-                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء المحاولة لاحقًا."
-                    : "الظاهر إن فيه مشكلة في التواصل مع الخبير دلوقتي. حاول كمان شوية.";
-                throw new Error(finalMessage);
+                // For any other error (e.g., invalid key, permission denied), we fail fast.
+                // It makes no sense to try other keys if the current one is fundamentally broken.
+                console.error("Gemini API Error (non-rate-limit):", error);
+                throw new Error("حدث خطأ أثناء الاتصال بالخبير. قد يكون أحد مفاتيح API غير صالح أو أن هناك مشكلة بالشبكة.");
             }
         }
     }
-    // This should not be reached, but as a fallback:
-    throw new Error("فشلت جميع محاولات الاتصال باستخدام مفاتيح API المتاحة.");
+
+    // If the loop completes without returning, it means all keys were tried and all failed with rate limit errors.
+    throw new Error("كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء المحاولة لاحقًا.");
 };
 
 
@@ -80,6 +79,23 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
         const resultStream = await chat.sendMessageStream({ message: newMessage });
         return resultStream;
     });
+};
+
+// New function for dynamic welcome suggestions
+export const generateWelcomeSuggestions = async (): Promise<{ suggestions: string[] }> => {
+    const prompt = `اقترح 3 مواضيع شيقة ومبتكرة لبدء محادثة مع مساعد ذكاء اصطناعي مصري فكاهي. خلي الاقتراحات قصيرة ومباشرة. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string"] \n}`;
+    const result = await withApiKeyRotation(async (ai) => {
+        const response: GenerateContentResponse = await ai.models.generateContent({
+          model: 'gemini-flash-latest',
+          contents: prompt,
+          config: { 
+            responseMimeType: 'application/json',
+            // No system instruction for this specific call to get more creative/general suggestions
+          }
+        });
+        return response.text;
+    });
+    return JSON.parse(result);
 };
 
 

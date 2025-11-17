@@ -173,18 +173,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
                     </div>
                 </nav>
 
-                <div className="flex-shrink-0 p-4 mt-auto text-center border-t border-slate-200/50 dark:border-slate-700/50">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        © {new Date().getFullYear()} تم التطوير بواسطة <br />
-                        <a 
-                            href="https://github.com/dain09" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="font-bold text-primary hover:underline transition-colors"
-                        >
-                            عبدالله إبراهيم
-                        </a>
-                    </p>
+                <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
+                    <div className="text-center">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            © {new Date().getFullYear()} تم التطوير بواسطة <br />
+                            <a 
+                                href="https://github.com/dain09" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="font-bold text-primary hover:underline transition-colors"
+                            >
+                                عبدالله إبراهيم
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </aside>
         </>

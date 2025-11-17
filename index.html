@@ -31,16 +31,16 @@
             },
             colors: {
               primary: {
-                DEFAULT: 'hsl(221, 83%, 53%)', // indigo-500
+                DEFAULT: 'hsl(184, 91%, 47%)', // Vibrant Cyan
                 foreground: 'hsl(0, 0%, 100%)',
-                dark: 'hsl(221, 83%, 43%)', // indigo-600
+                dark: 'hsl(184, 91%, 37%)',
               },
-              background: 'hsl(220, 13%, 96%)', // slate-100
-              foreground: 'hsl(222, 47%, 11%)', // slate-900
+              background: 'hsl(220, 13%, 98%)',
+              foreground: 'hsl(222, 47%, 11%)',
               dark: {
-                background: 'hsl(222, 47%, 11%)', // slate-900
-                foreground: 'hsl(215, 20%, 65%)', // slate-400
-                card: 'hsl(222, 47%, 16%)' // slate-800
+                background: 'hsl(222, 47%, 11%)',
+                foreground: 'hsl(215, 20%, 85%)',
+                card: 'hsl(222, 47%, 14%)'
               }
             },
             keyframes: {
@@ -69,17 +69,22 @@
     </script>
      <style>
       body {
-        /* A more subtle, professional light theme background */
-        background: linear-gradient(-45deg, hsl(210, 40%, 98%), hsl(220, 16%, 96%), hsl(210, 20%, 94%));
+        background: linear-gradient(-45deg, hsl(210, 60%, 97%), hsl(220, 60%, 96%), hsl(200, 60%, 94%));
         background-size: 400% 400%;
         animation: gradientAnimation 20s ease infinite;
       }
       .dark body {
-        /* A deeper, more professional dark theme background */
-        background: linear-gradient(-45deg, hsl(222, 47%, 11%), hsl(222, 39%, 16%), hsl(223, 31%, 21%), hsl(222, 47%, 11%));
+        background: linear-gradient(-45deg, hsl(222, 47%, 11%), hsl(220, 39%, 14%), hsl(230, 31%, 18%), hsl(222, 47%, 11%));
         background-size: 400% 400%;
         animation: gradientAnimation 20s ease infinite;
       }
+      .glow-effect {
+        transition: box-shadow 0.3s ease-in-out;
+      }
+      .glow-effect:hover, .glow-effect:focus-visible {
+        box-shadow: 0 0 15px 0px hsl(184, 91%, 47%, 0.5), 0 0 25px 0px hsl(184, 91%, 47%, 0.3);
+      }
+
       /* Custom Scrollbar for Webkit browsers */
       ::-webkit-scrollbar {
         width: 8px;

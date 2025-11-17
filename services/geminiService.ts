@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
 import { Message, AnalysisResult } from "../types";
 import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
@@ -108,24 +108,29 @@ export const generateMemeSuggestions = async (imageFile: File) => {
     return JSON.parse(result).suggestions;
 };
 
-// 5. Image Generator
+// 5. Image Generator (FIXED)
 export const generateImage = async (prompt: string): Promise<string> => {
     return withApiKeyRotation(async (ai) => {
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    { text: prompt },
+                ],
+            },
             config: {
-              numberOfImages: 1,
-              outputMimeType: 'image/png',
-              aspectRatio: '1:1',
+                responseModalities: [Modality.IMAGE],
             },
         });
-
-        const base64ImageBytes: string | undefined = response.generatedImages[0]?.image?.imageBytes;
-        if (!base64ImageBytes) {
-            throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف.");
+        
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            const base64ImageBytes: string = part.inlineData.data;
+            return `data:image/png;base64,${base64ImageBytes}`;
+          }
         }
-        return `data:image/png;base64,${base64ImageBytes}`;
+
+        throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
     });
 };
 

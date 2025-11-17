@@ -68,6 +68,10 @@
       }
     </script>
      <style>
+      html, body, #root {
+        height: 100%;
+        overflow: hidden; /* Prevent body scrolling to fix mobile viewport issues */
+      }
       body {
         background: linear-gradient(-45deg, hsl(200, 50%, 97%), hsl(210, 50%, 96%), hsl(190, 50%, 94%));
         background-size: 400% 400%;

@@ -47,7 +47,7 @@ const App: React.FC = () => {
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
 
     return (
-        <div className={`flex h-screen bg-transparent text-foreground dark:text-dark-foreground font-sans`}>
+        <div className={`flex h-full bg-transparent text-foreground dark:text-dark-foreground font-sans`}>
             <Sidebar 
                 activeToolId={activeToolId} 
                 setActiveToolId={setActiveToolId}

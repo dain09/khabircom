@@ -1,0 +1,99 @@
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "uuid": "https://aistudiocdn.com/uuid@^13.0.0"
+  }
+}
+</script>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>خبيركم - مساعدك المصري الفهلوي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Tajawal', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                DEFAULT: 'hsl(221, 83%, 53%)', // indigo-500
+                foreground: 'hsl(0, 0%, 100%)',
+                dark: 'hsl(221, 83%, 43%)', // indigo-600
+              },
+              background: 'hsl(220, 13%, 96%)', // slate-100
+              foreground: 'hsl(222, 47%, 11%)', // slate-900
+              dark: {
+                background: 'hsl(222, 47%, 11%)', // slate-900
+                foreground: 'hsl(215, 20%, 65%)', // slate-400
+                card: 'hsl(222, 47%, 16%)' // slate-800
+              }
+            },
+            keyframes: {
+              slideInUp: {
+                'from': { opacity: '0', transform: 'translateY(20px)' },
+                'to': { opacity: '1', transform: 'translateY(0)' },
+              },
+              gradientAnimation: {
+                '0%': { backgroundPosition: '0% 50%' },
+                '50%': { backgroundPosition: '100% 50%' },
+                '100%': { backgroundPosition: '0% 50%' },
+              },
+              bubbleIn: {
+                'from': { opacity: '0', transform: 'scale(0.9) translateY(10px)' },
+                'to': { opacity: '1', transform: 'scale(1) translateY(0)' },
+              }
+            },
+            animation: {
+              slideInUp: 'slideInUp 0.5s ease-out forwards',
+              gradient: 'gradientAnimation 15s ease infinite',
+              bubbleIn: 'bubbleIn 0.3s ease-out forwards',
+            }
+          },
+        },
+      }
+    </script>
+     <style>
+      body {
+        /* A more subtle, professional light theme background */
+        background: linear-gradient(-45deg, hsl(210, 40%, 98%), hsl(220, 16%, 96%), hsl(210, 20%, 94%));
+        background-size: 400% 400%;
+        animation: gradientAnimation 20s ease infinite;
+      }
+      .dark body {
+        /* A deeper, more professional dark theme background */
+        background: linear-gradient(-45deg, hsl(222, 47%, 11%), hsl(222, 39%, 16%), hsl(223, 31%, 21%), hsl(222, 47%, 11%));
+        background-size: 400% 400%;
+        animation: gradientAnimation 20s ease infinite;
+      }
+      /* Custom Scrollbar for Webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: hsl(220, 13%, 85%);
+        border-radius: 20px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: hsl(220, 13%, 75%);
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: hsl(222, 47%, 

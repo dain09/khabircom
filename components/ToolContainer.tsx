@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { LucideIcon, Info, X } from 'lucide-react';
 
@@ -14,7 +15,7 @@ export const ToolContainer: React.FC<ToolContainerProps> = ({ title, description
     const [isIntroVisible, setIntroVisible] = useState(true);
     
     return (
-        <div className="max-w-4xl mx-auto h-full flex flex-col transition-all duration-300">
+        <div className="max-w-4xl mx-auto h-full flex flex-col transition-all duration-300 p-4 sm:p-6 lg:p-8">
             <div className="flex items-center gap-4 mb-6 flex-shrink-0">
                 <div className={`p-3 bg-primary/10 rounded-full`}>
                     <Icon size={28} className={iconColor} />

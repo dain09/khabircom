@@ -60,8 +60,8 @@ const App: React.FC = () => {
                     theme={theme}
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent p-4 sm:p-6 lg:p-8">
-                    <div key={activeToolId} className="animate-slideInUp">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
+                    <div key={activeToolId} className="animate-slideInUp h-full">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

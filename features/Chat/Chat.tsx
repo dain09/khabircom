@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { generateChatResponse } from '../../services/geminiService';
+import { generateChatResponseStream } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,29 +55,44 @@ const Chat: React.FC = () => {
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [activeConversation?.messages]);
+    }, [activeConversation?.messages, isLoading]);
 
-    const fetchModelResponse = useCallback(async (convoId: string, userMessage: Message) => {
+    const streamModelResponse = useCallback(async (convoId: string, userMessage: Message) => {
         setIsLoading(true);
+        const modelMessageId = uuidv4();
+
+        addMessageToConversation(convoId, {
+            id: modelMessageId,
+            role: 'model',
+            parts: [{ text: '' }],
+            timestamp: new Date().toISOString()
+        });
+
+        let fullText = '';
         try {
             const currentConvo = conversations.find(c => c.id === convoId);
             const historyForApi = currentConvo?.messages
-                .filter(m => m.id !== userMessage.id && !m.error)
+                .filter(m => m.id !== userMessage.id && m.id !== modelMessageId && !m.error)
                 || [];
-            
-            const responseText = await generateChatResponse(historyForApi, userMessage.parts[0].text);
-            
-            const modelMessage: Message = {
-                id: uuidv4(),
-                role: 'model',
-                parts: [{ text: responseText }],
-                timestamp: new Date().toISOString()
-            };
-            addMessageToConversation(convoId, modelMessage);
+
+            const stream = await generateChatResponseStream(historyForApi, userMessage.parts[0].text);
+
+            for await (const chunk of stream) {
+                const chunkText = chunk.text;
+                if (chunkText) {
+                    fullText += chunkText;
+                    updateMessageInConversation(convoId, modelMessageId, {
+                        parts: [{ text: fullText }],
+                    });
+                }
+            }
 
         } catch (error) {
-            console.error(error);
-            updateMessageInConversation(convoId, userMessage.id, { error: true });
+            console.error("Streaming Error:", error);
+            updateMessageInConversation(convoId, modelMessageId, {
+                parts: [{ text: fullText ? `${fullText}\n\n[عذراً، حصل خطأ أثناء توليد الرد]` : "[عذراً، حصل خطأ]" }],
+                error: true,
+            });
         } finally {
             setIsLoading(false);
             inputRef.current?.focus();
@@ -103,15 +118,15 @@ const Chat: React.FC = () => {
         addMessageToConversation(currentConvoId, userMessage);
         setInput('');
         
-        await fetchModelResponse(currentConvoId, userMessage);
+        await streamModelResponse(currentConvoId, userMessage);
 
-    }, [input, isLoading, activeConversationId, createNewConversation, addMessageToConversation, fetchModelResponse]);
+    }, [input, isLoading, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
         updateMessageInConversation(activeConversationId, failedMessage.id, { error: false });
-        fetchModelResponse(activeConversationId, failedMessage);
-    }, [activeConversationId, updateMessageInConversation, fetchModelResponse]);
+        streamModelResponse(activeConversationId, failedMessage);
+    }, [activeConversationId, updateMessageInConversation, streamModelResponse]);
 
     const handleSuggestionClick = useCallback(async (prompt: string) => {
         const newConvo = createNewConversation();
@@ -125,8 +140,8 @@ const Chat: React.FC = () => {
         };
         
         addMessageToConversation(convoId, userMessage);
-        await fetchModelResponse(convoId, userMessage);
-    }, [createNewConversation, addMessageToConversation, fetchModelResponse]);
+        await streamModelResponse(convoId, userMessage);
+    }, [createNewConversation, addMessageToConversation, streamModelResponse]);
 
 
     if (!activeConversation) {
@@ -137,21 +152,19 @@ const Chat: React.FC = () => {
         <div className="flex flex-col h-full max-w-4xl mx-auto bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg border border-white/20 dark:border-slate-700/30 rounded-xl shadow-xl transition-all duration-300">
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 {activeConversation.messages.map((msg) => (
-                    <div key={msg.id} className={`flex items-end gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+                    <div key={msg.id} className={`flex items-end gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         
-                        {/* User Icon (DOM: 1st for user) */}
-                        {msg.role === 'user' && (
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                        {msg.role === 'model' && (
+                             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-primary" />
                             </div>
                         )}
                         
-                        {/* Bubble Container */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col items-end">
                             <div className={`max-w-lg p-3 rounded-2xl ${
                                 msg.role === 'user' 
-                                ? 'bg-primary text-primary-foreground rounded-br-none' 
-                                : 'bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none'
+                                ? 'bg-primary text-primary-foreground rounded-bl-none' 
+                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none ${msg.error ? 'border border-red-500/50' : ''}`
                             }`}>
                                 <p className="text-sm whitespace-pre-wrap">{msg.parts[0].text}</p>
                             </div>
@@ -165,26 +178,13 @@ const Chat: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Model Icon (DOM: 2nd for model) */}
-                        {msg.role === 'model' && (
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-primary" />
+                        {msg.role === 'user' && (
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                             </div>
                         )}
                     </div>
                 ))}
-                 {isLoading && (
-                    <div className="flex items-end gap-3 justify-end animate-bubbleIn">
-                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"><Bot className="w-5 h-5 text-primary" /></div>
-                         <div className="max-w-md p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-bl-none">
-                            <div className="flex items-center space-x-2" dir="ltr">
-                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse delay-75"></span>
-                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse delay-150"></span>
-                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse delay-300"></span>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 <div ref={messagesEndRef} />
             </div>
             <div className="p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg rounded-b-xl">

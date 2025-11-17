@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
 import { Message, AnalysisResult } from "../types";
 import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
@@ -68,19 +68,21 @@ const callGemini = async (
     });
 };
 
-// 1. Chat
-export const generateChatResponse = async (history: Message[], newMessage: string) => {
+// 1. Chat (Streaming)
+export const generateChatResponseStream = async (history: Message[], newMessage: string) => {
     return withApiKeyRotation(async (ai) => {
         const chatParams = {
             model: 'gemini-flash-latest',
             config: { systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION },
-            history: history.map(msg => ({ role: msg.role, parts: msg.parts })),
+            // Cast is necessary because the SDK expects a specific 'Content' type
+            history: history.map(msg => ({ role: msg.role, parts: msg.parts })) as Content[],
         };
         const chat = ai.chats.create(chatParams);
-        const result = await chat.sendMessage({ message: newMessage });
-        return result.text;
+        const resultStream = await chat.sendMessageStream({ message: newMessage });
+        return resultStream;
     });
 };
+
 
 // 2. Text Roast
 export const roastText = async (text: string) => {

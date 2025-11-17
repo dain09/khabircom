@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
@@ -50,10 +50,12 @@ const Chat: React.FC = () => {
     
     const [input, setInput] = useState('');
     const [isResponding, setIsResponding] = useState(false);
+    const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const stopStreamingRef = useRef(false);
+    const streamingMessageIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
@@ -70,6 +72,7 @@ const Chat: React.FC = () => {
         setIsResponding(true);
         stopStreamingRef.current = false;
         const modelMessageId = uuidv4();
+        streamingMessageIdRef.current = modelMessageId;
 
         addMessageToConversation(convoId, {
             id: modelMessageId,
@@ -90,6 +93,7 @@ const Chat: React.FC = () => {
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
                     console.log("Streaming stopped by user.");
+                    setStoppedMessageId(modelMessageId);
                     break;
                 }
                 const chunkText = chunk.text;
@@ -113,6 +117,7 @@ const Chat: React.FC = () => {
         } finally {
             setIsResponding(false);
             stopStreamingRef.current = false;
+            streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
     }, [conversations, addMessageToConversation, updateMessageInConversation]);
@@ -120,6 +125,7 @@ const Chat: React.FC = () => {
     const handleSend = useCallback(async () => {
         if (!input.trim() || isResponding) return;
 
+        setStoppedMessageId(null);
         let currentConvoId = activeConversationId;
         if (!currentConvoId) {
             const newConvo = createNewConversation();
@@ -142,8 +148,65 @@ const Chat: React.FC = () => {
 
     const handleStop = () => {
         stopStreamingRef.current = true;
+        if (streamingMessageIdRef.current) {
+            setStoppedMessageId(streamingMessageIdRef.current);
+        }
         setIsResponding(false);
     };
+
+    const handleContinue = useCallback(async () => {
+        if (!activeConversationId || !stoppedMessageId) return;
+
+        const convoId = activeConversationId;
+        const messageToContinueId = stoppedMessageId;
+        const conversation = conversations.find(c => c.id === convoId);
+        if (!conversation) return;
+
+        const messageToContinue = conversation.messages.find(m => m.id === messageToContinueId);
+        if (!messageToContinue) return;
+        
+        const existingText = messageToContinue.parts[0].text;
+
+        setIsResponding(true);
+        setStoppedMessageId(null);
+        stopStreamingRef.current = false;
+        streamingMessageIdRef.current = messageToContinueId;
+        
+        let fullText = existingText;
+
+        try {
+            const historyForApi = conversation.messages;
+            const stream = await generateChatResponseStream(historyForApi, "أكمل من حيث توقفت.");
+
+            for await (const chunk of stream) {
+                if (stopStreamingRef.current) {
+                    setStoppedMessageId(messageToContinueId); 
+                    console.log("Streaming stopped by user during continuation.");
+                    break;
+                }
+                const chunkText = chunk.text;
+                if (chunkText) {
+                    fullText += chunkText;
+                    updateMessageInConversation(convoId, messageToContinueId, {
+                        parts: [{ text: fullText }],
+                    });
+                }
+            }
+        } catch (error) {
+             console.error("Streaming Continuation Error:", error);
+            const errorText = `${fullText}\n\n[عذراً، حصل خطأ أثناء إكمال الرد]`;
+            updateMessageInConversation(convoId, messageToContinueId, {
+                parts: [{ text: errorText }],
+                error: true,
+            });
+        } finally {
+            setIsResponding(false);
+            stopStreamingRef.current = false;
+            streamingMessageIdRef.current = null;
+            inputRef.current?.focus();
+        }
+
+    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
@@ -212,6 +275,14 @@ const Chat: React.FC = () => {
                                             <span className="text-xs text-red-500">فشل الرد</span>
                                             <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
                                                 <RefreshCw size={14} />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {!msg.error && msg.id === stoppedMessageId && !isResponding && (
+                                        <div className="mt-1.5 flex items-center gap-2">
+                                            <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
+                                            <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
+                                                <Play size={14} />
                                             </button>
                                         </div>
                                     )}

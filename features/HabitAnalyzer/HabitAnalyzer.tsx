@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { analyzeHabits } from '../../services/geminiService';
@@ -51,9 +50,9 @@ const HabitAnalyzer: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="تحليل الشخصية 🧐">{result.analysis}</ResultCard>
-                    <ResultCard title="نصايح عملية 👍">{result.practical_advice}</ResultCard>
-                    <ResultCard title="نصايح كوميدية 😂">{result.comic_advice}</ResultCard>
+                    <ResultCard title="تحليل الشخصية 🧐">{result?.analysis}</ResultCard>
+                    <ResultCard title="نصايح عملية 👍">{result?.practical_advice}</ResultCard>
+                    <ResultCard title="نصايح كوميدية 😂">{result?.comic_advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

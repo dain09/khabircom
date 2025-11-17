@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
 import { Message, AnalysisResult } from "../types";
@@ -28,7 +27,7 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
             return await apiCall(ai);
         } catch (error: any) {
             // Check for rate limit error (often a 429 status code)
-            const isRateLimitError = error.message?.includes('429');
+            const isRateLimitError = error.message?.includes('429') || error.status === 'RESOURCE_EXHAUSTED';
             
             if (isRateLimitError && i < totalKeys - 1) {
                 console.warn(`API key rate limited. Rotating to the next key...`);
@@ -38,7 +37,7 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
                 // If it's another error or the last key also failed, throw the error
                 console.error("Gemini API Error:", error);
                 const finalMessage = isRateLimitError 
-                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء مراجعة متغير البيئة VITE_API_KEYS."
+                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء المحاولة لاحقًا."
                     : "الظاهر إن فيه مشكلة في التواصل مع الخبير دلوقتي. حاول كمان شوية.";
                 throw new Error(finalMessage);
             }

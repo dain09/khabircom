@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateStory } from '../../services/geminiService';
@@ -59,9 +58,9 @@ const StoryMaker: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="قصة كوميدية 😂">{result.funny_story}</ResultCard>
-                    <ResultCard title="قصة دراما 😢">{result.drama_story}</ResultCard>
-                    <ResultCard title="قصة أطفال 🧸">{result.kids_story}</ResultCard>
+                    <ResultCard title="قصة كوميدية 😂">{result?.funny_story}</ResultCard>
+                    <ResultCard title="قصة دراما 😢">{result?.drama_story}</ResultCard>
+                    <ResultCard title="قصة أطفال 🧸">{result?.kids_story}</ResultCard>
                 </div>
             )}
         </ToolContainer>

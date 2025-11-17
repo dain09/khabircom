@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { summarizeLongText } from '../../services/geminiService';
@@ -61,11 +60,11 @@ const PdfSummarizer: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="ملخص سريع">{result.short_summary}</ResultCard>
-                    <ResultCard title="ملخص كوميدي">{result.funny_summary}</ResultCard>
+                    <ResultCard title="ملخص سريع">{result?.short_summary}</ResultCard>
+                    <ResultCard title="ملخص كوميدي">{result?.funny_summary}</ResultCard>
                     <ResultCard title="أهم النقط (الزبدة)">
                         <ul className="list-disc pe-5 space-y-2">
-                            {result.key_points.map((point, index) => <li key={index}>{point}</li>)}
+                            {result?.key_points?.map((point, index) => <li key={index}>{point}</li>)}
                         </ul>
                     </ResultCard>
                 </div>

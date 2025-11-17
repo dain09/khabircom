@@ -31,16 +31,16 @@
             },
             colors: {
               primary: {
-                DEFAULT: 'hsl(256, 88%, 65%)', // Vibrant Purple
+                DEFAULT: 'hsl(180, 80%, 45%)', // Vibrant Teal/Cyan
                 foreground: 'hsl(0, 0%, 100%)',
-                dark: 'hsl(256, 88%, 55%)',
+                dark: 'hsl(180, 80%, 35%)',
               },
-              background: 'hsl(220, 13%, 98%)',
+              background: 'hsl(210, 20%, 98%)',
               foreground: 'hsl(222, 47%, 11%)',
               dark: {
-                background: 'hsl(222, 47%, 11%)',
+                background: 'hsl(222, 40%, 12%)',
                 foreground: 'hsl(215, 20%, 85%)',
-                card: 'hsl(222, 47%, 14%)'
+                card: 'hsl(222, 40%, 15%)'
               }
             },
             keyframes: {
@@ -69,7 +69,7 @@
     </script>
      <style>
       body {
-        background: linear-gradient(-45deg, hsl(210, 60%, 97%), hsl(220, 60%, 96%), hsl(200, 60%, 94%));
+        background: linear-gradient(-45deg, hsl(200, 50%, 97%), hsl(210, 50%, 96%), hsl(190, 50%, 94%));
         background-size: 400% 400%;
         animation: gradientAnimation 20s ease infinite;
       }
@@ -82,7 +82,7 @@
         transition: box-shadow 0.3s ease-in-out;
       }
       .glow-effect:hover, .glow-effect:focus-visible {
-        box-shadow: 0 0 15px 0px hsl(256, 88%, 65%, 0.5), 0 0 25px 0px hsl(256, 88%, 65%, 0.3);
+        box-shadow: 0 0 15px 0px hsl(180, 80%, 45%, 0.5), 0 0 25px 0px hsl(180, 80%, 45%, 0.3);
       }
 
       /* Custom Scrollbar for Webkit browsers */
@@ -93,17 +93,17 @@
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background-color: hsl(220, 13%, 85%);
+        background-color: hsl(210, 13%, 85%);
         border-radius: 20px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background-color: hsl(220, 13%, 75%);
+        background-color: hsl(210, 13%, 75%);
       }
       .dark ::-webkit-scrollbar-thumb {
-        background-color: hsl(222, 47%, 25%);
+        background-color: hsl(222, 40%, 25%);
       }
       .dark ::-webkit-scrollbar-thumb:hover {
-        background-color: hsl(222, 47%, 35%);
+        background-color: hsl(222, 40%, 35%);
       }
     </style>
   </head>

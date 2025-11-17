@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { roastImage } from '../../services/geminiService';
@@ -44,9 +43,9 @@ const ImageRoast: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="التحفيل على الصورة 📸🔥">{result.roast}</ResultCard>
-                    <ResultCard title="تحليل واقعي 🧐">{result.analysis}</ResultCard>
-                    <ResultCard title="نصيحة للتطوير ✨">{result.advice}</ResultCard>
+                    <ResultCard title="التحفيل على الصورة 📸🔥">{result?.roast}</ResultCard>
+                    <ResultCard title="تحليل واقعي 🧐">{result?.analysis}</ResultCard>
+                    <ResultCard title="نصيحة للتطوير ✨">{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

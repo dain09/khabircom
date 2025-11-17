@@ -1,25 +1,61 @@
-// Fix: Remove StartChatParams as it's not an exported member of @google/genai.
+
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
-// Fix: Import AnalysisResult type.
 import { Message, AnalysisResult } from "../types";
+import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
 
-const apiKey = process.env.API_KEY;
-if (!apiKey) {
-    throw new Error("API_KEY environment variable not set.");
-}
+const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. كن مبدعًا ومضحكًا في ردودك.";
 
-const ai = new GoogleGenAI({ apiKey });
+// This function gets the current valid API key and creates a Gemini client
+const getGeminiClient = () => {
+    const apiKey = getCurrentApiKey();
+    if (!apiKey) {
+        throw new Error("لا يوجد مفتاح API. برجاء إضافة مفتاح من الإعدادات.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
 
-const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل، وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. كن مبدعًا ومضحكًا في ردودك.";
+// This is a smart wrapper that handles API calls and key rotation on rate limit errors.
+const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
+    const totalKeys = getApiKeys().length;
+    if (totalKeys === 0) {
+        throw new Error("لا يوجد مفاتيح API. برجاء إضافة مفتاح من الإعدادات.");
+    }
 
-// Generic function to handle API calls
+    for (let i = 0; i < totalKeys; i++) {
+        try {
+            const ai = getGeminiClient();
+            return await apiCall(ai);
+        } catch (error: any) {
+            // Check for rate limit error (often a 429 status code)
+            const isRateLimitError = error.message?.includes('429');
+            
+            if (isRateLimitError && i < totalKeys - 1) {
+                console.warn(`API key rate limited. Rotating to the next key...`);
+                rotateToNextKey(); // Move to the next key
+                continue; // Retry the loop with the new key
+            } else {
+                // If it's another error or the last key also failed, throw the error
+                console.error("Gemini API Error:", error);
+                const finalMessage = isRateLimitError 
+                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. حاول مرة أخرى لاحقًا أو أضف مفتاحًا جديدًا."
+                    : "الظاهر إن فيه مشكلة في التواصل مع الخبير دلوقتي. حاول كمان شوية.";
+                throw new Error(finalMessage);
+            }
+        }
+    }
+    // This should not be reached, but as a fallback:
+    throw new Error("فشلت جميع محاولات الاتصال باستخدام مفاتيح API المتاحة.");
+};
+
+
+// Generic function to handle API calls using the rotation wrapper
 const callGemini = async (
     modelName: 'gemini-2.5-pro' | 'gemini-flash-latest',
     prompt: string | any[],
     isJson = false
 ): Promise<string> => {
-    try {
+    return withApiKeyRotation(async (ai) => {
         const response: GenerateContentResponse = await ai.models.generateContent({
           model: modelName,
           contents: Array.isArray(prompt) ? { parts: prompt } : prompt,
@@ -29,28 +65,21 @@ const callGemini = async (
           }
         });
         return response.text;
-    } catch (error) {
-        console.error("Gemini API Error:", error);
-        throw new Error("الظاهر إن فيه مشكلة في التواصل مع الخبير دلوقتي. حاول كمان شوية.");
-    }
+    });
 };
 
 // 1. Chat
 export const generateChatResponse = async (history: Message[], newMessage: string) => {
-    // Fix: Remove StartChatParams type annotation. The type is not exported from the library anymore.
-    const chatParams = {
-        model: 'gemini-flash-latest',
-        config: {
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION
-        },
-        history: history.map(msg => ({
-            role: msg.role,
-            parts: msg.parts
-        })),
-    };
-    const chat = ai.chats.create(chatParams);
-    const result = await chat.sendMessage({ message: newMessage });
-    return result.text;
+    return withApiKeyRotation(async (ai) => {
+        const chatParams = {
+            model: 'gemini-flash-latest',
+            config: { systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION },
+            history: history.map(msg => ({ role: msg.role, parts: msg.parts })),
+        };
+        const chat = ai.chats.create(chatParams);
+        const result = await chat.sendMessage({ message: newMessage });
+        return result.text;
+    });
 };
 
 // 2. Text Roast
@@ -197,7 +226,6 @@ export const getGrumpyMotivation = async () => {
     return await callGemini('gemini-flash-latest', prompt);
 };
 
-// Fix: Add explicit return type to the mock function to satisfy type checking.
 // Placeholder for audio analysis
 export const analyzeVoice = async (audioFile: File): Promise<AnalysisResult> => {
     console.log("Analyzing audio file (mock):", audioFile.name);

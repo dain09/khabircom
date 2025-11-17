@@ -1,11 +1,13 @@
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo, Suspense, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { TOOLS } from './constants';
 import { Tool } from './types';
 import { useTheme } from './hooks/useTheme';
 import { Loader } from './components/ui/Loader';
+import { ApiKeyManager } from './components/ApiKeyManager';
+import { initializeApiKeys, getApiKeys } from './services/apiKeyManager';
 
 // Dynamic import for all feature components
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
@@ -34,7 +36,17 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
 const App: React.FC = () => {
     const [activeToolId, setActiveToolId] = useState<string>('chat');
     const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
+    const [isApiManagerOpen, setApiManagerOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
+
+    useEffect(() => {
+        // Load keys from environment variable on first load
+        initializeApiKeys();
+        // If no keys are found after initialization, open the manager
+        if (getApiKeys().length === 0) {
+            setApiManagerOpen(true);
+        }
+    }, []);
 
     const activeTool = useMemo((): Tool | undefined => TOOLS.find(tool => tool.id === activeToolId), [activeToolId]);
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
@@ -46,6 +58,7 @@ const App: React.FC = () => {
                 setActiveToolId={setActiveToolId}
                 isSidebarOpen={isSidebarOpen}
                 setSidebarOpen={setSidebarOpen}
+                openApiKeyManager={() => setApiManagerOpen(true)}
             />
             <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'md:mr-80' : 'mr-0'}`}>
                 <Navbar 
@@ -62,6 +75,7 @@ const App: React.FC = () => {
                     </div>
                 </main>
             </div>
+             <ApiKeyManager isOpen={isApiManagerOpen} onClose={() => setApiManagerOpen(false)} />
         </div>
     );
 };

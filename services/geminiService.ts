@@ -10,7 +10,7 @@ const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي 
 const getGeminiClient = () => {
     const apiKey = getCurrentApiKey();
     if (!apiKey) {
-        throw new Error("لا يوجد مفتاح API. برجاء إضافة مفتاح من الإعدادات.");
+        throw new Error("لا يوجد مفتاح API. برجاء التأكد من إعداد متغير البيئة VITE_API_KEYS.");
     }
     return new GoogleGenAI({ apiKey });
 };
@@ -19,7 +19,7 @@ const getGeminiClient = () => {
 const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
     const totalKeys = getApiKeys().length;
     if (totalKeys === 0) {
-        throw new Error("لا يوجد مفاتيح API. برجاء إضافة مفتاح من الإعدادات.");
+        throw new Error("لا يوجد مفاتيح API. برجاء التأكد من إعداد متغير البيئة VITE_API_KEYS.");
     }
 
     for (let i = 0; i < totalKeys; i++) {
@@ -38,7 +38,7 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
                 // If it's another error or the last key also failed, throw the error
                 console.error("Gemini API Error:", error);
                 const finalMessage = isRateLimitError 
-                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. حاول مرة أخرى لاحقًا أو أضف مفتاحًا جديدًا."
+                    ? "كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء مراجعة متغير البيئة VITE_API_KEYS."
                     : "الظاهر إن فيه مشكلة في التواصل مع الخبير دلوقتي. حاول كمان شوية.";
                 throw new Error(finalMessage);
             }

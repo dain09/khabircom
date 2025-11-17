@@ -34,28 +34,6 @@ export const getApiKeys = (): string[] => {
     }
 };
 
-export const saveApiKeys = (keys: string[]) => {
-    localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keys));
-    // Reset index if keys change
-    if (getCurrentKeyIndex() >= keys.length) {
-        localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
-    }
-};
-
-export const addApiKey = (key: string) => {
-    if (!key.trim()) return;
-    const keys = getApiKeys();
-    if (!keys.includes(key)) {
-        saveApiKeys([...keys, key]);
-    }
-};
-
-export const removeApiKey = (keyToRemove: string) => {
-    const keys = getApiKeys().filter(k => k !== keyToRemove);
-    saveApiKeys(keys);
-};
-
-
 const getCurrentKeyIndex = (): number => {
     return parseInt(localStorage.getItem(CURRENT_KEY_INDEX_KEY) || '0', 10);
 };

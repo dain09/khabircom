@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, Settings } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 
 interface SidebarProps {
@@ -9,10 +9,9 @@ interface SidebarProps {
     setActiveToolId: (id: string) => void;
     isSidebarOpen: boolean;
     setSidebarOpen: (isOpen: boolean) => void;
-    openApiKeyManager: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId, isSidebarOpen, setSidebarOpen, openApiKeyManager }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId, isSidebarOpen, setSidebarOpen }) => {
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
@@ -149,15 +148,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeToolId, setActiveToolId,
                         </ul>
                     </div>
                 </nav>
-                 <div className="p-2 border-t border-slate-200/50 dark:border-slate-700/50">
-                    <button
-                        onClick={openApiKeyManager}
-                        className="w-full flex items-center p-3 rounded-md text-start text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-dark-card/50 transition-colors"
-                    >
-                        <Settings className="w-5 h-5 me-3" />
-                        <span>إدارة مفاتيح API</span>
-                    </button>
-                </div>
             </aside>
         </>
     );

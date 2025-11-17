@@ -50,9 +50,17 @@ const Chat: React.FC = () => {
     
     const [input, setInput] = useState('');
     const [isResponding, setIsResponding] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const stopStreamingRef = useRef(false);
+
+    useEffect(() => {
+        const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -252,7 +260,7 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder="اسأل أي حاجة... (Shift+Enter لسطر جديد)"
+                        placeholder={isMobile ? "اسأل أي حاجة..." : "اسأل أي حاجة... (Shift+Enter لسطر جديد)"}
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />

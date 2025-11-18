@@ -119,16 +119,19 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
 const BRIEFING_CACHE_KEY = 'khabirkom-briefing-cache';
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 Hours
 
-export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise<{ greeting: string; suggestions: string[] }> => {
+export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string, botName: string): Promise<{ greeting: string; suggestions: string[] }> => {
+    // Create a unique cache key per persona (so switching between Fahimkom and Khabirkom doesn't show wrong personality)
+    const personaCacheKey = `${BRIEFING_CACHE_KEY}-${botName}`;
+
     // 1. Check Cache
     try {
-        const cached = localStorage.getItem(BRIEFING_CACHE_KEY);
+        const cached = localStorage.getItem(personaCacheKey);
         if (cached) {
             const { timestamp, data, storedTimeOfDay } = JSON.parse(cached);
             const now = Date.now();
             // Use cache if it's fresh enough AND the time of day hasn't changed significantly (e.g. Morning -> Evening)
             if ((now - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) {
-                console.log("Using cached briefing to save API calls.");
+                console.log(`Using cached briefing for ${botName}.`);
                 return data;
             }
         }
@@ -141,7 +144,13 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         ? persona.interests.join(', ') 
         : (memory['الاهتمامات'] || 'مواضيع عامة');
 
-    const prompt = `أنت 'خبيركم'، مساعد مصري ذكي وفكاهي. جهز للمستخدم تحية صباحية واقتراحات محادثة خفيفة.
+    const personalityInstruction = botName === 'فهيمكم' 
+        ? "شخصيتك هي 'فهيمكم': شاب مصري روش، سريع، دمه خفيف، وبيحب الهزار. التحية لازم تكون روشة ومطرقعة."
+        : "شخصيتك هي 'خبيركم': مساعد ذكي، رزين، وودود. التحية لازم تكون راقية ومرحبة.";
+
+    const prompt = `أنت '${botName}'. ${personalityInstruction}
+    
+جهز للمستخدم تحية ${timeOfDay} واقتراحات محادثة تناسب شخصيتك.
 الوقت الحالي: ${timeOfDay}.
 اهتمامات المستخدم: ${interests}.
 
@@ -152,8 +161,8 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
 }
 
 التعليمات:
-1.  **greeting**: اكتب تحية مناسبة للوقت (مثال: صباح الفل يا...).
-2.  **suggestions**: اقترح 4 مواضيع محادثة شيقة ومختلفة بناءً على اهتمامات المستخدم أو الوقت الحالي.
+1.  **greeting**: اكتب تحية مناسبة للوقت ولشخصيتك المحددة.
+2.  **suggestions**: اقترح 4 مواضيع محادثة شيقة ومختلفة بناءً على اهتمامات المستخدم أو الوقت الحالي، وبأسلوب شخصيتك.
 `;
     try {
         const result = await withApiKeyRotation(async (ai) => {
@@ -171,7 +180,7 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         
         // 3. Save to Cache
         try {
-            localStorage.setItem(BRIEFING_CACHE_KEY, JSON.stringify({
+            localStorage.setItem(personaCacheKey, JSON.stringify({
                 timestamp: Date.now(),
                 data: parsedData,
                 storedTimeOfDay: timeOfDay
@@ -186,7 +195,7 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         // Fallback if API fails
         console.error("Briefing API failed, using fallback", error);
         return {
-            greeting: "أهلاً بك في خبيركم!",
+            greeting: `أهلاً بك في ${botName}!`,
             suggestions: [
                 "احكيلي نكتة",
                 "إيه أخبار الذكاء الاصطناعي؟",

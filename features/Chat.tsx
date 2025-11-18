@@ -14,7 +14,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
-import { usePersona } from '../../hooks/usePersona';
+import { usePersona } from '../../contexts/PersonaContext';
 import { useToast } from '../../hooks/useToast';
 import { Skeleton } from '../../components/ui/Skeleton';
 
@@ -29,14 +29,16 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
     }, []);
 
+    const botName = (persona.humor >= 8 && persona.verbosity <= 3) ? 'فهيمكم' : 'خبيركم';
+
     const { data: briefing, isLoading: isBriefingLoading, error: briefingError, execute: fetchBriefing } = useGemini<BriefingData, void>(
-        () => getMorningBriefing(memory, persona, context)
+        () => getMorningBriefing(memory, persona, context, botName)
     );
     
     useEffect(() => {
         fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [memory, persona]);
+    }, [memory, persona, botName]);
 
     const suggestions = briefing?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",

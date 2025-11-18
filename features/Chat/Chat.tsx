@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus, Image as ImageIcon, Languages, Smile, GraduationCap } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus, Image as ImageIcon, Languages, Smile, GraduationCap, Zap } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -34,21 +34,21 @@ const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
     return (
         <div 
             onClick={() => setActiveToolId(toolId)}
-            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md active:scale-[0.98] transition-all duration-200 w-full"
+            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm"
         >
-            <div className={`flex-shrink-0 p-2.5 rounded-full bg-slate-50 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
-                <Icon size={20} className={`${tool.color}`} />
+            <div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}>
+                <Icon size={22} className={`${tool.color}`} />
             </div>
             <div className="flex-1 min-w-0 text-start">
-                <h4 className="font-bold text-sm text-foreground dark:text-slate-200 group-hover:text-primary truncate transition-colors">
+                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">
                     {tool.title}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
                     اضغط للتجربة الآن
                 </p>
             </div>
-            <div className="flex-shrink-0 p-1.5 bg-slate-50 dark:bg-slate-700 rounded-full group-hover:bg-primary group-hover:text-white transition-all rtl:rotate-180">
-                <ArrowRight size={14} />
+            <div className="flex-shrink-0 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-full group-hover:bg-primary group-hover:text-white transition-all rtl:rotate-180 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0">
+                <ArrowRight size={16} />
             </div>
         </div>
     );
@@ -63,12 +63,12 @@ const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
     return (
         <button 
             onClick={() => setActiveToolId(toolId)}
-            className="flex flex-col items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all hover:shadow-md hover:scale-105 active:scale-95"
+            className="flex flex-col items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 duration-300 active:scale-95 group w-full h-full"
         >
-            <div className={`p-2.5 rounded-full bg-white dark:bg-slate-700 shadow-sm ${tool.color.replace('text-', 'text-').replace('500', '600')}`}>
-                <Icon size={20} />
+            <div className={`p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-700/50 shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                <Icon size={24} className={tool.color} />
             </div>
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-300 truncate w-full text-center">
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 truncate w-full text-center">
                 {tool.title.split(' ')[0]}
             </span>
         </button>
@@ -78,22 +78,24 @@ const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
 const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const { memory } = useMemory();
     const { persona } = usePersona();
-    const { activeToolId } = useTool(); // Just to trigger re-render if needed
+    const { activeToolId } = useTool();
+
+    const isFahimkom = useMemo(() => persona.humor >= 8 && persona.verbosity <= 3, [persona]);
+    const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
 
     const context = useMemo(() => {
         const hour = new Date().getHours();
         return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
     }, []);
 
-    // useGemini will now utilize the caching logic implemented in getMorningBriefing
     const { data: briefing, isLoading: isBriefingLoading, error: briefingError, execute: fetchBriefing } = useGemini<BriefingData, void>(
-        () => getMorningBriefing(memory, persona, context)
+        () => getMorningBriefing(memory, persona, context, botName)
     );
     
     useEffect(() => {
         fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [memory, persona]); // Re-fetch only if memory/persona changes heavily
+    }, [memory, persona, botName]); // Re-fetch if persona changes
 
     const suggestions = briefing?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",
@@ -105,49 +107,73 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
     return (
-        <div className="flex flex-col h-full items-center justify-start pt-8 sm:pt-12 p-4 text-center overflow-y-auto no-scrollbar">
-            <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
-                <Bot size={48} className="text-primary drop-shadow-md sm:w-14 sm:h-14" />
+        <div className="flex flex-col h-full items-center justify-start pt-10 sm:pt-16 p-6 text-center overflow-y-auto no-scrollbar">
+            <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 mb-8 relative group cursor-default">
+                {/* Dynamic Background Glow based on Persona */}
+                <div className={`absolute inset-0 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500 ${isFahimkom ? 'bg-orange-500/30' : 'bg-blue-500/20'}`}></div>
+                
+                {/* Icon Container */}
+                <div className={`relative w-full h-full bg-gradient-to-br rounded-full flex items-center justify-center shadow-2xl border border-white/50 dark:border-slate-700 ${
+                    isFahimkom 
+                    ? 'from-white to-orange-50 dark:from-slate-800 dark:to-slate-900' 
+                    : 'from-white to-slate-100 dark:from-slate-800 dark:to-slate-900'
+                }`}>
+                    {isFahimkom ? (
+                         <Zap size={56} className="text-orange-500 drop-shadow-lg sm:w-16 sm:h-16 fill-orange-500/10" />
+                    ) : (
+                         <Bot size={56} className="text-primary drop-shadow-lg sm:w-16 sm:h-16" />
+                    )}
+                </div>
             </div>
             
             {/* Greeting */}
             {isBriefingLoading 
-                ? <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 rounded-lg" />
-                : <h2 className="text-xl sm:text-3xl font-bold mb-2 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 px-2 leading-normal">
-                    {briefing?.greeting || "خبيركم تحت أمرك"}
+                ? <Skeleton className="h-10 w-64 mb-3 rounded-xl mx-auto" />
+                : <h2 className={`text-2xl sm:text-4xl font-black mb-3 animate-slideInUp bg-clip-text text-transparent leading-relaxed px-2 py-1 ${
+                    isFahimkom 
+                    ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-500 dark:from-orange-400 dark:via-yellow-400 dark:to-orange-300'
+                    : 'bg-gradient-to-r from-slate-800 via-primary to-purple-600 dark:from-white dark:via-primary dark:to-purple-400'
+                }`}>
+                    {briefing?.greeting || `${botName} تحت أمرك`}
                   </h2>
             }
             
-            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-xs sm:max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base delay-100">
-                جاهز لأي مهمة. ابدأ دردشة أو اختار أداة سريعة:
+            <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm sm:max-w-md animate-slideInUp leading-relaxed text-base delay-100 font-medium">
+                {isFahimkom ? "جاهز يا وحش. عايز تخلص إيه النهاردة؟" : "جاهز لأي مهمة. ابدأ دردشة، اسأل سؤال، أو اختار أداة سريعة:"}
             </p>
 
-            {/* Quick Tools Grid - New Feature */}
-            <div className="grid grid-cols-4 gap-3 w-full max-w-lg mb-8 animate-slideInUp delay-200">
+            {/* Quick Tools Grid */}
+            <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full max-w-xl mb-10 animate-slideInUp delay-200">
                 {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
             </div>
 
-            <div className="w-full max-w-2xl border-t border-slate-200/50 dark:border-slate-700/50 mb-6"></div>
+            <div className="w-full max-w-lg flex items-center gap-4 mb-6 opacity-60">
+                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">أو جرب تسألني</span>
+                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
+            </div>
 
             {/* Suggestions */}
-            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 animate-slideInUp delay-300">
-                أو جرب تسألني
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-slideInUp max-w-2xl pb-4 w-full px-2 delay-300">
+            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-3xl pb-8 w-full delay-300">
                  {isBriefingLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-9 w-32 sm:w-40 rounded-full" />
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-36 rounded-full" />
                     ))
                 ) : (
                     suggestions.map((s, i) => (
                         <button 
                             key={s} 
                             onClick={() => onSuggestionClick(s)}
-                            className="group relative px-3 py-2 sm:px-4 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden active:scale-95 flex-grow sm:flex-grow-0"
+                            className={`group relative px-5 py-3 bg-white/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-full text-sm font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden active:scale-95 backdrop-blur-sm ${
+                                isFahimkom ? 'hover:border-orange-400/50' : 'hover:border-primary/50'
+                            }`}
                         >
-                            <span className="relative z-10 group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">{s}</span>
-                            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <span className={`relative z-10 text-slate-700 dark:text-slate-200 transition-colors ${
+                                isFahimkom ? 'group-hover:text-orange-600 dark:group-hover:text-orange-400' : 'group-hover:text-primary'
+                            }`}>{s}</span>
+                            <div className={`absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                                isFahimkom ? 'from-orange-500/5 to-yellow-500/5' : 'from-primary/5 to-purple-500/5'
+                            }`} />
                         </button>
                     ))
                 )}
@@ -160,19 +186,10 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const content = message.parts[0].text;
     const isUser = message.role === 'user';
 
-    // Enhanced Markdown Spacing Fix
-    // This explicitly targets Arabic characters followed immediately by bold/italic markers
     const fixMarkdownSpacing = (text: string) => {
         let res = text;
-        // Ensure space between any word ending (including Arabic letters) and the start of bold (** or __)
-        // \S matches any non-whitespace character. 
         res = res.replace(/([^\s])(\*\*|__)/g, '$1 $2');
-        
-        // Ensure space between end of bold (** or __) and the next word
         res = res.replace(/(\*\*|__)([^\s.,،؛:?!])/g, '$1 $2');
-        
-        // Specific fix for Arabic 'Alif' variants (أ، إ، آ) if stuck to non-arabic latin characters or symbols
-        // (Usually the previous regex covers this, but this is a failsafe)
         return res;
     };
 
@@ -183,7 +200,6 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         const match = /language-(\w+)/.exec(className || '');
         const codeText = String(children).replace(/\n$/, '');
         
-        // Special handling: check if the code block is actually a tool command
         const toolMatch = codeText.match(/^\[TOOL:(.*?)\]$/);
         if (toolMatch) {
             return <ToolSuggestionCard toolId={toolMatch[1]} />;
@@ -196,29 +212,33 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         };
 
         return !inline ? (
-            <div className="relative my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left max-w-full">
-                <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        <Terminal size={14} className="text-slate-400 flex-shrink-0"/>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono truncate">{match?.[1] || 'code'}</span>
+            <div className="relative my-3 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md dir-ltr text-left max-w-full group/code">
+                <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                        <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono ml-2">{match?.[1] || 'code'}</span>
                     </div>
                     <button 
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/50 dark:hover:bg-white/10 transition-colors opacity-0 group-hover/code:opacity-100"
                     >
                         {isCopied ? (
-                            <><Check size={12} className="text-green-500"/> <span className="text-[10px] text-green-500">تم</span></>
+                            <><Check size={14} className="text-green-500"/> <span className="text-[10px] text-green-500 font-bold">منسوخ</span></>
                         ) : (
-                            <><Copy size={12} className="text-slate-400"/> <span className="text-[10px] text-slate-400">نسخ</span></>
+                            <><Copy size={14} className="text-slate-400"/> <span className="text-[10px] text-slate-400">نسخ</span></>
                         )}
                     </button>
                 </div>
-                <div className="overflow-x-auto custom-scrollbar">
+                <div className="overflow-x-auto custom-scrollbar bg-[#1e1e1e]">
                     <SyntaxHighlighter
                         style={vscDarkPlus}
                         language={match?.[1] || 'text'}
                         PreTag="div"
-                        customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem', lineHeight: '1.6', minWidth: '100%' }}
+                        customStyle={{ margin: 0, padding: '1.25rem', fontSize: '0.9rem', lineHeight: '1.7', minWidth: '100%', background: 'transparent' }}
                         {...props}
                     >
                         {codeText}
@@ -226,29 +246,26 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 </div>
             </div>
         ) : (
-            <code className={`${isUser ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50'} rounded px-1.5 py-0.5 text-sm font-mono dir-ltr mx-0.5 whitespace-pre-wrap break-all`} {...props}>
+            <code className={`${isUser ? 'bg-white/20 text-white border-white/20' : 'bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border-slate-200 dark:border-slate-700/50'} border rounded-md px-1.5 py-0.5 text-sm font-mono dir-ltr mx-0.5 whitespace-pre-wrap break-all`} {...props}>
                 {children}
             </code>
         );
     };
 
-    // Reusable function to parse children for [TOOL:xyz]
     const parseChildrenForTools = (children: React.ReactNode) => {
         const childrenArray = React.Children.toArray(children);
         const newChildren: React.ReactNode[] = [];
         const toolRegex = /\[TOOL:(.*?)\]/g;
-        let hasTools = false;
 
         childrenArray.forEach((child, childIndex) => {
             if (typeof child === 'string') {
                 const parts = child.split(toolRegex);
-                if (parts.length > 1) hasTools = true;
                 
                 parts.forEach((part, index) => {
                     if (index % 2 === 1) {
                         const toolId = part.trim();
                         newChildren.push(
-                            <div key={`${toolId}-${childIndex}-${index}`} className="block w-full my-2">
+                            <div key={`${toolId}-${childIndex}-${index}`} className="block w-full my-3">
                                 <ToolSuggestionCard toolId={toolId} />
                             </div>
                         );
@@ -260,36 +277,32 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 newChildren.push(child);
             }
         });
-        return { newChildren, hasTools };
+        return { newChildren };
     };
 
-    // Custom paragraph renderer with enhanced spacing
     const CustomParagraph = ({ node, ...props }: any) => {
         const { newChildren } = parseChildrenForTools(props.children);
-        const textColor = isUser ? 'text-white' : 'text-foreground dark:text-slate-200';
-        // Increased bottom margin and line-height for Arabic readability
-        return <p {...props} className={`mb-6 last:mb-0 leading-[2.2] text-base ${textColor}`}>{newChildren}</p>;
+        const textColor = isUser ? 'text-white/95' : 'text-slate-800 dark:text-slate-200';
+        return <p {...props} className={`mb-4 last:mb-0 leading-loose text-[15px] sm:text-base ${textColor}`}>{newChildren}</p>;
     };
 
-    // Custom list item renderer
     const CustomListItem = ({ node, ...props }: any) => {
         const { newChildren } = parseChildrenForTools(props.children);
-        const textColor = isUser ? 'text-white' : 'text-foreground dark:text-slate-200';
-        return <li {...props} className={`my-2 leading-[2.2] ${textColor}`}>{newChildren}</li>;
+        const textColor = isUser ? 'text-white/90' : 'text-slate-700 dark:text-slate-300';
+        return <li {...props} className={`my-1.5 leading-loose ${textColor}`}>{newChildren}</li>;
     }
 
     return (
-         <div className={`prose prose-base max-w-none break-words ${isUser ? 'prose-invert [&_*]:text-white' : 'dark:prose-invert prose-headings:text-primary prose-strong:text-primary prose-strong:font-bold'}`}>
+         <div className={`prose prose-base max-w-none break-words ${isUser ? 'prose-invert' : 'dark:prose-invert prose-headings:text-slate-900 dark:prose-headings:text-white prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-bold'} font-sans`}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                     p: CustomParagraph,
-                    // ps-6 adds padding start (right in RTL), keeping bullets visible inside the container
-                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-6 mb-6 space-y-2 marker:font-bold" />,
-                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-6 mb-6 space-y-2" />,
+                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-1 marker:font-bold marker:text-current" />,
+                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-1 marker:text-current" />,
                     li: CustomListItem,
                     code: CodeBlock,
-                    a: ({ node, ...props }) => <a {...props} className={`${isUser ? 'text-white underline' : 'text-primary hover:underline'} font-bold`} target="_blank" rel="noopener noreferrer" />
+                    a: ({ node, ...props }) => <a {...props} className={`${isUser ? 'text-white underline decoration-white/50' : 'text-primary hover:text-primary-dark underline decoration-primary/30'} font-bold transition-colors`} target="_blank" rel="noopener noreferrer" />
                 }}
             >
                 {processedContent}
@@ -329,21 +342,15 @@ const Chat: React.FC = () => {
         return 'خبيركم';
     }, [persona.humor, persona.verbosity]);
     
-    // --- Scrolling Logic ---
-
-    // 1. Instant scroll to bottom when switching conversations
     useEffect(() => {
         if (scrollContainerRef.current) {
-             // Instant scroll for UX responsiveness when loading chat history
             scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }
     }, [activeConversationId]);
 
-    // 2. Smooth scroll to bottom when bot is responding or new messages arrive
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (container) {
-            // Use a small timeout to ensure content renders
             const timeout = setTimeout(() => {
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
             }, 100);
@@ -351,14 +358,12 @@ const Chat: React.FC = () => {
         }
     }, [isResponding, activeConversation?.messages.length]);
 
-    // Stop speech when leaving conversation or unmounting
     useEffect(() => {
         return () => {
             window.speechSynthesis.cancel();
         };
     }, [activeConversationId]);
 
-    // Show/Hide scroll button
     const handleScroll = () => {
         const container = scrollContainerRef.current;
         if (!container) return;
@@ -391,15 +396,10 @@ const Chat: React.FC = () => {
     };
 
     const cleanTextForTTS = (text: string) => {
-        // Remove code blocks completely (content between ```)
         let clean = text.replace(/```[\s\S]*?```/g, " (يوجد كود برمجي هنا) ");
-        // Remove inline code
         clean = clean.replace(/`[^`]*`/g, "");
-        // Remove tool tags
         clean = clean.replace(/\[TOOL:.*?\]/g, "");
-        // Remove common markdown symbols that ruin speech
         clean = clean.replace(/[*#_\[\]]/g, "");
-        // Remove links
         clean = clean.replace(/\(http.*?\)/g, "");
         return clean;
     };
@@ -411,15 +411,13 @@ const Chat: React.FC = () => {
             return;
         }
 
-        window.speechSynthesis.cancel(); // Stop any current speech
+        window.speechSynthesis.cancel();
         setSpeakingMessageId(messageId);
 
         const cleanedText = cleanTextForTTS(text);
         const utterance = new SpeechSynthesisUtterance(cleanedText);
         
-        // Attempt to find a better Arabic voice
         const voices = window.speechSynthesis.getVoices();
-        // Prefer "Google" voices if available as they are often higher quality
         const arabicVoice = voices.find(v => v.lang.includes('ar') && v.name.includes('Google')) ||
                             voices.find(v => v.lang.includes('ar'));
 
@@ -427,8 +425,8 @@ const Chat: React.FC = () => {
             utterance.voice = arabicVoice;
         }
         
-        utterance.lang = 'ar-SA'; // Use SA as it often defaults to a clearer Modern Standard Arabic or understood dialect
-        utterance.rate = 0.9; // Slightly slower is usually clearer for Arabic
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.9;
         
         utterance.onend = () => setSpeakingMessageId(null);
         utterance.onerror = () => setSpeakingMessageId(null);
@@ -443,7 +441,6 @@ const Chat: React.FC = () => {
         streamingMessageIdRef.current = modelMessageId;
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
-        // Capture current bot name state for persistence
         const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
         const currentBotName = isFahimkom ? 'فهيمكم' : 'خبيركم';
 
@@ -518,7 +515,6 @@ const Chat: React.FC = () => {
     const handleSend = useCallback(async () => {
         if ((!input.trim() && !attachedFile) || isResponding) return;
 
-        // Stop speech if user sends a new message
         window.speechSynthesis.cancel();
         setSpeakingMessageId(null);
 
@@ -556,7 +552,6 @@ const Chat: React.FC = () => {
         setAttachedFile(null);
         setFilePreview(null);
         
-        // Smart Title Generation logic...
         const messagesHistory = activeConvo?.messages || [];
         const shouldGenerateTitle = messagesHistory.length >= 2 && messagesHistory.length <= 5 && activeConvo?.title === 'محادثة جديدة';
         
@@ -575,7 +570,6 @@ const Chat: React.FC = () => {
 
     const handleStop = () => {
         stopStreamingRef.current = true;
-        // Also stop speech if happening
         window.speechSynthesis.cancel();
         setSpeakingMessageId(null);
 
@@ -777,57 +771,59 @@ const Chat: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300 relative">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2 sm:p-6 scroll-smooth">
+        <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-white/40 sm:dark:bg-slate-900/40 sm:backdrop-blur-md sm:border border-white/20 dark:border-slate-700/30 sm:rounded-2xl sm:shadow-2xl transition-all duration-300 relative overflow-hidden">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 scroll-smooth">
                  {activeConversation.messages.length === 0 ? (
                     <DashboardScreen onSuggestionClick={handleSuggestionClick} />
                 ) : (
-                    <div className="space-y-6 pb-4">
+                    <div className="space-y-5 pb-6">
                         {activeConversation.messages.map((msg) => (
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' ? 'justify-start' : 'justify-end'
                             }`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[98%] sm:max-w-[90%] hover:scale-[1.01] transition-transform duration-200 ${
+                                <div className={`flex items-end gap-2.5 max-w-[95%] sm:max-w-[88%] ${
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
                                 }`}>
                                     
-                                    <div className={`self-end flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
-                                        msg.role === 'user' ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-slate-700'
+                                    <div className={`self-end flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-md border border-white/20 dark:border-slate-600/30 ${
+                                        msg.role === 'user' 
+                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white' 
+                                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                                     }`}>
                                         {msg.role === 'user'
                                             ? <User className="w-5 h-5" />
-                                            : <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
+                                            : <Bot className="w-5 h-5 animate-bot-idle-bob" />
                                         }
                                     </div>
 
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
-                                        <span className={`text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-0.5 px-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
+                                        <span className={`text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 px-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
                                             {msg.role === 'user' ? 'أنت' : (msg.senderName || botName)}
                                         </span>
 
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div 
-                                                className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700/50 cursor-pointer hover:opacity-90 transition-opacity"
+                                                className="p-1.5 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 cursor-pointer hover:opacity-90 transition-all hover:scale-[1.01]"
                                                 onClick={() => {
-                                                    setImageZoom(1); // Reset zoom on open
+                                                    setImageZoom(1);
                                                     setSelectedImage(msg.imageUrl || null);
                                                 }}
                                             >
-                                                <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
+                                                <img src={msg.imageUrl} alt="User upload" className="rounded-xl max-w-xs max-h-64 object-contain" />
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
-                                            <div className={`relative px-4 py-3 sm:px-5 sm:py-4 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden ${
+                                            <div className={`relative px-4 py-3.5 sm:px-6 sm:py-5 shadow-sm ${
                                                 msg.role === 'user' 
-                                                ? 'bg-gradient-to-br from-primary to-primary-dark text-white rounded-br-none' 
-                                                : `bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border-red-500/50 bg-red-50/50 dark:bg-red-900/10' : ''}`
+                                                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-3xl rounded-br-none' 
+                                                : `bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700/60 rounded-3xl rounded-bl-none ${msg.error ? 'border-red-500/30 bg-red-50/80 dark:bg-red-900/20' : ''}`
                                             }`}>
-                                                <div className="text-sm sm:text-base">
+                                                <div className="text-[15px] sm:text-base leading-relaxed">
                                                     {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
-                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
                                                         <MessageContent message={msg} />
@@ -836,45 +832,44 @@ const Chat: React.FC = () => {
                                             </div>
                                         )}
 
-                                        {/* Mobile Friendly Action Footer for Bot Messages */}
                                         {msg.role === 'model' && !msg.error && !msg.isStreaming && (
-                                            <div className="flex gap-2 mt-1 px-1 flex-wrap justify-end opacity-80 hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-2 mt-1.5 px-1 flex-wrap justify-end opacity-0 group-hover:opacity-100 transition-all duration-300">
                                                 <button 
                                                     onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
-                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-xs font-medium active:scale-95 ${speakingMessageId === msg.id ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                    className={`p-1.5 rounded-full transition-all active:scale-90 ${speakingMessageId === msg.id ? 'bg-primary/20 text-primary animate-pulse' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                                    aria-label="نطق"
                                                 >
-                                                    {speakingMessageId === msg.id ? <Square size={14} className="fill-current" /> : <Volume2 size={14} />}
-                                                    <span>{speakingMessageId === msg.id ? 'إيقاف' : 'نطق'}</span>
+                                                    {speakingMessageId === msg.id ? <Square size={16} className="fill-current" /> : <Volume2 size={16} />}
                                                 </button>
                                                 <button 
                                                     onClick={() => handleCopy(msg.parts[0].text, msg.id)}
-                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-xs font-medium active:scale-95 ${copiedMessageId === msg.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                    className={`p-1.5 rounded-full transition-all active:scale-90 ${copiedMessageId === msg.id ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                                    aria-label="نسخ"
                                                 >
-                                                    {copiedMessageId === msg.id ? <Check size={14} /> : <Copy size={14} />}
-                                                    <span>{copiedMessageId === msg.id ? 'تم' : 'نسخ'}</span>
+                                                    {copiedMessageId === msg.id ? <Check size={16} /> : <Copy size={16} />}
                                                 </button>
                                                 <button 
                                                     onClick={() => handleRetry(msg)} 
-                                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-medium active:scale-95"
+                                                    className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all active:scale-90"
+                                                    aria-label="إعادة المحاولة"
                                                 >
-                                                    <RefreshCw size={14} />
-                                                    <span>توليد تاني</span>
+                                                    <RefreshCw size={16} />
                                                 </button>
                                             </div>
                                         )}
                                         
                                         {msg.error && (
                                             <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
-                                                <span className="text-xs text-red-500 font-bold">فشل الرد</span>
-                                                <button onClick={() => handleRetry(msg)} className="flex items-center gap-1 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full hover:bg-red-200 transition-colors active:scale-95">
+                                                <span className="text-xs text-red-500 font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">فشل الرد</span>
+                                                <button onClick={() => handleRetry(msg)} className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 text-red-500 text-xs rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors active:scale-95 shadow-sm">
                                                     <RefreshCw size={12} /> إعادة المحاولة
                                                 </button>
                                             </div>
                                         )}
                                         {!msg.error && msg.id === stoppedMessageId && !isResponding && (
                                             <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
-                                                <span className="text-xs text-yellow-600 dark:text-yellow-400 font-bold">تم الإيقاف</span>
-                                                <button onClick={handleContinue} className="flex items-center gap-1 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs rounded-full hover:bg-yellow-200 transition-colors active:scale-95">
+                                                <span className="text-xs text-yellow-600 dark:text-yellow-500 font-bold bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full">تم الإيقاف</span>
+                                                <button onClick={handleContinue} className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-yellow-200 dark:border-yellow-900 text-yellow-600 dark:text-yellow-500 text-xs rounded-full hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors active:scale-95 shadow-sm">
                                                     <Play size={12} /> إكمال الرد
                                                 </button>
                                             </div>
@@ -886,18 +881,18 @@ const Chat: React.FC = () => {
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
                              <div className="flex w-full animate-bubbleIn justify-end">
                                 <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse max-w-[90%]">
-                                    <div className="self-end flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shadow-sm">
+                                    <div className="self-end flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shadow-md">
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
                                     <div className="flex flex-col gap-1 w-full items-end">
-                                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 ml-1">
+                                         <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 ml-1">
                                             {botName} 
                                         </span>
-                                        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-bl-none shadow-sm">
+                                        <div className="p-5 rounded-3xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-bl-none shadow-sm">
                                              <div className="flex gap-1.5 justify-center items-center">
-                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
-                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                             </div>
                                         </div>
                                     </div>
@@ -911,94 +906,116 @@ const Chat: React.FC = () => {
             {/* Scroll to bottom button */}
             <button 
                 onClick={handleScrollToBottomButton}
-                className={`absolute bottom-24 right-4 p-2 bg-primary text-white rounded-full shadow-lg transition-all duration-300 z-20 hover:bg-primary-dark active:scale-95 ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                className={`absolute bottom-28 right-6 p-3 bg-white dark:bg-slate-800 text-primary border border-slate-200 dark:border-slate-700 rounded-full shadow-lg transition-all duration-300 z-20 hover:shadow-xl active:scale-95 hover:-translate-y-1 ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
             >
                 <ChevronDown size={20} />
             </button>
 
-            <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/80 dark:bg-dark-card/80 backdrop-blur-xl sm:rounded-b-xl" onPaste={handlePaste}>
+            {/* Floating Input Bar */}
+            <div className="p-3 sm:p-5 bg-transparent backdrop-blur-none" onPaste={handlePaste}>
                  {attachedFile && (
-                    <div className="relative w-fit max-w-full mb-3 p-2 pr-8 border rounded-lg border-primary/50 bg-primary/5 animate-slideInUp">
+                    <div className="relative w-fit max-w-full mb-3 p-2 pr-3 pl-8 border rounded-xl border-primary/30 bg-white/90 dark:bg-slate-800/90 shadow-lg animate-slideInUp backdrop-blur-md mx-auto sm:mx-0">
                         {filePreview ? (
                             <div className="relative group">
-                                <img src={filePreview} alt="Preview" className="w-20 h-20 object-cover rounded-md border border-slate-200 dark:border-slate-700"/>
-                                <div className="absolute inset-0 bg-black/20 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"/>
+                                <img src={filePreview} alt="Preview" className="h-24 rounded-lg border border-slate-200 dark:border-slate-700 object-cover"/>
+                                <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"/>
                             </div>
                         ) : (
-                            <div className='flex items-center gap-2 text-primary px-2 py-1'>
-                                <FileText size={24} />
-                                <span className='text-sm font-medium truncate max-w-[150px]'>{attachedFile.name}</span>
+                            <div className='flex items-center gap-3 text-slate-700 dark:text-slate-200 px-2 py-1'>
+                                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-500">
+                                    <FileText size={20} />
+                                </div>
+                                <span className='text-sm font-bold truncate max-w-[200px]'>{attachedFile.name}</span>
                             </div>
                         )}
                         <button 
                             onClick={() => { setAttachedFile(null); setFilePreview(null); }}
-                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition-colors active:scale-90"
+                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-all active:scale-90"
                         >
-                            <X size={12} />
+                            <X size={14} />
                         </button>
                     </div>
                 )}
-                 <div className="flex items-end gap-2">
-                    
-                    <div className="self-end mb-0.5">
+
+                 <div className="flex items-end gap-2 relative max-w-3xl mx-auto">
+                    <div className="flex-1 relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg dark:shadow-slate-900/50 rounded-[26px] transition-all focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 focus-within:shadow-xl">
+                        <AutoGrowTextarea
+                            ref={inputRef}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            placeholder={`اسأل ${botName}...`}
+                            className="w-full py-3.5 pl-12 pr-4 bg-transparent border-none outline-none resize-none max-h-32 min-h-[52px] text-base text-slate-800 dark:text-slate-200 placeholder:text-slate-400 rounded-[26px] textarea-scrollbar"
+                            aria-label="اكتب رسالتك هنا"
+                        />
+                        
+                        {/* Attachment Button inside input */}
+                        <div className="absolute left-2 bottom-1.5">
+                            <Button
+                                variant="secondary"
+                                className="p-2 rounded-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary shadow-none active:scale-95 transition-all"
+                                aria-label="خيارات إضافية"
+                                onClick={() => setMenuOpen(prev => !prev)}
+                            >
+                                <Plus size={22} className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-45 text-primary' : ''}`} />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="self-end mb-1">
                         {isResponding ? (
-                            <Button onClick={handleStop} className="p-2.5 sm:p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all" aria-label="إيقاف التوليد">
-                                <StopCircle size={20} />
+                            <Button onClick={handleStop} className="w-12 h-12 p-0 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:shadow-red-500/30 transform hover:scale-105 active:scale-95 transition-all" aria-label="إيقاف التوليد">
+                                <StopCircle size={22} className="fill-white/20" />
                             </Button>
                         ) : (
-                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className={`p-2.5 sm:p-3 rounded-full shadow-md transition-all duration-200 active:scale-95 ${(!input.trim() && !attachedFile) ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg transform hover:scale-105'}`} aria-label="إرسال الرسالة">
-                                <Send size={20} />
+                            <Button 
+                                onClick={handleSend} 
+                                disabled={(!input.trim() && !attachedFile)} 
+                                className={`w-12 h-12 p-0 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 active:scale-90 ${
+                                    (!input.trim() && !attachedFile) 
+                                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed' 
+                                    : 'bg-gradient-to-r from-primary to-blue-600 hover:to-blue-700 text-white hover:shadow-primary/30 hover:scale-105'
+                                }`} 
+                                aria-label="إرسال الرسالة"
+                            >
+                                <Send size={22} className={(!input.trim() && !attachedFile) ? "" : "ml-0.5"} />
                             </Button>
                         )}
                     </div>
 
-                    <AutoGrowTextarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        }}
-                        placeholder="اسأل خبيركم..."
-                        className="flex-1 p-3 sm:p-3.5 bg-slate-5 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none transition-all duration-200 shadow-inner placeholder:text-slate-400 resize-none max-h-32 min-h-[48px] glow-effect textarea-scrollbar text-base"
-                        aria-label="اكتب رسالتك هنا"
-                    />
-                    
-                    <div className='relative self-end mb-0.5'>
-                        <Button
-                            variant="secondary"
-                            className="p-2.5 sm:p-3 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95"
-                            aria-label="خيارات إضافية"
-                            onClick={() => setMenuOpen(prev => !prev)}
+                     {isMenuOpen && (
+                        <div 
+                            className="absolute bottom-full left-0 mb-3 w-56 bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-100 dark:border-slate-700 p-1.5 z-30 animate-slideInUp origin-bottom-left"
+                            onMouseLeave={() => setMenuOpen(false)}
                         >
-                            <Plus size={20} className={`transition-transform duration-200 ${isMenuOpen ? 'rotate-45' : ''}`} />
-                        </Button>
-                        {isMenuOpen && (
-                            <div 
-                                className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-1.5 z-30 animate-slideInUp origin-bottom-left"
-                                onMouseLeave={() => setMenuOpen(false)}
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-full flex items-center gap-3 p-3 text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 group"
                             >
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-full flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200 active:bg-slate-200 dark:active:bg-slate-600"
-                                >
-                                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-500 rounded-md"><Paperclip size={16} /></div>
-                                    <span>إرفاق ملف / صورة</span>
-                                </button>
-                                <button
-                                    disabled
-                                    className="w-full flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200 opacity-50 cursor-not-allowed"
-                                >
-                                    <div className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-md"><Mic size={16} /></div>
-                                    <span>تسجيل صوتي (قريباً)</span>
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
+                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors"><Paperclip size={18} /></div>
+                                <div className="flex flex-col items-start">
+                                    <span className="font-bold">ملف / صورة</span>
+                                    <span className="text-[10px] text-slate-400">PDF, PNG, JPG</span>
+                                </div>
+                            </button>
+                            <button
+                                disabled
+                                className="w-full flex items-center gap-3 p-3 text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 opacity-50 cursor-not-allowed group"
+                            >
+                                <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-lg"><Mic size={18} /></div>
+                                <div className="flex flex-col items-start">
+                                    <span className="font-bold">تسجيل صوتي</span>
+                                    <span className="text-[10px] text-slate-400">قريباً...</span>
+                                </div>
+                            </button>
+                        </div>
+                    )}
+                    
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>
             </div>
@@ -1006,7 +1023,7 @@ const Chat: React.FC = () => {
              {/* Image Lightbox Modal with Zoom */}
              {selectedImage && (
                 <div 
-                    className="fixed inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-2xl transition-all animate-fadeIn"
+                    className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-xl transition-all animate-fadeIn"
                     role="dialog"
                     aria-label="عارض الصور"
                     onClick={() => setSelectedImage(null)}
@@ -1027,7 +1044,7 @@ const Chat: React.FC = () => {
                          <img 
                             src={selectedImage} 
                             alt="Full view" 
-                            className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out origin-center"
+                            className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out origin-center shadow-2xl"
                             style={{ transform: `scale(${imageZoom})` }}
                             onClick={(e) => e.stopPropagation()} 
                             draggable={false}
@@ -1035,7 +1052,7 @@ const Chat: React.FC = () => {
                     </div>
 
                     {/* Zoom Controls */}
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 bg-black/60 backdrop-blur-lg rounded-full border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 bg-slate-900/80 backdrop-blur-lg rounded-full border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                         <button 
                             onClick={() => setImageZoom(prev => Math.max(0.5, prev - 0.2))}
                             className="p-2 text-white hover:text-primary transition-colors active:scale-90"
@@ -1044,7 +1061,7 @@ const Chat: React.FC = () => {
                             <Minus size={20} />
                         </button>
                         
-                        <div className="flex items-center gap-2 w-32 sm:w-48 px-2">
+                        <div className="flex items-center gap-3 w-32 sm:w-48 px-2">
                             <ZoomOut size={14} className="text-slate-400"/>
                             <input 
                                 type="range" 
@@ -1053,7 +1070,7 @@ const Chat: React.FC = () => {
                                 step="0.1" 
                                 value={imageZoom}
                                 onChange={(e) => setImageZoom(parseFloat(e.target.value))}
-                                className="w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-primary"
+                                className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
                             />
                              <ZoomIn size={14} className="text-slate-400"/>
                         </div>
@@ -1066,7 +1083,7 @@ const Chat: React.FC = () => {
                             <Plus size={20} />
                         </button>
 
-                        <div className="w-px h-6 bg-white/20 mx-1"></div>
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
 
                         <button 
                             onClick={() => setImageZoom(1)}

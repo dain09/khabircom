@@ -1,8 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
-import { usePersona } from '../../hooks/usePersona';
+import { usePersona } from '../../contexts/PersonaContext';
 import { SlidersHorizontal, Info, X } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 

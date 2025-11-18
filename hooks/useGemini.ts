@@ -23,5 +23,11 @@ export const useGemini = <T, P>(serviceFunction: GeminiServiceFunction<T, P>) =>
         }
     }, [serviceFunction]);
 
-    return { data, isLoading, error, execute };
+    const reset = useCallback(() => {
+        setData(null);
+        setIsLoading(false);
+        setError(null);
+    }, []);
+
+    return { data, isLoading, error, execute, reset };
 };

@@ -5,10 +5,10 @@ import { roastImage } from '../../services/geminiService';
 import { Loader } from '../../components/ui/Loader';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
-import { ImageUpload } from '../../components/ui/ImageUpload';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { ImageUpload } from '../../components/ui/ImageUpload';
 
 interface RoastResult {
     roast: string;
@@ -32,7 +32,7 @@ const ImageRoast: React.FC = () => {
             description={toolInfo.description} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="ارفع أي صورة، سواء كانت صورتك، أوضتك، أو لبسك، وشوف الخبير هيقول عليها إيه. جهز نفسك لرأي صريح يضحك."
+            introText="ارفع أي صورة، والخبير هيحللها ويقولك رأيه بصراحة تامة... وبطريقة كوميدية طبعًا!"
         >
             <div className="space-y-4">
                 <ImageUpload onImageSelect={setImageFile} />
@@ -44,9 +44,9 @@ const ImageRoast: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="التحفيل على الصورة 📸🔥" copyText={result?.roast}>{result?.roast}</ResultCard>
+                    <ResultCard title="التحفيل 🔥" copyText={result?.roast}>{result?.roast}</ResultCard>
                     <ResultCard title="تحليل واقعي 🧐" copyText={result?.analysis}>{result?.analysis}</ResultCard>
-                    <ResultCard title="نصيحة للتطوير ✨" copyText={result?.advice}>{result?.advice}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

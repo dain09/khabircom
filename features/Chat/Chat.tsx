@@ -1,8 +1,9 @@
 
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Newspaper, Smile, Trophy } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { generateChatResponseStream, getMorningBriefing, generateImage } from '../../services/geminiService';
+import { generateChatResponseStream, getMorningBriefing } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,9 +16,9 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
-import { usePersona } from '../../hooks/usePersona';
+import { usePersona } from '../../contexts/PersonaContext';
 
-type BriefingData = { greeting: string; news_summary: string; daily_challenge: string; meme_prompt: string; suggestions: string[] };
+type BriefingData = { greeting: string; suggestions: string[] };
 
 const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const { memory } = useMemory();
@@ -32,64 +33,49 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         () => getMorningBriefing(memory, persona, context)
     );
     
-    const { data: memeUrl, isLoading: isMemeLoading, execute: fetchMeme } = useGemini<string, string>(generateImage);
-
     useEffect(() => {
         fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [memory, persona]);
 
-    useEffect(() => {
-        if (briefing?.meme_prompt) {
-            fetchMeme(briefing.meme_prompt);
-        }
-    }, [briefing, fetchMeme]);
-
-    const DashboardCard: React.FC<{ icon: React.ElementType, title: string, children: React.ReactNode, isLoading: boolean, className?: string }> = ({ icon: Icon, title, children, isLoading, className }) => (
-        <div className={`bg-slate-200/50 dark:bg-dark-card/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/30 rounded-lg p-4 animate-bubbleIn ${className}`}>
-            <h3 className="flex items-center text-sm font-bold mb-2 text-primary"><Icon size={16} className="me-2" /> {title}</h3>
-            {isLoading ? <div className="h-16 w-full bg-slate-300/50 dark:bg-slate-700/50 rounded animate-pulse"></div> : <div className="text-sm text-foreground/80 dark:text-dark-foreground/80">{children}</div>}
-        </div>
-    );
+    const suggestions = briefing?.suggestions || [
+        "اكتبلي نكتة عن المبرمجين",
+        "لخصلي مفهوم الثقب الأسود",
+        "اقترح فكرة مشروع جديدة",
+        "إيه رأيك في الذكاء الاصطناعي؟"
+    ];
 
     return (
-        <div className="flex flex-col h-full items-center justify-center p-4">
-            <div className="w-full max-w-2xl text-center">
-                <div className="flex items-center justify-center gap-3 mb-4 animate-slideInUp">
-                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                        <Bot size={40} className="text-primary" />
-                    </div>
-                    {isBriefingLoading ? <div className="h-8 w-48 bg-slate-300/50 dark:bg-slate-700/50 rounded animate-pulse"></div> : <h2 className="text-2xl font-bold">{briefing?.greeting || "أهلاً بيك!"}</h2>}
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <DashboardCard icon={Newspaper} title="نشرة أخبار على مزاجك" isLoading={isBriefingLoading}>
-                       <p>{briefing?.news_summary}</p>
-                    </DashboardCard>
-                    <DashboardCard icon={Trophy} title="مهمة اليوم الفهلوانية" isLoading={isBriefingLoading}>
-                       <p>{briefing?.daily_challenge}</p>
-                    </DashboardCard>
-                    <DashboardCard icon={Smile} title="ميم اليوم" isLoading={isMemeLoading} className="sm:col-span-2">
-                       {memeUrl ? <img src={memeUrl} alt="Meme of the day" className="rounded-md mx-auto max-h-60" /> : <p>الخبير بيطبخلك الميم...</p>}
-                    </DashboardCard>
-                </div>
-
-                <p className="text-slate-500 dark:text-slate-400 mb-4 text-sm animate-slideInUp" style={{ animationDelay: '200ms' }}>
-                    أو ممكن نبدأ بحاجة من دول:
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 animate-slideInUp" style={{ animationDelay: '300ms' }}>
-                    {(briefing?.suggestions || ["اكتبلي نكتة", "اقترح فكرة مشروع", "لخصلي فيلم"]).map((s, i) => (
+        <div className="flex flex-col h-full items-center justify-center p-4 text-center">
+            <div className="w-20 h-20 mb-4 bg-primary/20 rounded-full flex items-center justify-center animate-bubbleIn">
+                <Bot size={48} className="text-primary" />
+            </div>
+            {isBriefingLoading 
+                ? <div className="h-9 w-56 bg-slate-300/50 dark:bg-slate-700/50 rounded animate-pulse mb-2"></div> 
+                : <h2 className="text-3xl font-bold mb-2 animate-slideInUp">{briefing?.greeting || "خبيركم تحت أمرك"}</h2>
+            }
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp" style={{ animationDelay: '200ms' }}>
+                اختار اقتراح من دول عشان نبدأ الكلام.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp" style={{ animationDelay: '300ms' }}>
+                 {isBriefingLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="p-2 px-4 h-9 w-40 bg-slate-200/60 dark:bg-dark-card/60 rounded-full animate-pulse"></div>
+                    ))
+                ) : (
+                    suggestions.map((s, i) => (
                         <button 
-                            key={i} 
+                            key={s} 
                             onClick={() => onSuggestionClick(s)}
-                            className="p-1.5 px-3 bg-slate-200/60 dark:bg-dark-card/60 rounded-full text-xs font-medium hover:bg-slate-300/60 dark:hover:bg-dark-card/80 transition-all hover:scale-105"
+                            className="p-2 px-4 bg-slate-200/60 dark:bg-dark-card/60 backdrop-blur-sm border border-white/20 dark:border-slate-700/30 rounded-full text-sm font-medium hover:bg-slate-300/60 dark:hover:bg-dark-card/80 transition-all hover:scale-105"
+                            style={{ animationDelay: `${400 + i * 100}ms` }}
                         >
                             {s}
                         </button>
-                    ))}
-                </div>
-                {briefingError && <p className="text-xs text-red-500 mt-4">فشل تحميل الروقان الصباحي. ممكن تجرب تعمل ريفرش.</p>}
+                    ))
+                )}
             </div>
+            {briefingError && <p className="text-xs text-red-500 mt-4">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
         </div>
     );
 };
@@ -208,6 +194,7 @@ const Chat: React.FC = () => {
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isListening, setIsListening] = useState(false);
     const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+    const [isMenuOpen, setMenuOpen] = useState(false);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -320,8 +307,8 @@ const Chat: React.FC = () => {
         const isPdf = attachedFile?.type === 'application/pdf';
         
         let textToSend = input;
-        if (isPdf) {
-            textToSend = `[ملف مرفق: ${attachedFile.name}]\n${input}`;
+        if (isPdf || isImage) {
+            textToSend = `[ملف مرفق: ${attachedFile?.name}]\n${input}`;
         }
         
         const userMessage: Message = { 
@@ -462,6 +449,7 @@ const Chat: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setMenuOpen(false); // Close menu after selection
             setAttachedFile(file);
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -657,16 +645,18 @@ const Chat: React.FC = () => {
                         </button>
                     </div>
                 )}
-                 <div className="flex items-end gap-2 sm:gap-3">
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="order-1 p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                         <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="order-1 p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
+                 <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="order-1 self-end">
+                        {isResponding ? (
+                            <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                                <StopCircle size={24} />
+                            </Button>
+                        ) : (
+                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                                <Send size={24} />
+                            </Button>
+                        )}
+                    </div>
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -677,27 +667,40 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder="اسأل أي حاجة..."
+                        placeholder="اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"
                         className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect textarea-scrollbar"
                         aria-label="اكتب رسالتك هنا"
                     />
-                    <div className='order-3 flex items-center gap-1'>
+                    <div className='relative order-3 self-end'>
                         <Button
                             variant="secondary"
                             className="p-3 rounded-full"
-                            aria-label="إرفاق ملف"
-                            onClick={() => fileInputRef.current?.click()}
+                            aria-label="خيارات إضافية"
+                            onClick={() => setMenuOpen(prev => !prev)}
                         >
-                            <Paperclip size={24} />
+                            <Plus size={24} />
                         </Button>
-                         <Button
-                            variant="secondary"
-                            className={`p-3 rounded-full ${isListening ? 'bg-red-500/20 text-red-500 animate-pulse' : ''}`}
-                            aria-label="إدخال صوتي"
-                            onClick={handleListen}
-                        >
-                            <Mic size={24} />
-                        </Button>
+                        {isMenuOpen && (
+                            <div 
+                                className="absolute bottom-full right-0 mb-2 w-48 bg-background dark:bg-dark-card shadow-lg rounded-lg border border-slate-200/50 dark:border-slate-700/50 p-2 z-10 animate-slideInUp"
+                                onMouseLeave={() => setMenuOpen(false)}
+                            >
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full flex items-center gap-3 p-2 text-sm rounded-md hover:bg-slate-200/50 dark:hover:bg-dark-card/80"
+                                >
+                                    <Paperclip size={18} />
+                                    <span>إرفاق ملف</span>
+                                </button>
+                                <button
+                                    disabled
+                                    className="w-full flex items-center gap-3 p-2 text-sm rounded-md hover:bg-slate-200/50 dark:hover:bg-dark-card/80 opacity-50 cursor-not-allowed"
+                                >
+                                    <Mic size={18} />
+                                    <span>تسجيل صوتي</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>

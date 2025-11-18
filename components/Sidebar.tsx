@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
 import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Search, Clock } from 'lucide-react';
@@ -176,7 +175,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                         )}
                         <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
                         <ul className='space-y-1'>
-                            {Object.entries(toolsByCategory).map(([category, tools]) => (
+                            {/* Fix: Use Object.keys to iterate over categories to avoid type inference issues with Object.entries. */}
+                            {Object.keys(toolsByCategory).map((category) => (
                                 <li key={category}>
                                     <details className="group" open>
                                         <summary className="flex items-center justify-between p-3 rounded-md cursor-pointer list-none hover:bg-slate-200/50 dark:hover:bg-dark-card/50">
@@ -184,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
                                         </summary>
                                         <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
-                                            {tools.map((tool) => (
+                                            {toolsByCategory[category].map((tool) => (
                                                 <li key={tool.id}>
                                                     <button
                                                         onClick={() => handleToolClick(tool.id)}

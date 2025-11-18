@@ -10,7 +10,7 @@ export const initializeApiKeys = () => {
         // Only initialize from env var if localStorage is empty
         if (storedKeys === null || JSON.parse(storedKeys).length === 0) {
             // In Vite, environment variables are accessed via import.meta.env
-            const envKeys = import.meta.env.VITE_API_KEYS;
+            const envKeys = import.meta.env?.VITE_API_KEYS;
             if (envKeys) {
                 const keysArray = envKeys.split(',').map(k => k.trim()).filter(Boolean);
                 if (keysArray.length > 0) {

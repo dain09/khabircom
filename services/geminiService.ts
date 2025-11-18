@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
 import { Message, AnalysisResult, Tool, PersonaSettings } from "../types";
@@ -42,8 +43,9 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     "5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" + 
     "6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\n\n" + SOURCE_CODE_CONTEXT + "\n\n" +
     "7. **الذاكرة التلقائية:** إذا ذكر المستخدم معلومة شخصية مهمة (مثل اسمه، وظيفته، هواياته)، قم بحفظها فورًا. استخدم الصيغة التالية **فقط** داخل ردك: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`. سيتم إخفاء هذا الأمر تلقائيًا. مثال: لو قال المستخدم 'اسمي أحمد'، يجب أن ترد 'أهلاً يا أحمد، اتشرفت بيك! [SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"أحمد\"}]'.\n" +
-    "8. **التعامل مع الملفات:** إذا بدأ نص المستخدم بـ `[ملف مرفق: file_name.pdf]`, فهذا يعني أنه أرفق ملف PDF. يجب عليك أن تسأله بشكل استباقي إذا كان يريد تلخيص هذا الملف باستخدام أداة تلخيص الملفات. يجب أن ترد بشيء مثل: 'تمام، شفت إنك رفعت ملف PDF. تحب أوديه لـ [TOOL:pdf-summarizer] عشان ألخصهولك؟'.\n" +
-    "9. **تنفيذ المهام المركبة (Tool Chaining):** إذا طلب المستخدم مهمة معقدة تحتاج لأكثر من أداة (مثال: 'اكتبلي بوست عن أسوان واعملي صورة ليه')، قم بتكسير المهمة لخطوات منطقية. قم بتنفيذ الخطوة الأولى بنفسك (مثل كتابة البوست)، ثم قدم النتيجة للمستخدم واقترح عليه الخطوة التالية بوضوح مع توجيهه للأداة المناسبة. مثال للرد: 'تمام جدًا! ادي البوست عن أسوان: [محتوى البوست هنا]. الخطوة الجاية، ايه رأيك نعمل صورة؟ استخدم [TOOL:image-generator] وحط فيه الوصف ده عشان تطلع صورة جامدة: [وصف مقترح للصورة].'";
+    "8. **التعامل مع ملفات PDF:** إذا بدأ نص المستخدم بـ `[ملف مرفق: file_name.pdf]`, فهذا يعني أنه أرفق ملف PDF. يجب عليك أن تسأله بشكل استباقي إذا كان يريد تلخيص هذا الملف باستخدام أداة تلخيص الملفات. يجب أن ترد بشيء مثل: 'تمام، شفت إنك رفعت ملف PDF. تحب أوديه لـ [TOOL:pdf-summarizer] عشان ألخصهولك؟'.\n" +
+    "9. **التعامل الذكي مع الصور:** إذا أرفق المستخدم صورة (وليس ملف PDF)، يجب أن تسأله بشكل استباقي إذا كان يريد تعديلها أو التحفيل عليها. يجب أن ترد بشيء مثل: 'تمام يا فنان، الصورة وصلت! تحب أعملك عليها تحفيل في [TOOL:image-roast] ولا نعدلها في [TOOL:image-editor]؟'.\n" +
+    "10. **تنفيذ المهام المركبة (Tool Chaining):** إذا طلب المستخدم مهمة معقدة تحتاج لأكثر من أداة (مثال: 'اكتبلي بوست عن أسوان واعملي صورة ليه')، قم بتكسير المهمة لخطوات منطقية. قم بتنفيذ الخطوة الأولى بنفسك (مثل كتابة البوست)، ثم قدم النتيجة للمستخدم واقترح عليه الخطوة التالية بوضوح مع توجيهه للأداة المناسبة. مثال للرد: 'تمام جدًا! ادي البوست عن أسوان: [محتوى البوست هنا]. الخطوة الجاية، ايه رأيك نعمل صورة؟ استخدم [TOOL:image-generator] وحط فيه الوصف ده عشان تطلع صورة جامدة: [وصف مقترح للصورة].'";
 }
 
 // This function gets the current valid API key and creates a Gemini client
@@ -192,34 +194,28 @@ export const generateWelcomeSuggestions = async (context: { lastToolTitle?: stri
     return JSON.parse(result);
 };
 
-export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise<{ greeting: string; news_summary: string; daily_challenge: string; meme_prompt: string; suggestions: string[] }> => {
+export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise<{ greeting: string; suggestions: string[] }> => {
     const interests = persona.interests.length > 0 
         ? persona.interests.join(', ') 
-        : (memory['الاهتمامات'] || 'الأخبار العامة والتكنولوجيا');
+        : (memory['الاهتمامات'] || 'مواضيع عامة');
 
-    const prompt = `أنت 'خبيركم'، مساعد مصري ذكي وفكاهي. جهز للمستخدم "الروقان الصباحي" بتاعه.
+    const prompt = `أنت 'خبيركم'، مساعد مصري ذكي وفكاهي. جهز للمستخدم تحية صباحية واقتراحات محادثة خفيفة.
 الوقت الحالي: ${timeOfDay}.
 اهتمامات المستخدم: ${interests}.
 
 مهمتك تجهيز رد JSON بالSchema التالية:
 {
   "greeting": "string",
-  "news_summary": "string",
-  "daily_challenge": "string",
-  "meme_prompt": "string",
-  "suggestions": ["string", "string", "string"]
+  "suggestions": ["string", "string", "string", "string"]
 }
 
 التعليمات:
 1.  **greeting**: اكتب تحية مناسبة للوقت (مثال: صباح الفل يا...).
-2.  **news_summary**: لخص أهم خبرين في اهتمامات المستخدم بأسلوب مصري بسيط ومختصر. لو مفيش اهتمامات، لخص أخبار عامة.
-3.  **daily_challenge**: اخترع تحدي يومي بسيط ومضحك (مثال: تحدي النهاردة: حاول متقولش كلمة 'اللي هو' لمدة ساعة).
-4.  **meme_prompt**: اكتب وصف إنجليزي دقيق ومضحك لصورة ميم ليها علاقة بالأحداث الحالية أو المود العام عشان أداة توليد الصور تستخدمه. (e.g., 'a photo of a tired cat looking at a laptop with code, text bubble says "one more bug to fix"').
-5.  **suggestions**: اقترح 3 مواضيع محادثة شيقة بناءً على اهتمامات المستخدم أو الوقت الحالي.
+2.  **suggestions**: اقترح 4 مواضيع محادثة شيقة ومختلفة بناءً على اهتمامات المستخدم أو الوقت الحالي.
 `;
     const result = await withApiKeyRotation(async (ai) => {
         const response: GenerateContentResponse = await ai.models.generateContent({
-          model: 'gemini-2.5-pro', // Use pro for better structured JSON
+          model: 'gemini-flash-latest',
           contents: prompt,
           config: { 
             responseMimeType: 'application/json',

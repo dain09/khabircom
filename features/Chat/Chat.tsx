@@ -74,9 +74,14 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
     const { setActiveToolId } = useTool();
     const [isExpanded, setIsExpanded] = useState(false);
 
+    // FIX: Add a space after markdown elements to prevent "sticky words".
+    // This regex finds markdown delimiters followed immediately by a word character (Unicode-aware)
+    // and inserts a space to ensure proper rendering.
+    const processedContent = content.replace(/(\*+|_+|~+|`)([\p{L}\p{N}])/gu, '$1 $2');
+
     // Heuristic to decide if content is long enough to be collapsed
-    const isLong = content.length > 500 || content.split('\n').length > 10;
-    const displayContent = isLong && !isExpanded ? content.substring(0, 400) + '...' : content;
+    const isLong = processedContent.length > 500 || processedContent.split('\n').length > 10;
+    const displayContent = isLong && !isExpanded ? processedContent.substring(0, 400) + '...' : processedContent;
     
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
         const [isCopied, setIsCopied] = useState(false);

@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Search, Clock } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
@@ -14,20 +13,25 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, onOpenApiKeyManager }) => {
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
-    const { activeToolId, setActiveToolId } = useTool();
+    const { activeToolId, setActiveToolId, recentTools } = useTool();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const toolsByCategory = useMemo(() => {
         const categories: Record<string, Tool[]> = {};
-        TOOLS.filter(tool => tool.id !== 'chat').forEach(tool => {
+        TOOLS.filter(tool => tool.id !== 'chat' && tool.title.toLowerCase().includes(searchTerm.toLowerCase())).forEach(tool => {
             if (!categories[tool.category]) {
                 categories[tool.category] = [];
             }
             categories[tool.category].push(tool);
         });
         return categories;
-    }, []);
+    }, [searchTerm]);
+    
+    const recentToolsDetails = useMemo(() => {
+        return recentTools.map(id => TOOLS.find(tool => tool.id === id)).filter((tool): tool is Tool => !!tool);
+    }, [recentTools]);
 
 
     const handleRename = (id: string, currentTitle: string) => {
@@ -98,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                     <div>
                         <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>المحادثات السابقة</h2>
                         {conversations.length > 0 ? (
-                            <ul>
+                            <ul className='max-h-40 overflow-y-auto'>
                                 {conversations.map((convo) => (
                                     <li key={convo.id} className="group">
                                         <div
@@ -143,7 +147,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                         )}
                     </div>
 
-                    <div>
+                    <div className='space-y-4'>
+                         <div className="relative px-3">
+                            <input
+                                type="search"
+                                placeholder="ابحث عن أداة..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-2 ps-8 text-sm bg-slate-200/50 dark:bg-dark-card/50 border border-transparent focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-md outline-none transition-colors"
+                            />
+                            <Search size={16} className="absolute top-1/2 right-5 -translate-y-1/2 text-slate-400" />
+                        </div>
+                        {recentToolsDetails.length > 0 && !searchTerm && (
+                            <div>
+                                <h3 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2'><Clock size={14}/> آخر استخدام</h3>
+                                <ul className='space-y-1'>
+                                     {recentToolsDetails.map(tool => (
+                                        <li key={`recent-${tool.id}`}>
+                                            <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-dark-card/50 ${activeToolId === tool.id && !activeConversationId ? 'bg-primary/10 text-primary font-bold' : ''}`}>
+                                                <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
+                                                <span className='text-sm'>{tool.title}</span>
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
                         <ul className='space-y-1'>
                             {Object.entries(toolsByCategory).map(([category, tools]) => (
@@ -154,7 +183,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
                                         </summary>
                                         <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
-                                            {tools.map((tool) => (
+                                            {/* FIX: Explicitly cast 'tools' as 'Tool[]' to resolve a TypeScript error where its type was being inferred as 'unknown'. */}
+                                            {(tools as Tool[]).map((tool) => (
                                                 <li key={tool.id}>
                                                     <button
                                                         onClick={() => handleToolClick(tool.id)}

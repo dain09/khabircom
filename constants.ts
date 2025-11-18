@@ -2,7 +2,7 @@
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2
+    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -35,6 +35,7 @@ export const TOOLS: Tool[] = [
     { id: 'ai-teacher', title: 'الأستاذ الفهلوي في التخطيط', description: 'اديني اسم موضوع صعب وأنا هعملك خطة مذاكرة فهلوانية', icon: GraduationCap, color: 'text-purple-400', category: 'المعرفة والمساعدة' },
     { id: 'habit-analyzer', title: 'المحلل الفهلوي', description: 'قول 5 حاجات عنك وأنا هطلعلك موهبتك الخفية', icon: Target, color: 'text-orange-600', category: 'المعرفة والمساعدة' },
     { id: 'memory-manager', title: 'الذاكرة', description: 'خزّن معلومات عنك عشان الخبير يفتكرها', icon: BrainCircuit, color: 'text-pink-500', category: 'المعرفة والمساعدة' },
+    { id: 'khabirkom-settings', title: 'ظبّط خبيركم', description: 'تحكم في شخصية الخبير وردوده', icon: SlidersHorizontal, color: 'text-cyan-500', category: 'المعرفة والمساعدة' },
 
     // الإنتاجية اليومية
     { id: 'voice-analysis', title: 'تحليل الصوت', description: 'من صوتك هقولك مودك إيه (تجريبي)', icon: Mic, color: 'text-brown-500', category: 'الإنتاجية اليومية' },

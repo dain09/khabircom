@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
-import { Message, AnalysisResult, Tool } from "../types";
+import { Message, AnalysisResult, Tool, PersonaSettings } from "../types";
 import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
 import { TOOLS } from '../constants';
 import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
@@ -13,7 +13,7 @@ const toolListForPrompt = TOOLS
     .map(t => `- ${t.title} (للوصول إليها استخدم ID: ${t.id})`)
     .join('\n');
 
-const getChatPersonaInstruction = (memory: Record<string, string>): string => {
+const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
@@ -23,17 +23,27 @@ const getChatPersonaInstruction = (memory: Record<string, string>): string => {
                         "\n--- نهاية ذاكرة المستخدم ---";
     }
 
-    return EGYPTIAN_PERSONA_INSTRUCTION + memoryContext + "\n\n" +
+    const personaContext = "\n\n--- إعدادات الشخصية ---\n" +
+                           `اضبط شخصيتك بناءً على هذه الإعدادات:
+- مستوى الهزار والكوميديا: ${persona.humor}/10 (1=جد, 10=تحفيل).
+- مستوى التفصيل في الرد: ${persona.verbosity}/10 (1=مختصر, 10=رغاي).
+- اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}. ركز على هذه المواضيع.` +
+                           "\n--- نهاية إعدادات الشخصية ---";
+
+
+    return EGYPTIAN_PERSONA_INSTRUCTION + memoryContext + personaContext + "\n\n" +
     "أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\n" +
-    "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" +
-    "2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا, أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" +
-    "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" +
-    "4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" +
+    "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" + 
+    "2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار بناءً على إعدادات الشخصية أعلاه وسياق السؤال. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا, أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" + 
+    "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" + 
+    "4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" + 
     toolListForPrompt +
     "\n\nمثال: لو المستخدم طلب 'اعملي صورة لقطة'، يجب أن ترد بشيء مثل 'طبعًا! استخدم [TOOL:image-generator] عشان أعملك أحلى صورة.'\n" +
-    "5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" +
+    "5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" + 
     "6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\n\n" + SOURCE_CODE_CONTEXT + "\n\n" +
-    "7. **الذاكرة التلقائية:** إذا ذكر المستخدم معلومة شخصية مهمة (مثل اسمه، وظيفته، هواياته)، قم بحفظها فورًا. استخدم الصيغة التالية **فقط** داخل ردك: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`. سيتم إخفاء هذا الأمر تلقائيًا. مثال: لو قال المستخدم 'اسمي أحمد'، يجب أن ترد 'أهلاً يا أحمد، اتشرفت بيك! [SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"أحمد\"}]'.";
+    "7. **الذاكرة التلقائية:** إذا ذكر المستخدم معلومة شخصية مهمة (مثل اسمه، وظيفته، هواياته)، قم بحفظها فورًا. استخدم الصيغة التالية **فقط** داخل ردك: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`. سيتم إخفاء هذا الأمر تلقائيًا. مثال: لو قال المستخدم 'اسمي أحمد'، يجب أن ترد 'أهلاً يا أحمد، اتشرفت بيك! [SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"أحمد\"}]'.\n" +
+    "8. **التعامل مع الملفات:** إذا بدأ نص المستخدم بـ `[ملف مرفق: file_name.pdf]`, فهذا يعني أنه أرفق ملف PDF. يجب عليك أن تسأله بشكل استباقي إذا كان يريد تلخيص هذا الملف باستخدام أداة تلخيص الملفات. يجب أن ترد بشيء مثل: 'تمام، شفت إنك رفعت ملف PDF. تحب أوديه لـ [TOOL:pdf-summarizer] عشان ألخصهولك؟'.\n" +
+    "9. **تنفيذ المهام المركبة (Tool Chaining):** إذا طلب المستخدم مهمة معقدة تحتاج لأكثر من أداة (مثال: 'اكتبلي بوست عن أسوان واعملي صورة ليه')، قم بتكسير المهمة لخطوات منطقية. قم بتنفيذ الخطوة الأولى بنفسك (مثل كتابة البوست)، ثم قدم النتيجة للمستخدم واقترح عليه الخطوة التالية بوضوح مع توجيهه للأداة المناسبة. مثال للرد: 'تمام جدًا! ادي البوست عن أسوان: [محتوى البوست هنا]. الخطوة الجاية، ايه رأيك نعمل صورة؟ استخدم [TOOL:image-generator] وحط فيه الوصف ده عشان تطلع صورة جامدة: [وصف مقترح للصورة].'";
 }
 
 // This function gets the current valid API key and creates a Gemini client
@@ -111,11 +121,11 @@ const callGemini = async (
 };
 
 // 1. Chat (Streaming) - Now supports multimodal input and user memory
-export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>) => {
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
         // ALWAYS use the more capable model for chat to handle large context (source code) and vision.
         const modelName = 'gemini-2.5-pro';
-        const chatPersona = getChatPersonaInstruction(memory);
+        const chatPersona = getChatPersonaInstruction(memory, persona);
 
         // Reconstruct history with multimodal parts if they exist
         const historyForApi = history.map(msg => {
@@ -162,16 +172,57 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
     });
 };
 
-// New function for dynamic welcome suggestions
-export const generateWelcomeSuggestions = async (): Promise<{ suggestions: string[] }> => {
-    const prompt = `اقترح 3 مواضيع شيقة ومبتكرة لبدء محادثة مع مساعد ذكاء اصطناعي مصري فكاهي. خلي الاقتراحات قصيرة ومباشرة. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string"] \n}`;
+// New function for dynamic welcome suggestions (DEPRECATED, REPLACED BY getMorningBriefing)
+export const generateWelcomeSuggestions = async (context: { lastToolTitle?: string, timeOfDay: string }): Promise<{ suggestions: string[] }> => {
+    const timePrompt = `الوقت الحالي هو ${context.timeOfDay}.`;
+    const toolPrompt = context.lastToolTitle ? `آخر أداة استخدمها المستخدم كانت '${context.lastToolTitle}'.` : 'المستخدم لم يستخدم أي أداة متخصصة بعد.';
+    
+    const prompt = `بناءً على هذا السياق: ${timePrompt} ${toolPrompt}\n\nاقترح 3 مواضيع شيقة ومبتكرة وذات صلة لبدء محادثة مع مساعد ذكاء اصطناعي مصري فكاهي. خلي الاقتراحات قصيرة ومباشرة ومختلفة عن بعضها. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string"] \n}`;
+
     const result = await withApiKeyRotation(async (ai) => {
         const response: GenerateContentResponse = await ai.models.generateContent({
           model: 'gemini-flash-latest',
           contents: prompt,
           config: { 
             responseMimeType: 'application/json',
-            // No system instruction for this specific call to get more creative/general suggestions
+          }
+        });
+        return response.text;
+    });
+    return JSON.parse(result);
+};
+
+export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise<{ greeting: string; news_summary: string; daily_challenge: string; meme_prompt: string; suggestions: string[] }> => {
+    const interests = persona.interests.length > 0 
+        ? persona.interests.join(', ') 
+        : (memory['الاهتمامات'] || 'الأخبار العامة والتكنولوجيا');
+
+    const prompt = `أنت 'خبيركم'، مساعد مصري ذكي وفكاهي. جهز للمستخدم "الروقان الصباحي" بتاعه.
+الوقت الحالي: ${timeOfDay}.
+اهتمامات المستخدم: ${interests}.
+
+مهمتك تجهيز رد JSON بالSchema التالية:
+{
+  "greeting": "string",
+  "news_summary": "string",
+  "daily_challenge": "string",
+  "meme_prompt": "string",
+  "suggestions": ["string", "string", "string"]
+}
+
+التعليمات:
+1.  **greeting**: اكتب تحية مناسبة للوقت (مثال: صباح الفل يا...).
+2.  **news_summary**: لخص أهم خبرين في اهتمامات المستخدم بأسلوب مصري بسيط ومختصر. لو مفيش اهتمامات، لخص أخبار عامة.
+3.  **daily_challenge**: اخترع تحدي يومي بسيط ومضحك (مثال: تحدي النهاردة: حاول متقولش كلمة 'اللي هو' لمدة ساعة).
+4.  **meme_prompt**: اكتب وصف إنجليزي دقيق ومضحك لصورة ميم ليها علاقة بالأحداث الحالية أو المود العام عشان أداة توليد الصور تستخدمه. (e.g., 'a photo of a tired cat looking at a laptop with code, text bubble says "one more bug to fix"').
+5.  **suggestions**: اقترح 3 مواضيع محادثة شيقة بناءً على اهتمامات المستخدم أو الوقت الحالي.
+`;
+    const result = await withApiKeyRotation(async (ai) => {
+        const response: GenerateContentResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-pro', // Use pro for better structured JSON
+          contents: prompt,
+          config: { 
+            responseMimeType: 'application/json',
           }
         });
         return response.text;

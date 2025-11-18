@@ -1,7 +1,6 @@
 
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Copy, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
@@ -16,25 +15,34 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
-
+// Fix: Import usePersona to get persona settings.
+import { usePersona } from '../../hooks/usePersona';
 
 const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
-    const staticSuggestions = [
+    const { recentTools } = useTool();
+
+    const context = useMemo(() => {
+        const hour = new Date().getHours();
+        const timeOfDay = hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
+        const lastToolId = recentTools[0];
+        const lastTool = TOOLS.find(t => t.id === lastToolId);
+        return { timeOfDay, lastToolTitle: lastTool?.title };
+    }, [recentTools]);
+
+    const { data, isLoading, error, execute } = useGemini<{ suggestions: string[] }, typeof context>(
+        () => generateWelcomeSuggestions(context)
+    );
+
+    useEffect(() => {
+        execute(context);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context]);
+
+    const suggestions = data?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",
         "لخصلي مفهوم الثقب الأسود",
         "اقترح فكرة مشروع جديدة"
     ];
-
-    const { data, isLoading, error, execute } = useGemini<{ suggestions: string[] }, void>(
-        () => generateWelcomeSuggestions()
-    );
-
-    useEffect(() => {
-        execute();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const suggestions = data?.suggestions || staticSuggestions;
 
     return (
         <div className="flex flex-col h-full items-center justify-center text-center p-4">
@@ -47,7 +55,6 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
             </p>
             <div className="flex flex-wrap justify-center gap-3 animate-slideInUp" style={{ animationDelay: '300ms' }}>
                  {isLoading && !data ? (
-                    // Skeleton loaders for suggestions
                     Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="p-2 px-4 h-9 w-40 bg-slate-200/60 dark:bg-dark-card/60 rounded-full animate-pulse"></div>
                     ))
@@ -69,14 +76,16 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
     );
 };
 
-
-const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const { setActiveToolId } = useTool();
-    const [isExpanded, setIsExpanded] = useState(false);
+    const content = message.parts[0].text;
 
-    // Heuristic to decide if content is long enough to be collapsed
-    const isLong = content.length > 500 || content.split('\n').length > 10;
-    const displayContent = isLong && !isExpanded ? content.substring(0, 400) + '...' : content;
+    const fixMarkdownSpacing = (text: string) => {
+        const regex = /(\*\*.*?\*\*|\*.*?\*)(?=\S)/g;
+        return text.replace(regex, '$1 ');
+    };
+
+    const processedContent = fixMarkdownSpacing(content);
     
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
         const [isCopied, setIsCopied] = useState(false);
@@ -122,7 +131,7 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
             if (typeof child === 'string') {
                 const parts = child.split(toolRegex);
                 parts.forEach((part, index) => {
-                    if (index % 2 === 1) { // This is a tool ID
+                    if (index % 2 === 1) {
                         const toolId = part.trim();
                         const tool = TOOLS.find(t => t.id === toolId);
                         if (tool) {
@@ -163,64 +172,42 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
                     code: CodeBlock,
                 }}
             >
-                {displayContent}
+                {processedContent}
             </ReactMarkdown>
-            {isLong && !isExpanded && (
-                <button
-                    onClick={() => setIsExpanded(true)}
-                    className="text-primary font-bold text-sm mt-2"
-                >
-                    اعرض المزيد...
-                </button>
-            )}
-            {isLong && isExpanded && (
-                 <button
-                    onClick={() => setIsExpanded(false)}
-                    className="text-primary font-bold text-sm mt-2"
-                >
-                    اعرض أقل...
-                </button>
-            )}
         </div>
     );
 };
 
-
 const Chat: React.FC = () => {
-    const { 
-        activeConversation, 
-        addMessageToConversation, 
-        updateMessageInConversation,
-        createNewConversation, 
-        activeConversationId,
-        conversations
-    } = useChat();
+    const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations } = useChat();
     const { memory, updateMemory } = useMemory();
+    // Fix: Get persona settings to pass to the API.
+    const { persona } = usePersona();
     
     const [input, setInput] = useState('');
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [attachedFile, setAttachedFile] = useState<File | null>(null);
+    const [filePreview, setFilePreview] = useState<string | null>(null);
     const [isResponding, setIsResponding] = useState(false);
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isListening, setIsListening] = useState(false);
     const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const imageInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const stopStreamingRef = useRef(false);
     const streamingMessageIdRef = useRef<string | null>(null);
-
-    useEffect(() => {
-        const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
-        checkIsMobile();
-        window.addEventListener('resize', checkIsMobile);
-        return () => window.removeEventListener('resize', checkIsMobile);
-    }, []);
+    const recognitionRef = useRef<any>(null);
     
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [activeConversation?.messages, isResponding]);
+        const container = scrollContainerRef.current;
+        if (container) {
+            const timer = setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [activeConversationId, activeConversation?.messages, isResponding]);
     
     const handleCopy = (text: string, messageId: string) => {
         navigator.clipboard.writeText(text);
@@ -239,7 +226,8 @@ const Chat: React.FC = () => {
             id: modelMessageId,
             role: 'model',
             parts: [{ text: '' }],
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            isStreaming: true,
         });
 
         let fullText = '';
@@ -249,7 +237,8 @@ const Chat: React.FC = () => {
                 .filter(m => m.id !== userMessage.id && m.id !== modelMessageId && !m.error)
                 || [];
 
-            const stream = await generateChatResponseStream(historyForApi, newMessage, memory);
+            // Fix: Pass the 'persona' object as the fourth argument to the service function.
+            const stream = await generateChatResponseStream(historyForApi, newMessage, memory, persona);
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
@@ -283,7 +272,6 @@ const Chat: React.FC = () => {
                     }
                 }
             }
-
         } catch (error) {
             console.error("Streaming Error:", error);
             const errorText = fullText 
@@ -295,14 +283,16 @@ const Chat: React.FC = () => {
             });
         } finally {
             setIsResponding(false);
+            updateMessageInConversation(convoId, modelMessageId, { isStreaming: false });
             stopStreamingRef.current = false;
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
-    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory]);
+    // Fix: Add 'persona' to the dependency array.
+    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona]);
 
     const handleSend = useCallback(async () => {
-        if ((!input.trim() && !imageFile) || isResponding) return;
+        if ((!input.trim() && !attachedFile) || isResponding) return;
 
         setStoppedMessageId(null);
         let currentConvoId = activeConversationId;
@@ -310,27 +300,34 @@ const Chat: React.FC = () => {
             const newConvo = createNewConversation();
             currentConvoId = newConvo.id;
         }
-
+        
+        const isImage = attachedFile?.type.startsWith('image/');
+        const isPdf = attachedFile?.type === 'application/pdf';
+        
+        let textToSend = input;
+        if (isPdf) {
+            textToSend = `[ملف مرفق: ${attachedFile.name}]\n${input}`;
+        }
+        
         const userMessage: Message = { 
             id: uuidv4(),
             role: 'user', 
-            parts: [{ text: input }],
+            parts: [{ text: textToSend }],
             timestamp: new Date().toISOString(),
-            imageUrl: imagePreview
+            imageUrl: isImage ? filePreview : undefined,
         };
 
         addMessageToConversation(currentConvoId, userMessage);
         
-        const textToSend = input;
-        const imageToSend = imageFile;
+        const imageToSend = isImage ? attachedFile : undefined;
 
         setInput('');
-        setImageFile(null);
-        setImagePreview(null);
+        setAttachedFile(null);
+        setFilePreview(null);
         
         await streamModelResponse(currentConvoId, userMessage, { text: textToSend, imageFile: imageToSend });
 
-    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse, imageFile, imagePreview]);
+    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse, attachedFile, filePreview]);
 
     const handleStop = () => {
         stopStreamingRef.current = true;
@@ -362,8 +359,10 @@ const Chat: React.FC = () => {
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
         try {
+            updateMessageInConversation(convoId, messageToContinueId, { isStreaming: true });
             const historyForApi = conversation.messages;
-            const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." }, memory);
+            // Fix: Pass the 'persona' object as the fourth argument to the service function.
+            const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." }, memory, persona);
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
@@ -404,12 +403,14 @@ const Chat: React.FC = () => {
             });
         } finally {
             setIsResponding(false);
+            updateMessageInConversation(convoId, messageToContinueId, { isStreaming: false });
             stopStreamingRef.current = false;
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
 
-    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory]);
+    // Fix: Add 'persona' to the dependency array.
+    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory, persona]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
@@ -420,11 +421,11 @@ const Chat: React.FC = () => {
 
         if (userMessage && userMessage.role === 'user') {
             updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
-            streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text, imageFile: imageFile || undefined });
+            streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text, imageFile: attachedFile || undefined });
         } else {
             console.error("Could not find user message to retry from.");
         }
-    }, [activeConversationId, activeConversation?.messages, updateMessageInConversation, streamModelResponse, imageFile]);
+    }, [activeConversationId, activeConversation?.messages, updateMessageInConversation, streamModelResponse, attachedFile]);
 
 
     const handleSuggestionClick = useCallback(async (prompt: string) => {
@@ -445,15 +446,19 @@ const Chat: React.FC = () => {
         await streamModelResponse(convoId, userMessage, { text: prompt });
     }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            setAttachedFile(file);
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setFilePreview(reader.result as string);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                setFilePreview(null);
+            }
         }
     };
     
@@ -463,10 +468,10 @@ const Chat: React.FC = () => {
             if (items[i].type.indexOf('image') !== -1) {
                 const file = items[i].getAsFile();
                 if (file) {
-                    setImageFile(file);
+                    setAttachedFile(file);
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        setImagePreview(reader.result as string);
+                        setFilePreview(reader.result as string);
                     };
                     reader.readAsDataURL(file);
                 }
@@ -475,6 +480,43 @@ const Chat: React.FC = () => {
             }
         }
     };
+    
+    const handleListen = useCallback(() => {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('للأسف، متصفحك مش بيدعم ميزة الإدخال الصوتي.');
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current?.stop();
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-EG';
+        recognition.interimResults = true;
+        recognition.continuous = true;
+        recognitionRef.current = recognition;
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = (event: any) => console.error('Speech recognition error:', event.error);
+        
+        recognition.onresult = (event: any) => {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                     setInput(prev => (prev ? prev + ' ' : '') + event.results[i][0].transcript);
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+        };
+
+        recognition.start();
+
+    }, [isListening]);
 
     if (!activeConversation) {
         return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
@@ -482,28 +524,21 @@ const Chat: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
-            <div className="flex-1 overflow-y-auto p-2 sm:p-6">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2 sm:p-6">
                  {activeConversation.messages.length === 0 ? (
                     <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
-                                msg.role === 'user' 
-                                ? 'justify-start' // RTL: justify-start is right
-                                : 'justify-end'   // RTL: justify-end is left
+                                msg.role === 'user' ? 'justify-start' : 'justify-end'
                             }`}>
                                 <div className={`flex items-end gap-2 sm:gap-3 max-w-[90%] ${
-                                     // JSX order: Avatar, then Bubble.
-                                     // User (right): want [Avatar] [Bubble]. Use flex-row.
-                                     // Bot (left): want [Avatar] [Bubble]. But avatar should be on the left. Reverse the items.
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
                                 }`}>
                                     
                                     <div className={`self-end flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                                        msg.role === 'user'
-                                        ? 'bg-primary/20'
-                                        : 'bg-slate-200 dark:bg-slate-700'
+                                        msg.role === 'user' ? 'bg-primary/20' : 'bg-slate-200 dark:bg-slate-700'
                                     }`}>
                                         {msg.role === 'user'
                                             ? <User className="w-5 h-5 text-primary" />
@@ -511,10 +546,12 @@ const Chat: React.FC = () => {
                                         }
                                     </div>
 
-                                    <div className="flex flex-col gap-1 w-full">
+                                    <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                                         {msg.role === 'user' && msg.imageUrl && (
-                                            <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm self-start">
-                                                <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
+                                            <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                    <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain cursor-pointer" />
+                                                </a>
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
@@ -524,20 +561,20 @@ const Chat: React.FC = () => {
                                                 : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
-                                                    {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
-                                                        <div className="flex space-x-1 p-2 justify-center items-center">
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                    {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
+                                                        <div className="flex gap-1.5 justify-center items-center px-2 py-1">
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
-                                                        <MessageContent content={msg.parts[0].text} />
+                                                        <MessageContent message={msg} />
                                                     )}
                                                 </div>
                                             </div>
                                         )}
                                         {msg.error && (
-                                            <div className="mt-1.5 flex items-center gap-2 self-start">
+                                            <div className="mt-1.5 flex items-center gap-2">
                                                 <span className="text-xs text-red-500">فشل الرد</span>
                                                 <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
                                                     <RefreshCw size={14} />
@@ -545,7 +582,7 @@ const Chat: React.FC = () => {
                                             </div>
                                         )}
                                         {!msg.error && msg.id === stoppedMessageId && !isResponding && (
-                                            <div className="mt-1.5 flex items-center gap-2 self-start">
+                                            <div className="mt-1.5 flex items-center gap-2">
                                                 <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
                                                 <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
                                                     <Play size={14} />
@@ -575,10 +612,10 @@ const Chat: React.FC = () => {
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
                                     <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
-                                        <div className="flex space-x-1 p-2 justify-center items-center">
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                         </div>
                                     </div>
                                 </div>
@@ -586,16 +623,22 @@ const Chat: React.FC = () => {
                         )}
                     </div>
                  )}
-                <div ref={messagesEndRef} />
             </div>
 
             <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl" onPaste={handlePaste}>
-                 {imagePreview && (
-                    <div className="relative w-24 h-24 mb-2 p-1 border rounded-lg border-primary/50">
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md"/>
+                 {attachedFile && (
+                    <div className="relative w-fit max-w-full mb-2 p-2 pr-8 border rounded-lg border-primary/50 bg-primary/10">
+                        {filePreview ? (
+                            <img src={filePreview} alt="Preview" className="w-20 h-20 object-cover rounded-md"/>
+                        ) : (
+                            <div className='flex items-center gap-2 text-primary'>
+                                <FileText size={24} />
+                                <span className='text-sm font-medium truncate'>{attachedFile.name}</span>
+                            </div>
+                        )}
                         <button 
-                            onClick={() => { setImageFile(null); setImagePreview(null); }}
-                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full"
+                            onClick={() => { setAttachedFile(null); setFilePreview(null); }}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
                         >
                             <X size={14} />
                         </button>
@@ -603,11 +646,11 @@ const Chat: React.FC = () => {
                 )}
                  <div className="flex items-end gap-2 sm:gap-3">
                     {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                        <Button onClick={handleStop} className="order-1 p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
                             <StopCircle size={24} />
                         </Button>
                     ) : (
-                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                         <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="order-1 p-3 rounded-full" aria-label="إرسال الرسالة">
                             <Send size={24} />
                         </Button>
                     )}
@@ -621,18 +664,29 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
-                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
+                        placeholder="اسأل أي حاجة..."
+                        className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect textarea-scrollbar"
                         aria-label="اكتب رسالتك هنا"
                     />
-                    <button
-                        className="p-3 rounded-full bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-dark-foreground dark:hover:bg-slate-600 transition-colors" 
-                        aria-label="إرفاق صورة"
-                        onClick={() => imageInputRef.current?.click()}
-                    >
-                        <Plus size={24} />
-                    </button>
-                    <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                    <div className='order-3 flex items-center gap-1'>
+                        <Button
+                            variant="secondary"
+                            className="p-3 rounded-full"
+                            aria-label="إرفاق ملف"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <Paperclip size={24} />
+                        </Button>
+                         <Button
+                            variant="secondary"
+                            className={`p-3 rounded-full ${isListening ? 'bg-red-500/20 text-red-500 animate-pulse' : ''}`}
+                            aria-label="إدخال صوتي"
+                            onClick={handleListen}
+                        >
+                            <Mic size={24} />
+                        </Button>
+                    </div>
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>
             </div>
         </div>

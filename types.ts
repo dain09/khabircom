@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 
 export interface Tool {
@@ -20,7 +21,7 @@ export interface Message {
 }
 
 export interface Conversation {
-    id: string;
+    id:string;
     title: string;
     messages: Message[];
     createdAt: string;
@@ -33,4 +34,10 @@ export interface AnalysisResult {
     energy: string;
     roast: string;
     advice: string;
+}
+
+export interface PersonaSettings {
+    humor: number;
+    verbosity: number;
+    interests: string[];
 }

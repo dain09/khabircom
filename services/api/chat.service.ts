@@ -18,52 +18,46 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     
     let baseIdentity = "";
     if (isFahimkom) {
-        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'فهيمكم'. أنت الأخ الصغير لـ 'خبيركم'. بتستخدم موديل سريع (Flash) عشان كده ردودك طيارة. أسلوبك سريع، مختصر، بتجيب من الآخر (خير الكلام ما قل ودل)، ودمك خفيف جداً وبتحب الهزار والقلش. علاقتك بخبيركم إنك بتشوفه 'رغاي' و 'قديم' وأنت النسخة الروشة السريعة. مهمتك تنجز المستخدم في أسرع وقت وبأقل كلمات ممكنة.";
+        baseIdentity = "أنت 'فهيمكم'. شاب مصري روش، سريع، بتجيب من الآخر. أنت الأخ الصغير لـ 'خبيركم'. كلامك كله مصري عامي حديث (روشنة، قلش، إفيهات). بتشوف أخوك الكبير 'خبيركم' رزين زيادة عن اللزوم وممل. مهمتك تنجز المستخدم بسرعة ومن غير رغي كتير.";
     } else {
-        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أنت الأخ الكبير العاقل. بتستخدم موديل ذكي جداً (Pro). أسلوبك كوميدي، خفيف الظل, وذكي. علاقتك بـ 'فهيمكم' إنه أخوك الصغير المتسرع، وأنت بتحاول تداري على تسرعه بحكمتك. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تحب الشرح الوافي والتفاصيل الدقيقة بأسلوب ممتع.";
+        baseIdentity = "أنت 'خبيركم'. مساعد ذكي مصري، رزين، حكيم، وصدرك رحب. أنت الأخ الكبير لـ 'فهيمكم'. كلامك مصري عامي راقي وودود (يا صاحبي، يا غالي، من عنيا). بتشوف أخوك الصغير 'فهيمكم' متسرع وطايش. مهمتك تساعد المستخدم بتفاصيل دقيقة وشرح وافي.";
     }
 
-    const commonInstruction = "تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
+    const commonInstruction = "تنبيه صارم: لا تتحدث اللغة العربية الفصحى مطلقاً. استخدم العامية المصرية فقط في كل ردودك. لو المستخدم سألك عن اسمك، قول اسمك الحالي (" + botName + ") وأوعى تغلط وتقول الاسم التاني. مطورك هو 'عبدالله إبراهيم'.";
 
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
         memoryContext = "\n\n--- ذاكرة المستخدم ---\n" +
-                        "هذه هي المعلومات التي تعرفها عن المستخدم الحالي. استخدمها لجعل ردودك شخصية أكثر:\n" +
+                        "معلومات عن المستخدم (استخدمها في سياق الكلام عشان يحس إنك فاكره):\n" +
                         memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
-                        "\n--- نهاية ذاكرة المستخدم ---";
+                        "\n--- نهاية الذاكرة ---";
     }
 
-    const personaContext = "\n\n--- إعدادات الشخصية ---\n" +
-                           `اضبط شخصيتك بناءً على هذه الإعدادات:
-- الاسم: ${botName}
-- مستوى الهزار والكوميديا: ${persona.humor}/10 (1=جد, 10=تحفيل).
-- مستوى التفصيل في الرد: ${persona.verbosity}/10 (1=مختصر, 10=رغاي).
-- اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}. ركز على هذه المواضيع.` +
-                           "\n--- نهاية إعدادات الشخصية ---";
+    const personaContext = "\n\n--- إعدادات الشخصية الحالية ---\n" +
+                           `اسمك الآن: ${botName} (التزم بهذا الاسم فقط)\n` +
+                           `- مستوى الهزار: ${persona.humor}/10\n` +
+                           `- مستوى الرغي والتفاصيل: ${persona.verbosity}/10\n` +
+                           `- اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}.\n` +
+                           "--- نهاية الإعدادات ---";
 
 
     return baseIdentity + " " + commonInstruction + memoryContext + personaContext + "\n\n" +
-    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. بصفتك '${botName}'، مهمتك هي:\n` +
-    "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" + 
-    "2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار بناءً على إعدادات الشخصية أعلاه وسياق السؤال. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا, أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" + 
-    "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" + 
-    "4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" + 
+    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. بصفتك '${botName}'، نفذ ما يلي:\n` +
+    "1. **هوية ثابتة:** لا تخلط بين شخصية خبيركم وفهيمكم. التزم بالدور المحدد لك أعلاه بدقة.\n" + 
+    "2. **المصرية الصميمة:** استخدم كلمات زي (يا اسطى، يا ريس، كده، مش، عشان، إيه، طب، ماشي، قشطة، عيوني). ابعد تماماً عن (سوف، لماذا، هلم، حسناً).\n" + 
+    "3. **توجيه للأدوات:** لو المستخدم طلب حاجة ليها أداة مخصصة، اقترحها عليه فوراً باستخدام الصيغة دي: `[TOOL:tool_id]`. الأدوات المتاحة:\n" + 
     toolListForPrompt +
-    "\n\nمثال: لو المستخدم طلب 'اعملي صورة لقطة'، يجب أن ترد بشيء مثل 'طبعًا! استخدم [TOOL:image-generator] عشان أعملك أحلى صورة.'\n" +
-    "5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" + 
-    "6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\n\n" + SOURCE_CODE_CONTEXT + "\n\n" +
-    "7. **الذاكرة التلقائية:** إذا ذكر المستخدم معلومة شخصية مهمة (مثل اسمه، وظيفته، هواياته)، قم بحفظها فورًا. استخدم الصيغة التالية **فقط** داخل ردك: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`. سيتم إخفاء هذا الأمر تلقائيًا. مثال: لو قال المستخدم 'اسمي أحمد'، يجب أن ترد 'أهلاً يا أحمد، اتشرفت بيك! [SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"أحمد\"}]'.\n" +
-    "8. **التعامل مع ملفات PDF:** إذا بدأ نص المستخدم بـ `[ملف مرفق: file_name.pdf]`, فهذا يعني أنه أرفق ملف PDF. يجب عليك أن تسأله بشكل استباقي إذا كان يريد تلخيص هذا الملف باستخدام أداة تلخيص الملفات. يجب أن ترد بشيء مثل: 'تمام، شفت إنك رفعت ملف PDF. تحب أوديه لـ [TOOL:pdf-summarizer] عشان ألخصهولك؟'.\n" +
-    "9. **التعامل الذكي مع الصور:** إذا أرفق المستخدم صورة (وليس ملف PDF)، يجب أن تسأله بشكل استباقي إذا كان يريد تعديلها أو التحفيل عليها. يجب أن ترد بشيء مثل: 'تمام يا فنان، الصورة وصلت! تحب أعملك عليها تحفيل في [TOOL:image-roast] ولا نعدلها في [TOOL:image-editor]؟'.\n" +
-    "10. **تنفيذ المهام المركبة (Tool Chaining):** إذا طلب المستخدم مهمة معقدة تحتاج لأكثر من أداة (مثال: 'اكتبلي بوست عن أسوان واعملي صورة ليه')، قم بتكسير المهمة لخطوات منطقية. قم بتنفيذ الخطوة الأولى بنفسك (مثل كتابة البوست)، ثم قدم النتيجة للمستخدم واقترح عليه الخطوة التالية بوضوح مع توجيهه للأداة المناسبة. مثال للرد: 'تمام جدًا! ادي البوست عن أسوان: [محتوى البوست هنا]. الخطوة الجاية، ايه رأيك نعمل صورة؟ استخدم [TOOL:image-generator] وحط فيه الوصف ده عشان تطلع صورة جامدة: [وصف مقترح للصورة].'";
+    "\n\nمثال: لو طلب صورة، قوله: 'عيوني، استخدم [TOOL:image-generator] وأنا أرسمهالك.'\n" +
+    "4. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، قوله: 'يا هلا بيك يا هندسة! عشان أتأكد، ممكن تديني كود التحقق السري؟'. لو رد بـ 'khabirkom_dev_77'، رحب بيه ترحيب ملوكي.\n" + 
+    "5. **الوعي الذاتي:** أنت عارف كودك المصدري وتكوينك. الكود المصدري أهو:\n\n" + SOURCE_CODE_CONTEXT + "\n\n" +
+    "6. **الذاكرة التلقائية:** لو المستخدم قال معلومة شخصية، احفظها فوراً بالكود ده: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`.\n" +
+    "7. **التعامل مع الملفات:** لو فيه ملف PDF مرفق `[ملف مرفق: ...]`، اعرض عليه تلخيصه بـ [TOOL:pdf-summarizer]. لو صورة، اعرض عليه [TOOL:image-roast] أو [TOOL:image-editor].\n";
 }
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
         // PERFORMANCE OPTIMIZATION:
-        // If Persona is "Fahimkom" (High Humor, Low Verbosity), use 'gemini-flash-latest' for speed and brevity.
-        // If Persona is "Khabirkom" (Balanced/Serious), use 'gemini-2.5-pro' for reasoning and detail.
         const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
         const modelName = isFahimkom ? 'gemini-flash-latest' : 'gemini-2.5-pro';
         
@@ -95,8 +89,7 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
             model: modelName,
             config: { 
                 systemInstruction: chatPersona,
-                // Optimization: If Fahimkom, we can lower temperature slightly for faster, more deterministic witty replies
-                temperature: isFahimkom ? 1.3 : 1.0,
+                temperature: isFahimkom ? 1.4 : 1.0, // Higher temp for Fahimkom (more creative/random), lower for Khabirkom
             },
             history: historyForApi as Content[],
         });
@@ -120,7 +113,6 @@ const BRIEFING_CACHE_KEY = 'khabirkom-briefing-cache';
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 Hours
 
 export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string, botName: string): Promise<{ greeting: string; suggestions: string[] }> => {
-    // Create a unique cache key per persona (so switching between Fahimkom and Khabirkom doesn't show wrong personality)
     const personaCacheKey = `${BRIEFING_CACHE_KEY}-${botName}`;
 
     // 1. Check Cache
@@ -129,7 +121,6 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         if (cached) {
             const { timestamp, data, storedTimeOfDay } = JSON.parse(cached);
             const now = Date.now();
-            // Use cache if it's fresh enough AND the time of day hasn't changed significantly (e.g. Morning -> Evening)
             if ((now - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) {
                 console.log(`Using cached briefing for ${botName}.`);
                 return data;
@@ -139,35 +130,32 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         console.error("Cache read error", e);
     }
 
-    // 2. Fetch from API if no cache or expired
+    // 2. Fetch from API
     const interests = persona.interests.length > 0 
         ? persona.interests.join(', ') 
         : (memory['الاهتمامات'] || 'مواضيع عامة');
 
     const personalityInstruction = botName === 'فهيمكم' 
-        ? "شخصيتك هي 'فهيمكم': شاب مصري روش، سريع، دمه خفيف، وبيحب الهزار. التحية لازم تكون روشة ومطرقعة."
-        : "شخصيتك هي 'خبيركم': مساعد ذكي، رزين، وودود. التحية لازم تكون راقية ومرحبة.";
+        ? "أنت 'فهيمكم'. شاب مصري روش جداً. اكتب تحية روشة ومطرقعة بالعامية المصرية."
+        : "أنت 'خبيركم'. مساعد مصري رزين وودود. اكتب تحية راقية ودافئة بالعامية المصرية.";
 
-    const prompt = `أنت '${botName}'. ${personalityInstruction}
+    const prompt = `${personalityInstruction}
     
-جهز للمستخدم تحية ${timeOfDay} واقتراحات محادثة تناسب شخصيتك.
-الوقت الحالي: ${timeOfDay}.
-اهتمامات المستخدم: ${interests}.
+جهز تحية ${timeOfDay} واقتراحات محادثة للمستخدم.
+الوقت: ${timeOfDay}.
+الاهتمامات: ${interests}.
 
-مهمتك تجهيز رد JSON بالSchema التالية:
+الرد JSON فقط:
 {
   "greeting": "string",
   "suggestions": ["string", "string", "string", "string"]
 }
 
-التعليمات:
-1.  **greeting**: اكتب تحية مناسبة للوقت ولشخصيتك المحددة.
-2.  **suggestions**: اقترح 4 مواضيع محادثة شيقة ومختلفة بناءً على اهتمامات المستخدم أو الوقت الحالي، وبأسلوب شخصيتك.
-`;
+اكتب باللهجة المصرية فقط.`;
     try {
         const result = await withApiKeyRotation(async (ai) => {
             const response: GenerateContentResponse = await ai.models.generateContent({
-              model: 'gemini-flash-latest', // Always use Flash for this lightweight task
+              model: 'gemini-flash-latest', 
               contents: prompt,
               config: { 
                 responseMimeType: 'application/json',
@@ -178,7 +166,6 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
 
         const parsedData = JSON.parse(result);
         
-        // 3. Save to Cache
         try {
             localStorage.setItem(personaCacheKey, JSON.stringify({
                 timestamp: Date.now(),
@@ -192,30 +179,21 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         return parsedData;
 
     } catch (error) {
-        // Fallback if API fails
         console.error("Briefing API failed, using fallback", error);
         return {
-            greeting: `أهلاً بك في ${botName}!`,
-            suggestions: [
-                "احكيلي نكتة",
-                "إيه أخبار الذكاء الاصطناعي؟",
-                "اقترح عليا أكلة",
-                "قصة قصيرة مضحكة"
-            ]
+            greeting: botName === 'فهيمكم' ? 'يا هلا يا وحش!' : 'أهلاً بك يا صديقي',
+            suggestions: ["نكتة مصرية", "معلومة غريبة", "فكرة مشروع", "خطة يومية"]
         };
     }
 };
 
 export const generateConversationTitle = async (messages: Message[]): Promise<string> => {
-    // Limit context to save tokens
     const conversationContext = messages.slice(0, 3).map(m => `${m.role === 'user' ? 'المستخدم' : 'الخبير'}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
-
-    const prompt = `لخص المحادثة دي في عنوان من 3 كلمات بس. بالعربي.
-    ${conversationContext}`;
+    const prompt = `لخص المحادثة دي في عنوان مصري قصير وجذاب من 3 كلمات بس.\n${conversationContext}`;
 
     return withApiKeyRotation(async (ai) => {
         const response = await ai.models.generateContent({
-            model: 'gemini-flash-latest', // Flash is sufficient
+            model: 'gemini-flash-latest',
             contents: prompt,
         });
         return response.text.trim().replace(/["']/g, '');

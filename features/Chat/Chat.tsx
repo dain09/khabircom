@@ -106,77 +106,88 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     
     const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
+    const blobColors = isFahimkom
+        ? ["bg-orange-400/20", "bg-yellow-400/20", "bg-red-400/20"]
+        : ["bg-blue-400/20", "bg-purple-400/20", "bg-indigo-400/20"];
+
+    const textShimmerClass = isFahimkom
+        ? "bg-gradient-to-r from-orange-600 via-yellow-400 to-orange-600 dark:from-orange-400 dark:via-yellow-300 dark:to-orange-400 bg-[length:200%_auto] animate-shimmer"
+        : "bg-gradient-to-r from-slate-800 via-blue-500 to-slate-800 dark:from-white dark:via-blue-400 dark:to-slate-200 bg-[length:200%_auto] animate-shimmer";
+
     return (
-        <div className="flex flex-col h-full items-center justify-start pt-10 sm:pt-16 p-6 text-center overflow-y-auto no-scrollbar">
-            <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 mb-8 relative group cursor-default">
-                {/* Dynamic Background Glow based on Persona */}
-                <div className={`absolute inset-0 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500 ${isFahimkom ? 'bg-orange-500/30' : 'bg-blue-500/20'}`}></div>
+        <div className="flex flex-col h-full items-center justify-start pt-10 sm:pt-16 p-6 text-center overflow-y-auto no-scrollbar relative overflow-hidden">
+             {/* Animated Background Blobs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+                <div className={`absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[0]}`}></div>
+                <div className={`absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[1]}`} style={{ animationDelay: '2s', animationDirection: 'reverse' }}></div>
+                <div className={`absolute -bottom-20 left-[20%] w-[50%] h-[50%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[2]}`} style={{ animationDelay: '4s' }}></div>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center w-full max-w-4xl">
+                <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 mb-8 relative group cursor-default">
+                    {/* Dynamic Background Glow based on Persona */}
+                    <div className={`absolute inset-0 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 ${isFahimkom ? 'bg-orange-500/40' : 'bg-blue-500/30'}`}></div>
+                    
+                    {/* Icon Container */}
+                    <div className={`relative w-full h-full bg-gradient-to-br rounded-full flex items-center justify-center shadow-2xl border border-white/50 dark:border-slate-700/50 ${
+                        isFahimkom 
+                        ? 'from-white to-orange-50 dark:from-slate-800 dark:to-slate-900' 
+                        : 'from-white to-slate-100 dark:from-slate-800 dark:to-slate-900'
+                    }`}>
+                        {isFahimkom ? (
+                            <Zap size={56} className="text-orange-500 drop-shadow-lg sm:w-16 sm:h-16 fill-orange-500/10" />
+                        ) : (
+                            <Bot size={56} className="text-primary drop-shadow-lg sm:w-16 sm:h-16" />
+                        )}
+                    </div>
+                </div>
                 
-                {/* Icon Container */}
-                <div className={`relative w-full h-full bg-gradient-to-br rounded-full flex items-center justify-center shadow-2xl border border-white/50 dark:border-slate-700 ${
-                    isFahimkom 
-                    ? 'from-white to-orange-50 dark:from-slate-800 dark:to-slate-900' 
-                    : 'from-white to-slate-100 dark:from-slate-800 dark:to-slate-900'
-                }`}>
-                    {isFahimkom ? (
-                         <Zap size={56} className="text-orange-500 drop-shadow-lg sm:w-16 sm:h-16 fill-orange-500/10" />
+                {/* Greeting */}
+                {isBriefingLoading 
+                    ? <Skeleton className="h-12 w-64 mb-3 rounded-xl mx-auto" />
+                    : <h2 className={`text-2xl sm:text-4xl font-black mb-3 animate-slideInUp bg-clip-text text-transparent leading-relaxed px-2 py-1 ${textShimmerClass}`}>
+                        {briefing?.greeting || `${botName} تحت أمرك`}
+                    </h2>
+                }
+                
+                <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm sm:max-w-md animate-slideInUp leading-relaxed text-base delay-100 font-medium">
+                    {isFahimkom ? "جاهز يا وحش. عايز تخلص إيه النهاردة؟" : "جاهز لأي مهمة. ابدأ دردشة، اسأل سؤال، أو اختار أداة سريعة:"}
+                </p>
+
+                {/* Quick Tools Grid */}
+                <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full max-w-xl mb-10 animate-slideInUp delay-200">
+                    {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
+                </div>
+
+                <div className="w-full max-w-lg flex items-center gap-4 mb-6 opacity-60">
+                    <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">أو جرب تسألني</span>
+                    <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
+                </div>
+
+                {/* Suggestions */}
+                <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-3xl pb-8 w-full delay-300">
+                    {isBriefingLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                            <Skeleton key={i} className="h-10 w-36 rounded-full" />
+                        ))
                     ) : (
-                         <Bot size={56} className="text-primary drop-shadow-lg sm:w-16 sm:h-16" />
+                        suggestions.map((s, i) => (
+                            <button 
+                                key={s} 
+                                onClick={() => onSuggestionClick(s)}
+                                className={`group relative px-5 py-3 bg-white/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-full text-sm font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden active:scale-95 backdrop-blur-sm ${
+                                    isFahimkom ? 'hover:border-orange-400/50' : 'hover:border-primary/50'
+                                }`}
+                            >
+                                <span className={`relative z-10 text-slate-700 dark:text-slate-200 group-hover:text-current transition-colors`}>{s}</span>
+                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                                    isFahimkom ? 'bg-gradient-to-r from-orange-500/10 to-yellow-500/10' : 'bg-gradient-to-r from-primary/10 to-purple-500/10'
+                                }`} />
+                            </button>
+                        ))
                     )}
                 </div>
-            </div>
-            
-            {/* Greeting */}
-            {isBriefingLoading 
-                ? <Skeleton className="h-10 w-64 mb-3 rounded-xl mx-auto" />
-                : <h2 className={`text-2xl sm:text-4xl font-black mb-3 animate-slideInUp bg-clip-text text-transparent leading-relaxed px-2 py-1 ${
-                    isFahimkom 
-                    ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-500 dark:from-orange-400 dark:via-yellow-400 dark:to-orange-300'
-                    : 'bg-gradient-to-r from-slate-800 via-primary to-purple-600 dark:from-white dark:via-primary dark:to-purple-400'
-                }`}>
-                    {briefing?.greeting || `${botName} تحت أمرك`}
-                  </h2>
-            }
-            
-            <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm sm:max-w-md animate-slideInUp leading-relaxed text-base delay-100 font-medium">
-                {isFahimkom ? "جاهز يا وحش. عايز تخلص إيه النهاردة؟" : "جاهز لأي مهمة. ابدأ دردشة، اسأل سؤال، أو اختار أداة سريعة:"}
-            </p>
-
-            {/* Quick Tools Grid */}
-            <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full max-w-xl mb-10 animate-slideInUp delay-200">
-                {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
-            </div>
-
-            <div className="w-full max-w-lg flex items-center gap-4 mb-6 opacity-60">
-                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">أو جرب تسألني</span>
-                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
-            </div>
-
-            {/* Suggestions */}
-            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-3xl pb-8 w-full delay-300">
-                 {isBriefingLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                        <Skeleton key={i} className="h-10 w-36 rounded-full" />
-                    ))
-                ) : (
-                    suggestions.map((s, i) => (
-                        <button 
-                            key={s} 
-                            onClick={() => onSuggestionClick(s)}
-                            className={`group relative px-5 py-3 bg-white/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-full text-sm font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden active:scale-95 backdrop-blur-sm ${
-                                isFahimkom ? 'hover:border-orange-400/50' : 'hover:border-primary/50'
-                            }`}
-                        >
-                            <span className={`relative z-10 text-slate-700 dark:text-slate-200 transition-colors ${
-                                isFahimkom ? 'group-hover:text-orange-600 dark:group-hover:text-orange-400' : 'group-hover:text-primary'
-                            }`}>{s}</span>
-                            <div className={`absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                                isFahimkom ? 'from-orange-500/5 to-yellow-500/5' : 'from-primary/5 to-purple-500/5'
-                            }`} />
-                        </button>
-                    ))
-                )}
             </div>
         </div>
     );
@@ -337,10 +348,8 @@ const Chat: React.FC = () => {
     const streamingMessageIdRef = useRef<string | null>(null);
     const recognitionRef = useRef<any>(null);
 
-    const botName = useMemo(() => {
-        if (persona.humor >= 8 && persona.verbosity <= 3) return 'فهيمكم';
-        return 'خبيركم';
-    }, [persona.humor, persona.verbosity]);
+    const isFahimkom = useMemo(() => persona.humor >= 8 && persona.verbosity <= 3, [persona.humor, persona.verbosity]);
+    const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
     useEffect(() => {
         if (scrollContainerRef.current) {
@@ -441,8 +450,7 @@ const Chat: React.FC = () => {
         streamingMessageIdRef.current = modelMessageId;
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
-        const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
-        const currentBotName = isFahimkom ? 'فهيمكم' : 'خبيركم';
+        const currentBotName = persona.humor >= 8 && persona.verbosity <= 3 ? 'فهيمكم' : 'خبيركم';
 
         addMessageToConversation(convoId, {
             id: modelMessageId,
@@ -833,7 +841,7 @@ const Chat: React.FC = () => {
                                         )}
 
                                         {msg.role === 'model' && !msg.error && !msg.isStreaming && (
-                                            <div className="flex gap-2 mt-1.5 px-1 flex-wrap justify-end opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                            <div className="flex gap-2 mt-1.5 px-1 flex-wrap justify-end opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
                                                 <button 
                                                     onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
                                                     className={`p-1.5 rounded-full transition-all active:scale-90 ${speakingMessageId === msg.id ? 'bg-primary/20 text-primary animate-pulse' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
@@ -949,7 +957,7 @@ const Chat: React.FC = () => {
                                     handleSend();
                                 }
                             }}
-                            placeholder={`اسأل ${botName}...`}
+                            placeholder={isFahimkom ? "اسأل فهيمكم..." : "اسأل خبيركم..."}
                             className="w-full py-3.5 pl-12 pr-4 bg-transparent border-none outline-none resize-none max-h-32 min-h-[52px] text-base text-slate-800 dark:text-slate-200 placeholder:text-slate-400 rounded-[26px] textarea-scrollbar"
                             aria-label="اكتب رسالتك هنا"
                         />

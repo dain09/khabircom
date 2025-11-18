@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                 <span className="flex-1 truncate text-sm">{convo.title}</span>
                                             )}
                                             
-                                            <div className={`flex items-center gap-1 transition-opacity duration-200 ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                            <div className={`flex items-center gap-1 transition-opacity duration-200 ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'}`}>
                                                 {deleteConfirmationId === convo.id ? (
                                                     <div className='flex items-center gap-1 animate-slideInUp'>
                                                         <button onClick={(e) => { e.stopPropagation(); handleConfirmDelete(convo.id)}} className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors" aria-label="تأكيد الحذف"><Check size={14} /></button>

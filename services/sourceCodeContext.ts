@@ -7,6 +7,7 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { ToolProvider } from './contexts/ToolContext';
+import { MemoryProvider } from './contexts/MemoryContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -19,7 +20,9 @@ root.render(
     <ThemeProvider>
       <ChatProvider>
         <ToolProvider>
-          <App />
+          <MemoryProvider>
+            <App />
+          </MemoryProvider>
         </ToolProvider>
       </ChatProvider>
     </ThemeProvider>
@@ -61,6 +64,8 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'habit-analyzer': React.lazy(() => import('./features/HabitAnalyzer/HabitAnalyzer')),
     'ai-motivator': React.lazy(() => import('./features/AiMotivator/AiMotivator')),
     'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
+    'memory-manager': React.lazy(() => import('./features/MemoryManager/MemoryManager')),
+    'image-editor': React.lazy(() => import('./features/ImageEditor/ImageEditor')),
 };
 
 const App: React.FC = () => {
@@ -144,40 +149,20 @@ export interface AnalysisResult {
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush, Code
+    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2
 } from 'lucide-react';
 import { Tool } from './types';
 
-// ... (TOOLS array content from user)
-
-// FILE: components/Sidebar.tsx
-import React, { useState, useMemo } from 'react';
-import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound } from 'lucide-react';
-import { useChat } from '../hooks/useChat';
-import { Tool } from '../types';
-import { useTool } from '../hooks/useTool';
-
-// ... (Sidebar component content as updated)
-
-// FILE: components/ApiKeyManager.tsx
-import React, { useState, useEffect } from 'react';
-import { KeyRound, Trash2, X, Plus, Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { getApiKeys, addApiKey, deleteApiKey, getCurrentApiKey } from '../services/apiKeyManager';
-import { testApiKey } from '../services/geminiService';
-import { Button } from './ui/Button';
-
-// ... (ApiKeyManager component content as updated)
+// ... (TOOLS array content from user, now including memory-manager and image-editor)
 
 // FILE: features/Chat/Chat.tsx
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic, Copy, Check } from 'lucide-react';
-// ... (rest of imports)
+// ... (Chat component content as updated, including mobile UI fix and memory integration)
 
-// ... (Chat component content as updated, including WelcomeScreen and MessageContent)
+// FILE: features/MemoryManager/MemoryManager.tsx (NEW)
+// ... (Content of the new MemoryManager.tsx file)
 
-// FILE: features/CodeExplainer/CodeExplainer.tsx
-// ... (Content of the new CodeExplainer.tsx file)
+// FILE: features/ImageEditor/ImageEditor.tsx (NEW)
+// ... (Content of the new ImageEditor.tsx file)
 
 // FILE: services/geminiService.ts
 import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
@@ -187,7 +172,10 @@ import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
 import { TOOLS } from '../constants';
 import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
 
-// ... (geminiService.ts content as updated, including testApiKey and explainCode)
+// ... (geminiService.ts content as updated, including memory in chat prompt and new editImage function)
+
+// FILE: contexts/MemoryContext.tsx (NEW)
+// ... (Content of the new MemoryContext.tsx file)
 
 // ... (content of all other provided files) ...
 `;

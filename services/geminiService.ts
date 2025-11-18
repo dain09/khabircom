@@ -13,18 +13,28 @@ const toolListForPrompt = TOOLS
     .map(t => `- ${t.title} (للوصول إليها استخدم ID: ${t.id})`)
     .join('\n');
 
-const CHAT_PERSONA_INSTRUCTION = EGYPTIAN_PERSONA_INSTRUCTION + "\n\n" +
-"أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\n" +
-"1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" +
-"2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا، أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" +
-"3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" +
-"4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" +
-toolListForPrompt +
-"\n\nمثال: لو المستخدم طلب 'اعملي صورة لقطة'، يجب أن ترد بشيء مثل 'طبعًا! استخدم [TOOL:image-generator] عشان أعملك أحلى صورة.'\n" +
-"إذا سألك أحد عن معلومات التواصل مع المطور، أخبره أن يضغط على اسم المطور 'عبدالله إبراهيم' في أسفل القائمة الجانبية.\n" +
-"5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" +
-"6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\n\n" + SOURCE_CODE_CONTEXT;
+const getChatPersonaInstruction = (memory: Record<string, string>): string => {
+    let memoryContext = "";
+    const memoryKeys = Object.keys(memory);
+    if (memoryKeys.length > 0) {
+        memoryContext = "\n\n--- ذاكرة المستخدم ---\n" +
+                        "هذه هي المعلومات التي تعرفها عن المستخدم الحالي. استخدمها لجعل ردودك شخصية أكثر:\n" +
+                        memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
+                        "\n--- نهاية ذاكرة المستخدم ---";
+    }
 
+    return EGYPTIAN_PERSONA_INSTRUCTION + memoryContext + "\n\n" +
+    "أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\n" +
+    "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" +
+    "2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا، أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" +
+    "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" +
+    "4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" +
+    toolListForPrompt +
+    "\n\nمثال: لو المستخدم طلب 'اعملي صورة لقطة'، يجب أن ترد بشيء مثل 'طبعًا! استخدم [TOOL:image-generator] عشان أعملك أحلى صورة.'\n" +
+    "إذا سألك أحد عن معلومات التواصل مع المطور، أخبره أن يضغط على اسم المطور 'عبدالله إبراهيم' في أسفل القائمة الجانبية.\n" +
+    "5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\n" +
+    "6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\n\n" + SOURCE_CODE_CONTEXT;
+}
 
 // This function gets the current valid API key and creates a Gemini client
 const getGeminiClient = () => {
@@ -100,11 +110,12 @@ const callGemini = async (
     });
 };
 
-// 1. Chat (Streaming) - Now supports multimodal input
-export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => {
+// 1. Chat (Streaming) - Now supports multimodal input and user memory
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>) => {
     return withApiKeyRotation(async (ai) => {
         // ALWAYS use the more capable model for chat to handle large context (source code) and vision.
         const modelName = 'gemini-2.5-pro';
+        const chatPersona = getChatPersonaInstruction(memory);
 
         // Reconstruct history with multimodal parts if they exist
         const historyForApi = history.map(msg => {
@@ -133,7 +144,7 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
 
         const chat = ai.chats.create({
             model: modelName,
-            config: { systemInstruction: CHAT_PERSONA_INSTRUCTION },
+            config: { systemInstruction: chatPersona },
             history: historyForApi as Content[],
         });
         
@@ -193,7 +204,7 @@ export const generateMemeSuggestions = async (imageFile: File) => {
     return JSON.parse(result).suggestions;
 };
 
-// 5. Image Generator (FIXED)
+// 5. Image Generator
 export const generateImage = async (prompt: string): Promise<string> => {
     return withApiKeyRotation(async (ai) => {
         const response = await ai.models.generateContent({
@@ -216,6 +227,34 @@ export const generateImage = async (prompt: string): Promise<string> => {
         }
 
         throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
+    });
+};
+
+// NEW: Image Editor
+export const editImage = async ({ imageFile, prompt }: { imageFile: File, prompt: string }): Promise<string> => {
+    return withApiKeyRotation(async (ai) => {
+        const imagePart = await fileToGenerativePart(imageFile);
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    imagePart,
+                    { text: prompt },
+                ],
+            },
+            config: {
+                responseModalities: [Modality.IMAGE],
+            },
+        });
+        
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+                const base64ImageBytes: string = part.inlineData.data;
+                return `data:image/png;base64,${base64ImageBytes}`;
+            }
+        }
+
+        throw new Error("لم يتمكن الخبير من تعديل الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
     });
 };
 

@@ -34,6 +34,8 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'habit-analyzer': React.lazy(() => import('./features/HabitAnalyzer/HabitAnalyzer')),
     'ai-motivator': React.lazy(() => import('./features/AiMotivator/AiMotivator')),
     'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
+    'memory-manager': React.lazy(() => import('./features/MemoryManager/MemoryManager')),
+    'image-editor': React.lazy(() => import('./features/ImageEditor/ImageEditor')),
 };
 
 const App: React.FC = () => {

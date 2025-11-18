@@ -5,6 +5,7 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { ToolProvider } from './contexts/ToolContext';
+import { MemoryProvider } from './contexts/MemoryContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -17,7 +18,9 @@ root.render(
     <ThemeProvider>
       <ChatProvider>
         <ToolProvider>
-          <App />
+          <MemoryProvider>
+            <App />
+          </MemoryProvider>
         </ToolProvider>
       </ChatProvider>
     </ThemeProvider>

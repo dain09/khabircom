@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { convertTextToStyle } from '../../services/api/text.service';
@@ -26,12 +27,14 @@ const TextConverter: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'text-converter')!;
     const [text, setText] = useState('');
     const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);
+    const [submittedStyle, setSubmittedStyle] = useState<string | null>(null);
     const { data: result, isLoading, error, execute } = useGemini<string, ConvertParams>(
         ({ text, style }) => convertTextToStyle(text, style)
     );
 
     const handleSubmit = () => {
         if (!text.trim()) return;
+        setSubmittedStyle(selectedStyle);
         execute({ text, style: selectedStyle });
     };
 
@@ -67,7 +70,7 @@ const TextConverter: React.FC = () => {
             {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`النص بأسلوب: ${STYLES.find(s=>s.id === selectedStyle)?.text}`} copyText={result}>
+                <ResultCard title={`النص بأسلوب: ${STYLES.find(s=>s.id === (submittedStyle || selectedStyle))?.text}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

@@ -152,8 +152,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
             <aside className={`fixed top-0 right-0 h-full bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) z-40 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col font-sans antialiased`}>
                 <div className="flex justify-between items-center p-4 border-b border-slate-200/50 dark:border-slate-700/50 flex-shrink-0">
                     <h1 className="text-xl font-bold text-primary tracking-wide">خبيركم</h1>
-                    <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors" aria-label="إغلاق الشريط الجانبي">
-                        <X size={24} />
+                    <button 
+                        onClick={() => setSidebarOpen(false)} 
+                        className="md:hidden p-2 rounded-full text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" 
+                        aria-label="إغلاق الشريط الجانبي"
+                    >
+                        <X size={20} />
                     </button>
                 </div>
                 

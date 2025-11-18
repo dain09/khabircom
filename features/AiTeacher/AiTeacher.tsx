@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { teachTopic } from '../../services/api/text.service';
@@ -11,10 +12,13 @@ import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 const AiTeacher: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'ai-teacher')!;
     const [topic, setTopic] = useState('');
+    const [submittedTopic, setSubmittedTopic] = useState('');
+
     const { data: result, isLoading, error, execute } = useGemini<string, string>(teachTopic);
 
     const handleSubmit = () => {
         if (!topic.trim()) return;
+        setSubmittedTopic(topic);
         execute(topic);
     };
 
@@ -41,7 +45,7 @@ const AiTeacher: React.FC = () => {
             {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`خطة فهلوانية لمذاكرة: ${topic}`} copyText={result}>
+                <ResultCard title={`خطة فهلوانية لمذاكرة: ${submittedTopic || topic}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

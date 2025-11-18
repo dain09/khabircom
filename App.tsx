@@ -11,7 +11,7 @@ import { useTool } from './hooks/useTool';
 import { ApiKeyManager } from './components/ApiKeyManager';
 import { ToastContainer } from './components/ToastContainer';
 
-// Dynamic import for all feature components
+// Dynamic import for all feature components to optimize initial load
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'chat': React.lazy(() => import('./features/Chat/Chat')),
     'text-roast': React.lazy(() => import('./features/TextRoast/TextRoast')),
@@ -48,7 +48,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         initializeApiKeys();
-        // Mobile check for sidebar
+        // Responsive sidebar check
         if (window.innerWidth < 768) {
             setSidebarOpen(false);
         }
@@ -60,11 +60,11 @@ const App: React.FC = () => {
     return (
         <div className={`relative flex h-full text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
              {/* 
-                Performance Optimization: Fixed Background
-                This div stays completely static in terms of DOM position. 
-                Colors are handled by CSS variables or simple class switching, preventing layout thrashing.
+                Optimization: Fixed background layer.
+                Light Mode: Uses a subtle gradient (slate-50 to blue-50) to avoid harsh white.
+                Dark Mode: Uses deep slate/black.
              */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pointer-events-none" />
+            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-none pointer-events-none" />
             
             <Sidebar 
                 isSidebarOpen={isSidebarOpen}
@@ -79,7 +79,7 @@ const App: React.FC = () => {
                     theme={theme}
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto relative">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto relative scroll-smooth">
                     <div key={activeToolId} className="h-full p-1 sm:p-2 max-w-7xl mx-auto animate-fadeIn">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}

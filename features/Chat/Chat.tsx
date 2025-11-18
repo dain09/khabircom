@@ -900,8 +900,8 @@ const Chat: React.FC = () => {
                                 <StopCircle size={20} />
                             </Button>
                         ) : (
-                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className={`p-2.5 sm:p-3 rounded-full shadow-md transition-all duration-200 active:scale-95 ${(!input.trim() && !attachedFile) ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg transform hover:scale-105'}`} aria-label="إرسال الرسالة">
-                                <Send size={20} className={(!input.trim() && !attachedFile) ? 'text-slate-300' : ''} />
+                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className={`p-2.5 sm:p-3 rounded-full shadow-md transition-all duration-200 active:scale-95 ${(!input.trim() && !attachedFile) ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg transform hover:scale-105'}`} aria-label="إرسال الرسالة">
+                                <Send size={20} />
                             </Button>
                         )}
                     </div>
@@ -924,7 +924,7 @@ const Chat: React.FC = () => {
                     <div className='relative self-end mb-0.5'>
                         <Button
                             variant="secondary"
-                            className="p-2.5 sm:p-3 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 active:scale-95"
+                            className="p-2.5 sm:p-3 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95"
                             aria-label="خيارات إضافية"
                             onClick={() => setMenuOpen(prev => !prev)}
                         >

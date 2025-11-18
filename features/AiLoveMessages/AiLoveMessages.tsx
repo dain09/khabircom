@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateLoveMessage } from '../../services/api/text.service';
@@ -20,12 +21,14 @@ const MESSAGE_TYPES = [
 const AiLoveMessages: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'ai-love-messages')!;
     const [currentType, setCurrentType] = useState('');
+    const [generatedType, setGeneratedType] = useState('');
     const { data: result, isLoading, error, execute } = useGemini<string, string>(generateLoveMessage);
 
     const handleGenerate = (type: string) => {
         const messageType = MESSAGE_TYPES.find(t => t.id === type);
         if (messageType) {
             setCurrentType(messageType.text);
+            setGeneratedType(messageType.text);
             execute(type);
         }
     };
@@ -55,7 +58,7 @@ const AiLoveMessages: React.FC = () => {
             {isLoading && !result && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`رسالة ${currentType}`} copyText={result}>
+                <ResultCard title={`رسالة ${generatedType || currentType}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

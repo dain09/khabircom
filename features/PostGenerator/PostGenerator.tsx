@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generatePost } from '../../services/api/text.service';
@@ -19,12 +20,14 @@ const POST_TYPES = [
 const PostGenerator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'post-generator')!;
     const [currentType, setCurrentType] = useState('');
+    const [generatedType, setGeneratedType] = useState(''); // Store the type of the result
     const { data: result, isLoading, error, execute } = useGemini<string, string>(generatePost);
 
     const handleGenerate = (type: string) => {
         const postType = POST_TYPES.find(t => t.id === type);
         if (postType) {
             setCurrentType(postType.text);
+            setGeneratedType(postType.text);
             execute(type);
         }
     };
@@ -54,7 +57,7 @@ const PostGenerator: React.FC = () => {
             {isLoading && !result && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`بوست ${currentType} جاهز`} copyText={result}>
+                <ResultCard title={`بوست ${generatedType || currentType} جاهز`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

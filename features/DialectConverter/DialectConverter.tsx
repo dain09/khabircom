@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
 import { convertDialect } from '../../services/api/text.service';
@@ -23,6 +24,7 @@ const DialectConverter: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'dialect-converter')!;
     const [text, setText] = useState('');
     const [selectedDialect, setSelectedDialect] = useState(DIALECTS[0]);
+    const [submittedDialect, setSubmittedDialect] = useState<string | null>(null); 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
 
@@ -44,12 +46,14 @@ const DialectConverter: React.FC = () => {
         if (selectedDialect === 'توكسيك كوميدي') {
             setShowConfirmation(true);
         } else {
+            setSubmittedDialect(selectedDialect);
             execute({ text, dialect: selectedDialect });
         }
     };
 
     const handleConfirm = () => {
         setShowConfirmation(false);
+        setSubmittedDialect(selectedDialect);
         execute({ text, dialect: selectedDialect });
     };
 
@@ -77,62 +81,4 @@ const DialectConverter: React.FC = () => {
                                 onClick={() => setSelectedDialect(dialect)}
                                 className={`flex items-center justify-center gap-2 p-3 text-sm font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-dark-card ${
                                     selectedDialect === dialect
-                                        ? 'bg-primary text-primary-foreground shadow-md ring-primary'
-                                        : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'
-                                }`}
-                            >
-                                {dialect}
-                                {selectedDialect === dialect && <Check size={16} />}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()} className="w-full">
-                    ترجم
-                </Button>
-            </div>
-            {isLoading && <ResultCardSkeleton />}
-            {error && <ErrorDisplay message={error} />}
-            {result && (
-                <ResultCard 
-                    title={`النص باللهجة (${selectedDialect})`}
-                    copyText={result}
-                >
-                    <p>{result}</p>
-                </ResultCard>
-            )}
-
-            {showConfirmation && (
-                <div 
-                    className={`fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out ${isModalVisible ? 'opacity-100' : 'opacity-0'}`}
-                    onClick={() => setShowConfirmation(false)}
-                    aria-modal="true"
-                    role="dialog"
-                >
-                    <div 
-                        className={`bg-background dark:bg-dark-card rounded-lg shadow-2xl p-6 max-w-sm w-full text-center transform transition-all duration-300 ease-in-out ${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/50 mb-4">
-                            <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                        </div>
-                        <h3 className="text-lg font-bold mb-2">متأكد؟</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-                            اللهجة دي ممكن تطلع كلام 'توكسيك' على سبيل الهزار والكوميديا. هل أنت موافق تكمل؟
-                        </p>
-                        <div className="flex justify-center gap-4">
-                            <Button onClick={() => setShowConfirmation(false)} variant="secondary">
-                                لأ، الغي
-                            </Button>
-                            <Button onClick={handleConfirm} className="bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400 text-white">
-                                أيوه، كمل
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </ToolContainer>
-    );
-};
-
-export default DialectConverter;
+                                        ? '

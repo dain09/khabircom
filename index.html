@@ -23,180 +23,170 @@
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7g/z357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
     <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7g/z357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f172a" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>خبيركم - مساعدك المصري الفهلوي</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <title>خبيركم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
+            colors: {
+              background: '#f8fafc', // slate-50
+              foreground: '#1e293b', // slate-800 (Was slate-900, softened)
+              primary: {
+                DEFAULT: '#3b82f6', // blue-500
+                foreground: '#ffffff',
+                dark: '#2563eb', // blue-600
+              },
+              'dark-background': '#020617', // slate-950
+              'dark-card': '#1e293b', // slate-800
+              'dark-foreground': '#f1f5f9', // slate-100
+            },
             fontFamily: {
               sans: ['Tajawal', 'sans-serif'],
             },
-            colors: {
-              primary: {
-                DEFAULT: '#06b6d4', // Cyan-500 (Modern & Professional)
-                foreground: '#ffffff',
-                dark: '#0891b2', // Cyan-600
-              },
-              background: '#f8fafc', // Slate-50
-              foreground: '#0f172a', // Slate-900
-              dark: {
-                background: '#0f172a', // Slate-900
-                foreground: '#e2e8f0', // Slate-200
-                card: '#1e293b' // Slate-800
-              }
+            animation: {
+              fadeIn: 'fadeIn 0.5s ease-out forwards',
+              slideInUp: 'slideInUp 0.5s ease-out forwards',
+              bubbleIn: 'bubbleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+              'bouncing-dots': 'bouncing-dots 1.4s infinite ease-in-out both',
+              'bot-idle-bob': 'bob 3s ease-in-out infinite',
+              zoomIn: 'zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
             },
             keyframes: {
-              slideInUp: {
-                'from': { opacity: '0', transform: 'translateY(20px)' },
-                'to': { opacity: '1', transform: 'translateY(0)' },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
               },
-              gradientAnimation: {
-                '0%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
-                '100%': { backgroundPosition: '0% 50%' },
+              slideInUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
               },
               bubbleIn: {
-                'from': { opacity: '0', transform: 'scale(0.95) translateY(5px)' },
-                'to': { opacity: '1', transform: 'scale(1) translateY(0)' },
+                '0%': { transform: 'scale(0.8)', opacity: '0' },
+                '100%': { transform: 'scale(1)', opacity: '1' },
               },
-              botIdleBob: {
+              'bouncing-dots': {
+                '0%, 80%, 100%': { transform: 'scale(0)' },
+                '40%': { transform: 'scale(1)' },
+              },
+              bob: {
                 '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-3px)' },
-              },
-              bouncingDots: {
-                '0%, 100%': { transform: 'translateY(0)', opacity: 0.6 },
-                '50%': { transform: 'translateY(-5px)', opacity: 1 },
+                '50%': { transform: 'translateY(-5px)' },
               },
               zoomIn: {
-                'from': { opacity: '0', transform: 'scale(0.95)' },
-                'to': { opacity: '1', transform: 'scale(1)' },
-              },
-              fadeIn: {
-                'from': { opacity: '0' },
-                'to': { opacity: '1' },
+                '0%': { transform: 'scale(0.9)', opacity: '0' },
+                '100%': { transform: 'scale(1)', opacity: '1' }
               }
             },
-            animation: {
-              slideInUp: 'slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              gradient: 'gradientAnimation 15s ease infinite',
-              bubbleIn: 'bubbleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-              'bot-idle-bob': 'botIdleBob 3s ease-in-out infinite',
-              'bouncing-dots': 'bouncingDots 1.4s ease-in-out infinite',
-              zoomIn: 'zoomIn 0.2s ease-out forwards',
-              fadeIn: 'fadeIn 0.3s ease-out forwards',
-            }
           },
         },
       }
     </script>
-     <style>
-      /* 
-        CRITICAL: Base Layout & Theme Flashing Fix 
-        We explicitly set the background colors here to ensure they exist
-        before any React rendering happens.
-      */
-      html {
-        height: 100%;
-        overflow: hidden;
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body {
         font-family: 'Tajawal', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        /* Default Light Mode Background */
-        background-color: #f8fafc;
       }
       
+      /* Custom Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569; 
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b; 
+      }
+
+      /* Specific utility for hiding scrollbar but allowing scroll */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+      
+      /* Glow effect for inputs */
+      .glow-effect:focus-within {
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+      }
+
+      .textarea-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .textarea-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+      }
+      .dark .textarea-scrollbar::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+
+      /* Syntax Highlighter Custom Overrides */
+      code span {
+          font-family: 'Fira Code', 'Consolas', monospace !important;
+      }
+
+      /* Theme Transition Fixes */
+      :root {
+        --bg-light: #f8fafc; /* slate-50 */
+        --bg-dark: #020617;  /* slate-950 */
+      }
+
+      html {
+        background-color: var(--bg-light);
+        color-scheme: light;
+      }
+
       html.dark {
-        /* Default Dark Mode Background */
-        background-color: #0f172a;
+        background-color: var(--bg-dark);
         color-scheme: dark;
       }
 
-      body, #root {
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-      }
-
-      /* Prevent default touch behaviors on mobile */
       body {
-        touch-action: manipulation;
+        background-color: transparent; /* Let html background show through */
+        margin: 0;
       }
-      
-      /* Global Typography Enhancements */
-      input, button, textarea, select {
-        font-family: 'Tajawal', sans-serif;
-      }
-      
+
       /* 
-        --- VIEW TRANSITION API CONFIGURATION ---
-        This section is the heart of the smooth "wipe" effect without the white flash.
+         CRITICAL FIX FOR FLICKERING:
+         Disable all CSS transitions while the View Transition is active.
+         The React context adds 'data-transition' attribute during the switch.
       */
-
-      /* 1. Disable default cross-fade */
-      ::view-transition-group(root) {
-        animation-duration: 0s;
+      html[data-transition] * {
+        transition: none !important;
       }
-
-      /* 2. Define the transition layers */
-      ::view-transition-new(root),
-      ::view-transition-old(root) {
-        animation: none;
+      
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
         mix-blend-mode: normal;
-        height: 100%;
-        overflow: clip;
+        /* IMPORTANT: Disable the browser's default cross-fade.
+           We are handling the animation manually via JS/CSS clip-path. 
+           This makes the circle expansion sharp and consistent. */
+        animation: none; 
       }
-
-      /* 
-         3. Case: Switching to Light Mode (Dark -> Light)
-         The NEW view (Light) expands on top of the OLD view (Dark).
-      */
-      [data-transition="to-light"]::view-transition-new(root) {
+      
+      /* Ensure the new view is always on top during the transition 
+         so the clip-path expansion "reveals" it over the old one. */
+      ::view-transition-new(root) {
         z-index: 9999; 
       }
-      [data-transition="to-light"]::view-transition-old(root) {
+      ::view-transition-old(root) {
         z-index: 1;
-      }
-
-      /* 
-         4. Case: Switching to Dark Mode (Light -> Dark)
-         The OLD view (Light) shrinks on top of the NEW view (Dark).
-      */
-      [data-transition="to-dark"]::view-transition-old(root) {
-        z-index: 9999;
-      }
-      [data-transition="to-dark"]::view-transition-new(root) {
-        z-index: 1;
-      }
-
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background-color: rgba(156, 163, 175, 0.3);
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(156, 163, 175, 0.5);
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background-color: rgba(71, 85, 105, 0.4);
-      }
-      .dark ::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(71, 85, 105, 0.6);
       }
     </style>
   </head>

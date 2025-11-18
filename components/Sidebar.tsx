@@ -126,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                 <span className="flex-1 truncate">{convo.title}</span>
                                             )}
                                             
-                                            <div className='flex items-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                                            <div className='flex items-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity'>
                                                 {editingId === convo.id ? (
                                                     <button onClick={(e) => { e.stopPropagation(); handleSaveRename(convo.id)}} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
                                                 ) : (

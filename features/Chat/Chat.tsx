@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -194,7 +195,7 @@ const Chat: React.FC = () => {
         activeConversationId,
         conversations
     } = useChat();
-    const { memory } = useMemory();
+    const { memory, updateMemory } = useMemory();
     
     const [input, setInput] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -232,6 +233,7 @@ const Chat: React.FC = () => {
         stopStreamingRef.current = false;
         const modelMessageId = uuidv4();
         streamingMessageIdRef.current = modelMessageId;
+        const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
         addMessageToConversation(convoId, {
             id: modelMessageId,
@@ -255,12 +257,30 @@ const Chat: React.FC = () => {
                     setStoppedMessageId(modelMessageId);
                     break;
                 }
-                const chunkText = chunk.text;
+                
+                let chunkText = chunk.text;
+                
                 if (chunkText) {
-                    fullText += chunkText;
-                    updateMessageInConversation(convoId, modelMessageId, {
-                        parts: [{ text: fullText }],
-                    });
+                    const matches = chunkText.matchAll(memoryCommandRegex);
+                    for (const match of matches) {
+                        try {
+                            const jsonPayload = JSON.parse(match[1]);
+                            if (jsonPayload.key && jsonPayload.value) {
+                                console.log(`Saving memory: ${jsonPayload.key} -> ${jsonPayload.value}`);
+                                updateMemory(jsonPayload.key, jsonPayload.value);
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse memory command:", e);
+                        }
+                    }
+                    
+                    const cleanChunkText = chunkText.replace(memoryCommandRegex, '').trim();
+                    if (cleanChunkText) {
+                        fullText += cleanChunkText;
+                        updateMessageInConversation(convoId, modelMessageId, {
+                            parts: [{ text: fullText }],
+                        });
+                    }
                 }
             }
 
@@ -279,7 +299,7 @@ const Chat: React.FC = () => {
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
-    }, [conversations, addMessageToConversation, updateMessageInConversation, memory]);
+    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory]);
 
     const handleSend = useCallback(async () => {
         if ((!input.trim() && !imageFile) || isResponding) return;
@@ -339,6 +359,7 @@ const Chat: React.FC = () => {
         streamingMessageIdRef.current = messageToContinueId;
         
         let fullText = existingText;
+        const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
         try {
             const historyForApi = conversation.messages;
@@ -350,12 +371,28 @@ const Chat: React.FC = () => {
                     console.log("Streaming stopped by user during continuation.");
                     break;
                 }
-                const chunkText = chunk.text;
+                let chunkText = chunk.text;
                 if (chunkText) {
-                    fullText += chunkText;
-                    updateMessageInConversation(convoId, messageToContinueId, {
-                        parts: [{ text: fullText }],
-                    });
+                     const matches = chunkText.matchAll(memoryCommandRegex);
+                    for (const match of matches) {
+                        try {
+                            const jsonPayload = JSON.parse(match[1]);
+                            if (jsonPayload.key && jsonPayload.value) {
+                                updateMemory(jsonPayload.key, jsonPayload.value);
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse memory command:", e);
+                        }
+                    }
+                    
+                    const cleanChunkText = chunkText.replace(memoryCommandRegex, '').trim();
+
+                    if(cleanChunkText) {
+                        fullText += cleanChunkText;
+                        updateMessageInConversation(convoId, messageToContinueId, {
+                            parts: [{ text: fullText }],
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -372,7 +409,7 @@ const Chat: React.FC = () => {
             inputRef.current?.focus();
         }
 
-    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory]);
+    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
@@ -383,11 +420,11 @@ const Chat: React.FC = () => {
 
         if (userMessage && userMessage.role === 'user') {
             updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
-            streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text });
+            streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text, imageFile: imageFile || undefined });
         } else {
             console.error("Could not find user message to retry from.");
         }
-    }, [activeConversationId, activeConversation?.messages, updateMessageInConversation, streamModelResponse]);
+    }, [activeConversationId, activeConversation?.messages, updateMessageInConversation, streamModelResponse, imageFile]);
 
 
     const handleSuggestionClick = useCallback(async (prompt: string) => {
@@ -451,24 +488,34 @@ const Chat: React.FC = () => {
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
-                             <div key={msg.id} className={`flex w-full items-end gap-2 sm:gap-3 animate-bubbleIn group ${
+                             <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' 
-                                ? 'justify-end' 
-                                : 'justify-start'
+                                ? 'justify-start' // RTL: User on the right (start)
+                                : 'justify-end'   // RTL: Bot on the left (end)
                             }`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-primary/20' : 'bg-slate-200 dark:bg-slate-700'}`}>
-                                        {msg.role === 'user' ? <User className="w-5 h-5 text-primary" /> : <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />}
-                                    </div>
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[90%] ${
+                                    msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
+                                }`}>
                                     
-                                    <div className={`relative flex flex-col max-w-lg ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-1`}>
+                                    <div className={`self-end flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                                        msg.role === 'user'
+                                        ? 'bg-primary/20'
+                                        : 'bg-slate-200 dark:bg-slate-700'
+                                    }`}>
+                                        {msg.role === 'user'
+                                            ? <User className="w-5 h-5 text-primary" />
+                                            : <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
+                                        }
+                                    </div>
+
+                                    <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
                                                 <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
-                                            <div className={`p-3 rounded-2xl ${
+                                            <div className={`relative p-3 rounded-2xl ${
                                                 msg.role === 'user' 
                                                 ? 'bg-primary text-primary-foreground rounded-br-none' 
                                                 : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
@@ -503,24 +550,25 @@ const Chat: React.FC = () => {
                                             </div>
                                         )}
                                     </div>
+
+                                    {msg.role === 'model' && !msg.error && msg.parts[0].text && (
+                                        <div className="self-center flex-shrink-0">
+                                            <button 
+                                                onClick={() => handleCopy(msg.parts[0].text, msg.id)}
+                                                className="p-1.5 text-slate-500 dark:text-slate-400 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700"
+                                                aria-label="نسخ الرد"
+                                            >
+                                                {copiedMessageId === msg.id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                                {msg.role === 'model' && !msg.error && msg.parts[0].text && (
-                                    <div className="self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button 
-                                            onClick={() => handleCopy(msg.parts[0].text, msg.id)}
-                                            className="p-1.5 text-slate-500 dark:text-slate-400 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700"
-                                            aria-label="نسخ الرد"
-                                        >
-                                            {copiedMessageId === msg.id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         ))}
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
-                             <div className="flex w-full items-end gap-2 sm:gap-3 animate-bubbleIn justify-start">
-                                <div className="flex items-end gap-2 sm:gap-3 flex-row">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                             <div className="flex w-full animate-bubbleIn justify-end">
+                                <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse">
+                                    <div className="self-end flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
                                     <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
@@ -551,17 +599,15 @@ const Chat: React.FC = () => {
                     </div>
                 )}
                  <div className="flex items-end gap-2 sm:gap-3">
-                     <div className="relative">
-                        <Button 
-                            variant="secondary"
-                            className="p-3 rounded-full" 
-                            aria-label="إرفاق صورة"
-                            onClick={() => imageInputRef.current?.click()}
-                        >
-                            <Plus size={24} />
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="order-1 p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
                         </Button>
-                    </div>
-
+                    ) : (
+                         <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="order-1 p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -573,22 +619,17 @@ const Chat: React.FC = () => {
                             }
                         }}
                         placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
-                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
+                        className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />
-
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
-                    
+                     <button
+                        className="order-3 p-3 rounded-full bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-dark-foreground dark:hover:bg-slate-600 transition-colors" 
+                        aria-label="إرفاق صورة"
+                        onClick={() => imageInputRef.current?.click()}
+                    >
+                        <Plus size={24} />
+                    </button>
                     <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
-
                 </div>
             </div>
         </div>

@@ -387,7 +387,7 @@ const Chat: React.FC = () => {
                         <button
                             key={`${tool.id}-${index}`}
                             onClick={() => setActiveToolId(tool.id)}
-                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-md"
+                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-sm"
                         >
                             <Icon size={18} className={tool.color} />
                             <span>{tool.title}</span>

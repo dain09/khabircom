@@ -13,22 +13,16 @@ interface StoryResult {
     funny_story: string;
 }
 
-interface StoryParams {
-    scenario: string;
-}
-
 const StoryMaker: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'story-maker')!;
     const [scenario, setScenario] = useState('');
-    const { data: result, isLoading, error, execute } = useGemini<StoryResult, StoryParams>(
-        ({ scenario }) => generateStory(scenario)
-    );
+    const { data: result, isLoading, error, execute } = useGemini<StoryResult, string>(generateStory);
 
     const canSubmit = scenario.trim();
 
     const handleSubmit = () => {
         if (!canSubmit) return;
-        execute({ scenario });
+        execute(scenario);
     };
 
     return (
@@ -55,7 +49,7 @@ const StoryMaker: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="السيناريو الكوميدي 😂">{result?.funny_story}</ResultCard>
+                    <ResultCard title="السيناريو الكوميدي 😂" copyText={result.funny_story}>{result?.funny_story}</ResultCard>
                 </div>
             )}
         </ToolContainer>

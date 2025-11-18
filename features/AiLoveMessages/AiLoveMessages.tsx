@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateLoveMessage } from '../../services/geminiService';
@@ -57,7 +55,7 @@ const AiLoveMessages: React.FC = () => {
             {isLoading && !result && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`رسالة ${currentType}`}>
+                <ResultCard title={`رسالة ${currentType}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { teachTopic } from '../../services/geminiService';
@@ -33,7 +31,7 @@ const AiTeacher: React.FC = () => {
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="عايز تذاكر إيه؟ (مثال: مادة الفيزياء الكمية)"
+                    placeholder="عايز خطة فهلوانية لمذاكرة إيه؟ (مثال: الفيزياء الكمية)"
                     className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!topic.trim()}>
@@ -43,7 +41,7 @@ const AiTeacher: React.FC = () => {
             {isLoading && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`خطة فهلوانية لمذاكرة: ${topic}`}>
+                <ResultCard title={`خطة فهلوانية لمذاكرة: ${topic}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, Plus, BrainCircuit, ArrowRight, MoreVertical, Edit, Volume2, Save, FileText, Zap, Lightbulb, Sparkles, Flame, Puzzle, Link as LinkIcon, ExternalLink, Waves } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -129,7 +127,7 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     };
 
     return (
-        <div className={`prose prose-base max-w-none ${message.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} font-sans`}>
+        <div className={`prose prose-base max-w-none ${message.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} font-sans break-words`}>
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
                 p: ({ children }) => {
                     if (Array.isArray(children) && typeof children[0] === 'string' && children[0].startsWith('[TOOL:')) {
@@ -411,41 +409,40 @@ export const Chat: React.FC = () => {
                 )}
                 <div className="flex items-end gap-2">
                     <Button 
-                        onClick={handleListen} 
-                        variant="secondary" 
-                        aria-label="إدخال صوتي" 
-                        className={`p-3 rounded-full shadow-sm relative overflow-hidden ${isListening ? 'bg-red-500 text-white' : ''}`}
+                        onClick={isResponding ? () => { stopStreamingRef.current = true; } : handleSend} 
+                        disabled={!isResponding && !input.trim() && !attachedFile} 
+                        className="p-3 rounded-full shadow-md aspect-square"
+                        aria-label={isResponding ? "إيقاف" : "إرسال"}
                     >
-                        {isListening ? <Waves size={20} /> : <Mic size={20} />}
+                        {isResponding ? <StopCircle size={20} /> : <Send size={20} />}
                     </Button>
-                    <Button 
-                        onClick={() => fileInputRef.current?.click()} 
-                        variant="secondary" 
-                        aria-label="إرفاق ملف" 
-                        className="p-3 rounded-full shadow-sm"
-                    >
-                        <Paperclip size={20} />
-                    </Button>
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf,text/plain" className="hidden" />
 
-                    <div className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-primary/50 flex items-end">
+                    <div className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-primary/50 flex items-end p-1">
+                         <button 
+                            onClick={handleListen} 
+                            aria-label="إدخال صوتي" 
+                            className={`p-2 rounded-full transition-colors relative overflow-hidden ${isListening ? 'bg-red-500/10 text-red-500' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                        >
+                            {isListening && <span className="absolute inset-0 bg-red-500/20 animate-ping rounded-full"></span>}
+                            <Mic size={20} />
+                        </button>
                         <AutoGrowTextarea 
                             ref={inputRef} 
                             value={input} 
                             onChange={e => setInput(e.target.value)} 
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} 
                             placeholder="اسأل خبيركم..." 
-                            className="w-full max-h-32 py-3 px-4 bg-transparent border-none focus:ring-0 resize-none text-sm sm:text-base placeholder:text-slate-400 textarea-scrollbar"
+                            className="flex-1 max-h-32 py-2 px-3 bg-transparent border-none focus:ring-0 resize-none text-sm sm:text-base placeholder:text-slate-400 textarea-scrollbar"
                         />
+                         <button 
+                            onClick={() => fileInputRef.current?.click()} 
+                            aria-label="إرفاق ملف" 
+                            className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        >
+                            <Paperclip size={20} />
+                        </button>
                     </div>
-                     <Button 
-                        onClick={isResponding ? () => { stopStreamingRef.current = true; } : handleSend} 
-                        disabled={!isResponding && !input.trim() && !attachedFile} 
-                        className="p-3 rounded-full shadow-md"
-                        aria-label={isResponding ? "إيقاف" : "إرسال"}
-                    >
-                        {isResponding ? <StopCircle size={20} /> : <Send size={20} />}
-                    </Button>
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf,text/plain" className="hidden" />
                 </div>
             </div>
             {selectedImage && <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-2 animate-zoomIn" onClick={() => setSelectedImage(null)}><img src={selectedImage} alt="Full" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" /><button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 p-2 text-white bg-white/10 rounded-full"><X size={24} /></button></div>}

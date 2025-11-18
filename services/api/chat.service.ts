@@ -1,5 +1,3 @@
-
-
 import { GenerateContentResponse, Content } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
 import { Message, PersonaSettings } from "../../types";
@@ -46,7 +44,7 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     "2. **اللغة:** **دائماً وأبداً** استخدم العامية المصرية (Masry Aseel) إلا في المصطلحات التقنية أو الآيات.\n" + 
     "3. **التنسيق (مهم جداً جداً):**\n" +
     "   - **دائماً** استخدم **Bold** (خط عريض) للنقاط المهمة والكلمات المفتاحية.\n" +
-    "   - **دائماً** افصل بين النقاط والفقرات بمسافات واضحة لتسهيل القراءة.\n" +
+    "   - **دائماً** استخدم فقرات قصيرة وافصل بينها بمسافات واضحة لتسهيل القراءة على شاشات الموبايل.\n" +
     "   - **دائماً** عند كتابة كود، استخدم Block Code صحيح مع تحديد اللغة.\n" +
     "4. **الأدوات:** اقترح الأدوات المناسبة للسياق باستخدام `[TOOL:tool_id]`. الأدوات المتاحة:\n" + toolListForPrompt + "\n" +
     "5. **الذاكرة (Memory Operations):**\n" +

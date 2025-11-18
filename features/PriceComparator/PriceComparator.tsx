@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { comparePrices } from '../../services/api/text.service';
@@ -57,7 +56,7 @@ const PriceComparator: React.FC = () => {
                 <div className="mt-6 p-4 sm:p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 animate-slideInUpFade">
                     <div className="flex items-center gap-2 mb-4 text-rose-500 font-bold text-lg border-b border-slate-100 dark:border-slate-700 pb-2">
                         <Tag size={24} />
-                        <h3>تقرير الأسعار</h3>
+                        <h3>تقرير الأسعار لـ "{product}"</h3>
                     </div>
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                         <ReactMarkdown 

@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -34,21 +33,21 @@ const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
     return (
         <div 
             onClick={() => setActiveToolId(toolId)}
-            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 w-full sm:w-fit sm:min-w-[280px] active:scale-95"
+            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md active:scale-[0.98] transition-all duration-200 w-full"
         >
-            <div className={`p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
+            <div className={`flex-shrink-0 p-2.5 rounded-full bg-slate-50 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
                 <Icon size={20} className={`${tool.color}`} />
             </div>
-            <div className="flex-1 text-start">
-                <h4 className="font-bold text-sm text-foreground dark:text-slate-200 group-hover:text-primary transition-colors">
+            <div className="flex-1 min-w-0 text-start">
+                <h4 className="font-bold text-sm text-foreground dark:text-slate-200 group-hover:text-primary truncate transition-colors">
                     {tool.title}
                 </h4>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
                     اضغط للتجربة الآن
                 </p>
             </div>
-            <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded-full group-hover:bg-primary group-hover:text-white transition-all">
-                <ArrowRight size={14} className="rtl:rotate-180" />
+            <div className="flex-shrink-0 p-1.5 bg-slate-50 dark:bg-slate-700 rounded-full group-hover:bg-primary group-hover:text-white transition-all rtl:rotate-180">
+                <ArrowRight size={14} />
             </div>
         </div>
     );
@@ -80,50 +79,55 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     ];
 
     return (
-        <div className="flex flex-col h-full items-center justify-center p-4 text-center overflow-y-auto">
-            <div className="w-24 h-24 mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
-                <Bot size={56} className="text-primary drop-shadow-md" />
+        <div className="flex flex-col h-full items-center justify-center p-4 text-center overflow-y-auto no-scrollbar">
+            <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 mb-4 sm:mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
+                <Bot size={48} className="text-primary drop-shadow-md sm:w-14 sm:h-14" />
             </div>
             {isBriefingLoading 
-                ? <Skeleton className="h-10 w-64 mb-3 rounded-lg" />
-                : <h2 className="text-2xl sm:text-4xl font-bold mb-3 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                ? <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-3 rounded-lg" />
+                : <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 px-2 leading-normal">
                     {briefing?.greeting || "خبيركم تحت أمرك"}
                   </h2>
             }
-            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base" style={{ animationDelay: '200ms' }}>
+            <p className="text-slate-500 dark:text-slate-400 mb-6 sm:mb-8 max-w-xs sm:max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base" style={{ animationDelay: '200ms' }}>
                 أنا هنا عشان أساعدك، أضحكك، وأنجز معاك أي مهمة. اختار حاجة نبدأ بيها:
             </p>
-            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-2xl pb-10" style={{ animationDelay: '300ms' }}>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-slideInUp max-w-2xl pb-4 w-full px-2" style={{ animationDelay: '300ms' }}>
                  {isBriefingLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-10 w-32 sm:w-40 rounded-full" />
+                        <Skeleton key={i} className="h-9 w-32 sm:w-40 rounded-full" />
                     ))
                 ) : (
                     suggestions.map((s, i) => (
                         <button 
                             key={s} 
                             onClick={() => onSuggestionClick(s)}
-                            className="group relative px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs sm:text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden active:scale-95"
+                            className="group relative px-3 py-2 sm:px-4 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden active:scale-95 flex-grow sm:flex-grow-0"
                             style={{ animationDelay: `${400 + i * 100}ms` }}
                         >
-                            <span className="relative z-10 group-hover:text-primary transition-colors">{s}</span>
+                            <span className="relative z-10 group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">{s}</span>
                             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </button>
                     ))
                 )}
             </div>
-            {briefingError && <p className="text-xs text-red-500 mt-6 opacity-80">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
+            {briefingError && <p className="text-xs text-red-500 mt-4 opacity-80">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
         </div>
     );
 };
 
 const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const content = message.parts[0].text;
+    const isUser = message.role === 'user';
 
-    // Clean up bold text spacing
+    // Clean up bold text spacing and Markdown issues
     const fixMarkdownSpacing = (text: string) => {
-        const regex = /(\*\*.*?\*\*|\*.*?\*)(?=\S)/g;
-        return text.replace(regex, '$1 ');
+        let res = text;
+        // Force space before bold if it sticks to previous word (excluding punctuation)
+        res = res.replace(/([^\s\(\[])(\*\*)/g, '$1 $2');
+        // Force space after bold if it sticks to next word (excluding punctuation)
+        res = res.replace(/(\*\*)([^\s.,،؛:?!])/g, '$1 $2');
+        return res;
     };
 
     const processedContent = fixMarkdownSpacing(content);
@@ -146,15 +150,15 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         };
 
         return !inline ? (
-            <div className="relative my-5 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left">
+            <div className="relative my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left max-w-full">
                 <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2">
-                        <Terminal size={14} className="text-slate-400"/>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{match?.[1] || 'code'}</span>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <Terminal size={14} className="text-slate-400 flex-shrink-0"/>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono truncate">{match?.[1] || 'code'}</span>
                     </div>
                     <button 
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-white/10 transition-colors flex-shrink-0"
                     >
                         {isCopied ? (
                             <><Check size={12} className="text-green-500"/> <span className="text-[10px] text-green-500">تم</span></>
@@ -163,32 +167,33 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                         )}
                     </button>
                 </div>
-                <SyntaxHighlighter
-                    style={vscDarkPlus}
-                    language={match?.[1] || 'text'}
-                    PreTag="div"
-                    customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem', lineHeight: '1.5' }}
-                    {...props}
-                >
-                    {codeText}
-                </SyntaxHighlighter>
+                <div className="overflow-x-auto custom-scrollbar">
+                    <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match?.[1] || 'text'}
+                        PreTag="div"
+                        customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem', lineHeight: '1.6', minWidth: '100%' }}
+                        {...props}
+                    >
+                        {codeText}
+                    </SyntaxHighlighter>
+                </div>
             </div>
         ) : (
-            <code className="bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50 rounded px-1.5 py-0.5 text-sm font-mono dir-ltr mx-0.5" {...props}>
+            <code className={`${isUser ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50'} rounded px-1.5 py-0.5 text-sm font-mono dir-ltr mx-0.5 whitespace-pre-wrap break-all`} {...props}>
                 {children}
             </code>
         );
     };
 
-    // Custom paragraph renderer to catch inline tool links like [TOOL:xyz]
-    const CustomParagraph = ({ node, ...props }: any) => {
-        const children = React.Children.toArray(props.children);
+    // Reusable function to parse children for [TOOL:xyz]
+    const parseChildrenForTools = (children: React.ReactNode) => {
+        const childrenArray = React.Children.toArray(children);
         const newChildren: React.ReactNode[] = [];
         const toolRegex = /\[TOOL:(.*?)\]/g;
-
         let hasTools = false;
 
-        children.forEach((child, childIndex) => {
+        childrenArray.forEach((child, childIndex) => {
             if (typeof child === 'string') {
                 const parts = child.split(toolRegex);
                 if (parts.length > 1) hasTools = true;
@@ -196,9 +201,8 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 parts.forEach((part, index) => {
                     if (index % 2 === 1) {
                         const toolId = part.trim();
-                        // Instead of pushing text, push the component directly
                         newChildren.push(
-                            <div key={`${toolId}-${childIndex}-${index}`} className="block w-full">
+                            <div key={`${toolId}-${childIndex}-${index}`} className="block w-full my-2">
                                 <ToolSuggestionCard toolId={toolId} />
                             </div>
                         );
@@ -210,21 +214,36 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 newChildren.push(child);
             }
         });
-        
-        // Adjusted styling for paragraphs: relaxed leading, bottom margin
-        return <p {...props} className={`mb-4 last:mb-0 leading-loose text-base ${hasTools ? '' : ''}`}>{newChildren}</p>;
+        return { newChildren, hasTools };
     };
 
+    // Custom paragraph renderer with enhanced spacing
+    const CustomParagraph = ({ node, ...props }: any) => {
+        const { newChildren } = parseChildrenForTools(props.children);
+        const textColor = isUser ? 'text-white' : 'text-foreground dark:text-slate-200';
+        // Increased bottom margin and line-height for Arabic readability
+        return <p {...props} className={`mb-6 last:mb-0 leading-[2.2] text-base ${textColor}`}>{newChildren}</p>;
+    };
+
+    // Custom list item renderer
+    const CustomListItem = ({ node, ...props }: any) => {
+        const { newChildren } = parseChildrenForTools(props.children);
+        const textColor = isUser ? 'text-white' : 'text-foreground dark:text-slate-200';
+        return <li {...props} className={`my-2 leading-[2.2] ${textColor}`}>{newChildren}</li>;
+    }
+
     return (
-         <div className="prose prose-base dark:prose-invert max-w-none prose-p:leading-loose prose-li:leading-loose prose-li:my-1 prose-headings:my-4 prose-headings:text-primary">
+         <div className={`prose prose-base max-w-none break-words ${isUser ? 'prose-invert [&_*]:text-white' : 'dark:prose-invert prose-headings:text-primary prose-strong:text-primary prose-strong:font-bold'}`}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                     p: CustomParagraph,
-                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-inside mb-4 space-y-2 marker:text-primary font-medium" />,
-                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-inside mb-4 space-y-2 marker:text-primary" />,
+                    // ps-6 adds padding start (right in RTL), keeping bullets visible inside the container
+                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-6 mb-6 space-y-2 marker:font-bold" />,
+                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-6 mb-6 space-y-2" />,
+                    li: CustomListItem,
                     code: CodeBlock,
-                    a: ({ node, ...props }) => <a {...props} className="text-primary hover:underline font-bold" target="_blank" rel="noopener noreferrer" />
+                    a: ({ node, ...props }) => <a {...props} className={`${isUser ? 'text-white underline' : 'text-primary hover:underline'} font-bold`} target="_blank" rel="noopener noreferrer" />
                 }}
             >
                 {processedContent}
@@ -249,6 +268,8 @@ const Chat: React.FC = () => {
     const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
     const [isMenuOpen, setMenuOpen] = useState(false);
     const [showScrollButton, setShowScrollButton] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [imageZoom, setImageZoom] = useState(1);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -262,17 +283,27 @@ const Chat: React.FC = () => {
         return 'خبيركم';
     }, [persona.humor, persona.verbosity]);
     
-    // Scroll logic
-    const scrollToBottom = () => {
+    // --- Scrolling Logic ---
+
+    // 1. Instant scroll to bottom when switching conversations
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+             // Instant scroll for UX responsiveness when loading chat history
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    }, [activeConversationId]);
+
+    // 2. Smooth scroll to bottom when bot is responding or new messages arrive
+    useEffect(() => {
         const container = scrollContainerRef.current;
         if (container) {
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            // Use a small timeout to ensure content renders
+            const timeout = setTimeout(() => {
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }, 100);
+            return () => clearTimeout(timeout);
         }
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [activeConversationId, isResponding, activeConversation?.messages.length]);
+    }, [isResponding, activeConversation?.messages.length]);
 
     // Stop speech when leaving conversation or unmounting
     useEffect(() => {
@@ -298,12 +329,33 @@ const Chat: React.FC = () => {
             return () => container.removeEventListener('scroll', handleScroll);
         }
     }, []);
+
+    const handleScrollToBottomButton = () => {
+        const container = scrollContainerRef.current;
+        if (container) {
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        }
+    }
     
     const handleCopy = (text: string, messageId: string) => {
         navigator.clipboard.writeText(text);
         setCopiedMessageId(messageId);
         setTimeout(() => setCopiedMessageId(null), 2000);
         addToast('تم نسخ النص', { icon: <Check size={16}/>, duration: 1500 });
+    };
+
+    const cleanTextForTTS = (text: string) => {
+        // Remove code blocks completely (content between ```)
+        let clean = text.replace(/```[\s\S]*?```/g, " (يوجد كود برمجي هنا) ");
+        // Remove inline code
+        clean = clean.replace(/`[^`]*`/g, "");
+        // Remove tool tags
+        clean = clean.replace(/\[TOOL:.*?\]/g, "");
+        // Remove common markdown symbols that ruin speech
+        clean = clean.replace(/[*#_\[\]]/g, "");
+        // Remove links
+        clean = clean.replace(/\(http.*?\)/g, "");
+        return clean;
     };
 
     const handleSpeak = (text: string, messageId: string) => {
@@ -316,8 +368,21 @@ const Chat: React.FC = () => {
         window.speechSynthesis.cancel(); // Stop any current speech
         setSpeakingMessageId(messageId);
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ar-EG'; // Target Egyptian Arabic
+        const cleanedText = cleanTextForTTS(text);
+        const utterance = new SpeechSynthesisUtterance(cleanedText);
+        
+        // Attempt to find a better Arabic voice
+        const voices = window.speechSynthesis.getVoices();
+        // Prefer "Google" voices if available as they are often higher quality
+        const arabicVoice = voices.find(v => v.lang.includes('ar') && v.name.includes('Google')) ||
+                            voices.find(v => v.lang.includes('ar'));
+
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+        
+        utterance.lang = 'ar-SA'; // Use SA as it often defaults to a clearer Modern Standard Arabic or understood dialect
+        utterance.rate = 0.9; // Slightly slower is usually clearer for Arabic
         
         utterance.onend = () => setSpeakingMessageId(null);
         utterance.onerror = () => setSpeakingMessageId(null);
@@ -415,7 +480,6 @@ const Chat: React.FC = () => {
         let currentConvoId = activeConversationId;
         
         const activeConvo = conversations.find(c => c.id === currentConvoId);
-        const isFirstMessage = !activeConvo || activeConvo.messages.length === 0;
 
         if (!currentConvoId) {
             const newConvo = createNewConversation();
@@ -446,8 +510,13 @@ const Chat: React.FC = () => {
         setAttachedFile(null);
         setFilePreview(null);
         
-        if (isFirstMessage) {
-            generateConversationTitle(textToSend).then(smartTitle => {
+        // Smart Title Generation logic...
+        const messagesHistory = activeConvo?.messages || [];
+        const shouldGenerateTitle = messagesHistory.length >= 2 && messagesHistory.length <= 5 && activeConvo?.title === 'محادثة جديدة';
+        
+        if (shouldGenerateTitle) {
+            const contextMessages = [...messagesHistory, userMessage];
+            generateConversationTitle(contextMessages).then(smartTitle => {
                 if (smartTitle && currentConvoId) {
                     renameConversation(currentConvoId, smartTitle);
                 }
@@ -573,10 +642,6 @@ const Chat: React.FC = () => {
             convoId = newConvo.id;
         }
         
-        generateConversationTitle(prompt).then(smartTitle => {
-            if (smartTitle && convoId) renameConversation(convoId, smartTitle);
-        }).catch(e => console.error("Title gen failed", e));
-        
         const userMessage: Message = { 
             id: uuidv4(),
             role: 'user', 
@@ -676,7 +741,7 @@ const Chat: React.FC = () => {
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' ? 'justify-start' : 'justify-end'
                             }`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[98%] sm:max-w-[90%] ${
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[98%] sm:max-w-[90%] hover:scale-[1.01] transition-transform duration-200 ${
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
                                 }`}>
                                     
@@ -695,19 +760,23 @@ const Chat: React.FC = () => {
                                         </span>
 
                                         {msg.role === 'user' && msg.imageUrl && (
-                                            <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700/50">
-                                                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
-                                                    <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain cursor-pointer" />
-                                                </a>
+                                            <div 
+                                                className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700/50 cursor-pointer hover:opacity-90 transition-opacity"
+                                                onClick={() => {
+                                                    setImageZoom(1); // Reset zoom on open
+                                                    setSelectedImage(msg.imageUrl || null);
+                                                }}
+                                            >
+                                                <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
-                                            <div className={`relative px-4 py-3 rounded-2xl shadow-sm ${
+                                            <div className={`relative px-4 py-3 sm:px-5 sm:py-4 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden ${
                                                 msg.role === 'user' 
                                                 ? 'bg-gradient-to-br from-primary to-primary-dark text-white rounded-br-none' 
                                                 : `bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border-red-500/50 bg-red-50/50 dark:bg-red-900/10' : ''}`
                                             }`}>
-                                                <div className="text-sm sm:text-base whitespace-pre-wrap leading-loose">
+                                                <div className="text-sm sm:text-base">
                                                     {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
                                                             <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
@@ -723,26 +792,26 @@ const Chat: React.FC = () => {
 
                                         {/* Mobile Friendly Action Footer for Bot Messages */}
                                         {msg.role === 'model' && !msg.error && !msg.isStreaming && (
-                                            <div className="flex gap-2 mt-1 px-1 flex-wrap justify-end">
+                                            <div className="flex gap-2 mt-1 px-1 flex-wrap justify-end opacity-80 hover:opacity-100 transition-opacity">
                                                 <button 
                                                     onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
-                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-[10px] font-medium ${speakingMessageId === msg.id ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-xs font-medium active:scale-95 ${speakingMessageId === msg.id ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
                                                 >
-                                                    {speakingMessageId === msg.id ? <Square size={12} className="fill-current" /> : <Volume2 size={12} />}
+                                                    {speakingMessageId === msg.id ? <Square size={14} className="fill-current" /> : <Volume2 size={14} />}
                                                     <span>{speakingMessageId === msg.id ? 'إيقاف' : 'نطق'}</span>
                                                 </button>
                                                 <button 
                                                     onClick={() => handleCopy(msg.parts[0].text, msg.id)}
-                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-[10px] font-medium ${copiedMessageId === msg.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-xs font-medium active:scale-95 ${copiedMessageId === msg.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
                                                 >
-                                                    {copiedMessageId === msg.id ? <Check size={12} /> : <Copy size={12} />}
-                                                    <span>{copiedMessageId === msg.id ? 'تم النسخ' : 'نسخ'}</span>
+                                                    {copiedMessageId === msg.id ? <Check size={14} /> : <Copy size={14} />}
+                                                    <span>{copiedMessageId === msg.id ? 'تم' : 'نسخ'}</span>
                                                 </button>
                                                 <button 
                                                     onClick={() => handleRetry(msg)} 
-                                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-[10px] font-medium"
+                                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-medium active:scale-95"
                                                 >
-                                                    <RefreshCw size={12} />
+                                                    <RefreshCw size={14} />
                                                     <span>توليد تاني</span>
                                                 </button>
                                             </div>
@@ -751,7 +820,7 @@ const Chat: React.FC = () => {
                                         {msg.error && (
                                             <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
                                                 <span className="text-xs text-red-500 font-bold">فشل الرد</span>
-                                                <button onClick={() => handleRetry(msg)} className="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full hover:bg-red-200 transition-colors">
+                                                <button onClick={() => handleRetry(msg)} className="flex items-center gap-1 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full hover:bg-red-200 transition-colors active:scale-95">
                                                     <RefreshCw size={12} /> إعادة المحاولة
                                                 </button>
                                             </div>
@@ -759,7 +828,7 @@ const Chat: React.FC = () => {
                                         {!msg.error && msg.id === stoppedMessageId && !isResponding && (
                                             <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
                                                 <span className="text-xs text-yellow-600 dark:text-yellow-400 font-bold">تم الإيقاف</span>
-                                                <button onClick={handleContinue} className="flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs rounded-full hover:bg-yellow-200 transition-colors">
+                                                <button onClick={handleContinue} className="flex items-center gap-1 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs rounded-full hover:bg-yellow-200 transition-colors active:scale-95">
                                                     <Play size={12} /> إكمال الرد
                                                 </button>
                                             </div>
@@ -770,7 +839,7 @@ const Chat: React.FC = () => {
                         ))}
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
                              <div className="flex w-full animate-bubbleIn justify-end">
-                                <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse">
+                                <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse max-w-[90%]">
                                     <div className="self-end flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shadow-sm">
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
@@ -795,8 +864,8 @@ const Chat: React.FC = () => {
 
             {/* Scroll to bottom button */}
             <button 
-                onClick={scrollToBottom}
-                className={`absolute bottom-24 right-6 p-2 bg-primary text-white rounded-full shadow-lg transition-all duration-300 z-20 hover:bg-primary-dark ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                onClick={handleScrollToBottomButton}
+                className={`absolute bottom-24 right-4 p-2 bg-primary text-white rounded-full shadow-lg transition-all duration-300 z-20 hover:bg-primary-dark active:scale-95 ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
             >
                 <ChevronDown size={20} />
             </button>
@@ -817,43 +886,23 @@ const Chat: React.FC = () => {
                         )}
                         <button 
                             onClick={() => { setAttachedFile(null); setFilePreview(null); }}
-                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition-colors"
+                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition-colors active:scale-90"
                         >
                             <X size={12} />
                         </button>
                     </div>
                 )}
-                 <div className="flex items-end gap-2 sm:gap-3">
+                 <div className="flex items-end gap-2">
                     
-                    <div className='relative self-end mb-1'>
-                        <Button
-                            variant="secondary"
-                            className="p-3 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300"
-                            aria-label="خيارات إضافية"
-                            onClick={() => setMenuOpen(prev => !prev)}
-                        >
-                            <Plus size={20} className={`transition-transform duration-200 ${isMenuOpen ? 'rotate-45' : ''}`} />
-                        </Button>
-                        {isMenuOpen && (
-                            <div 
-                                className="absolute bottom-full right-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-1.5 z-30 animate-slideInUp origin-bottom-right"
-                                onMouseLeave={() => setMenuOpen(false)}
-                            >
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-full flex items-center gap-3 p-2.5 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200"
-                                >
-                                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-500 rounded-md"><Paperclip size={16} /></div>
-                                    <span>إرفاق ملف / صورة</span>
-                                </button>
-                                <button
-                                    disabled
-                                    className="w-full flex items-center gap-3 p-2.5 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200 opacity-50 cursor-not-allowed"
-                                >
-                                    <div className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-md"><Mic size={16} /></div>
-                                    <span>تسجيل صوتي (قريباً)</span>
-                                </button>
-                            </div>
+                    <div className="self-end mb-0.5">
+                        {isResponding ? (
+                            <Button onClick={handleStop} className="p-2.5 sm:p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all" aria-label="إيقاف التوليد">
+                                <StopCircle size={20} />
+                            </Button>
+                        ) : (
+                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className={`p-2.5 sm:p-3 rounded-full shadow-md transition-all duration-200 active:scale-95 ${(!input.trim() && !attachedFile) ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg transform hover:scale-105'}`} aria-label="إرسال الرسالة">
+                                <Send size={20} className={(!input.trim() && !attachedFile) ? 'text-slate-300' : ''} />
+                            </Button>
                         )}
                     </div>
 
@@ -867,26 +916,123 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder="اسأل خبيركم أو الصق صورة..."
-                        className="flex-1 p-3.5 bg-slate-5 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none transition-all duration-200 shadow-inner placeholder:text-slate-400 resize-none max-h-40 min-h-[50px] glow-effect textarea-scrollbar text-base"
+                        placeholder="اسأل خبيركم..."
+                        className="flex-1 p-3 sm:p-3.5 bg-slate-5 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none transition-all duration-200 shadow-inner placeholder:text-slate-400 resize-none max-h-32 min-h-[48px] glow-effect textarea-scrollbar text-base"
                         aria-label="اكتب رسالتك هنا"
                     />
                     
-                    <div className="self-end mb-1">
-                        {isResponding ? (
-                            <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full shadow-md hover:shadow-lg transform hover:scale-105" aria-label="إيقاف التوليد">
-                                <StopCircle size={20} />
-                            </Button>
-                        ) : (
-                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className={`p-3 rounded-full shadow-md transition-all duration-200 ${(!input.trim() && !attachedFile) ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg transform hover:scale-105'}`} aria-label="إرسال الرسالة">
-                                <Send size={20} className={(!input.trim() && !attachedFile) ? '' : 'rtl:-rotate-90'} />
-                            </Button>
+                    <div className='relative self-end mb-0.5'>
+                        <Button
+                            variant="secondary"
+                            className="p-2.5 sm:p-3 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 active:scale-95"
+                            aria-label="خيارات إضافية"
+                            onClick={() => setMenuOpen(prev => !prev)}
+                        >
+                            <Plus size={20} className={`transition-transform duration-200 ${isMenuOpen ? 'rotate-45' : ''}`} />
+                        </Button>
+                        {isMenuOpen && (
+                            <div 
+                                className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-1.5 z-30 animate-slideInUp origin-bottom-left"
+                                onMouseLeave={() => setMenuOpen(false)}
+                            >
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200 active:bg-slate-200 dark:active:bg-slate-600"
+                                >
+                                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-500 rounded-md"><Paperclip size={16} /></div>
+                                    <span>إرفاق ملف / صورة</span>
+                                </button>
+                                <button
+                                    disabled
+                                    className="w-full flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-foreground dark:text-slate-200 opacity-50 cursor-not-allowed"
+                                >
+                                    <div className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-md"><Mic size={16} /></div>
+                                    <span>تسجيل صوتي (قريباً)</span>
+                                </button>
+                            </div>
                         )}
                     </div>
 
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>
             </div>
+            
+             {/* Image Lightbox Modal with Zoom */}
+             {selectedImage && (
+                <div 
+                    className="fixed inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-2xl transition-all animate-fadeIn"
+                    role="dialog"
+                    aria-label="عارض الصور"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    {/* Header/Close */}
+                    <div className="absolute top-4 right-4 z-50">
+                         <button 
+                            className="p-3 text-white/80 bg-white/10 rounded-full hover:bg-white/20 hover:text-white transition-all active:scale-90"
+                            onClick={() => setSelectedImage(null)}
+                            aria-label="إغلاق"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    {/* Image Container */}
+                    <div className="flex-1 flex items-center justify-center overflow-hidden p-4 animate-zoomIn">
+                         <img 
+                            src={selectedImage} 
+                            alt="Full view" 
+                            className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out origin-center"
+                            style={{ transform: `scale(${imageZoom})` }}
+                            onClick={(e) => e.stopPropagation()} 
+                            draggable={false}
+                        />
+                    </div>
+
+                    {/* Zoom Controls */}
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 bg-black/60 backdrop-blur-lg rounded-full border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            onClick={() => setImageZoom(prev => Math.max(0.5, prev - 0.2))}
+                            className="p-2 text-white hover:text-primary transition-colors active:scale-90"
+                            aria-label="تصغير"
+                        >
+                            <Minus size={20} />
+                        </button>
+                        
+                        <div className="flex items-center gap-2 w-32 sm:w-48 px-2">
+                            <ZoomOut size={14} className="text-slate-400"/>
+                            <input 
+                                type="range" 
+                                min="0.5" 
+                                max="3" 
+                                step="0.1" 
+                                value={imageZoom}
+                                onChange={(e) => setImageZoom(parseFloat(e.target.value))}
+                                className="w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-primary"
+                            />
+                             <ZoomIn size={14} className="text-slate-400"/>
+                        </div>
+
+                        <button 
+                            onClick={() => setImageZoom(prev => Math.min(3, prev + 0.2))}
+                            className="p-2 text-white hover:text-primary transition-colors active:scale-90"
+                            aria-label="تكبير"
+                        >
+                            <Plus size={20} />
+                        </button>
+
+                        <div className="w-px h-6 bg-white/20 mx-1"></div>
+
+                        <button 
+                            onClick={() => setImageZoom(1)}
+                            className="p-2 text-white hover:text-yellow-400 transition-colors active:scale-90"
+                            aria-label="إعادة ضبط"
+                            title="إعادة ضبط الحجم"
+                        >
+                            <RotateCcw size={18} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

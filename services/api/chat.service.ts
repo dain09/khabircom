@@ -138,8 +138,16 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
     return JSON.parse(result);
 };
 
-export const generateConversationTitle = async (firstMessageText: string): Promise<string> => {
-    const prompt = `لخص نص المستخدم التالي في عنوان قصير جداً وجذاب للمحادثة (من 3 إلى 6 كلمات كحد أقصى). العنوان يجب أن يكون بالعربية ويعبر عن محتوى الرسالة. لا تستخدم علامات تنصيص.\n\nالنص: "${firstMessageText}"`;
+export const generateConversationTitle = async (messages: Message[]): Promise<string> => {
+    // Construct a summary of the conversation for the prompt
+    const conversationContext = messages.map(m => `${m.role === 'user' ? 'المستخدم' : 'الخبير'}: ${m.parts[0].text.substring(0, 200)}`).join('\n');
+
+    const prompt = `اقرأ بداية المحادثة التالية ولخص موضوعها في عنوان قصير جداً وجذاب (من 3 إلى 5 كلمات كحد أقصى).
+    العنوان يجب أن يكون بالعربية ويعبر بدقة عن سياق الكلام.
+    لا تستخدم علامات تنصيص.
+    
+    المحادثة:
+    ${conversationContext}`;
 
     return withApiKeyRotation(async (ai) => {
         const response = await ai.models.generateContent({

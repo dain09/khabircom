@@ -24,8 +24,30 @@ import React, { useMemo, Suspense, useEffect, useState } from 'react';
 // ...
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'chat': React.lazy(() => import('./features/Chat/Chat')),
-    // ... (21 other lazy-loaded tool components)
+    'text-roast': React.lazy(() => import('./features/TextRoast/TextRoast')),
+    'image-roast': React.lazy(() => import('./features/ImageRoast/ImageRoast')),
+    'meme-generator': React.lazy(() => import('./features/MemeGenerator/MemeGenerator')),
+    'image-generator': React.lazy(() => import('./features/ImageGenerator/ImageGenerator')),
+    'dialect-converter': React.lazy(() => import('./features/DialectConverter/DialectConverter')),
+    'news-summarizer': React.lazy(() => import('./features/NewsSummarizer/NewsSummarizer')),
+    'moods-generator': React.lazy(() => import('./features/MoodsGenerator/MoodsGenerator')),
+    'voice-analysis': React.lazy(() => import('./features/VoiceAnalysis/VoiceAnalysis')),
+    'dream-interpreter': React.lazy(() => import('./features/DreamInterpreter/DreamInterpreter')),
+    'recipe-generator': React.lazy(() => import('./features/RecipeGenerator/RecipeGenerator')),
+    'story-maker': React.lazy(() => import('./features/StoryMaker/StoryMaker')),
+    'pdf-summarizer': React.lazy(() => import('./features/PdfSummarizer/PdfSummarizer')),
+    'ai-teacher': React.lazy(() => import('./features/AiTeacher/AiTeacher')),
+    'ai-love-messages': React.lazy(() => import('./features/AiLoveMessages/AiLoveMessages')),
+    'voice-commands': React.lazy(() => import('./features/VoiceCommands/VoiceCommands')),
+    'post-generator': React.lazy(() => import('./features/PostGenerator/PostGenerator')),
+    'text-converter': React.lazy(() => import('./features/TextConverter/TextConverter')),
+    'name-generator': React.lazy(() => import('./features/NameGenerator/NameGenerator')),
+    'habit-analyzer': React.lazy(() => import('./features/HabitAnalyzer/HabitAnalyzer')),
+    'ai-motivator': React.lazy(() => import('./features/AiMotivator/AiMotivator')),
     'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
+    'memory-manager': React.lazy(() => import('./features/MemoryManager/MemoryManager')),
+    'image-editor': React.lazy(() => import('./features/ImageEditor/ImageEditor')),
+    'khabirkom-settings': React.lazy(() => import('./features/Settings/Settings')),
 };
 
 const App: React.FC = () => {
@@ -53,8 +75,29 @@ import { Tool } from './types';
 export const TOOLS: Tool[] = [
     { id: 'chat', title: 'دردشة مع خبيركم', /* ... */ },
     { id: 'text-roast', title: 'تحفيل على الكلام', /* ... */ },
+    { id: 'image-roast', title: 'تحفيل على الصور', /* ... */ },
+    { id: 'meme-generator', title: 'صانع الميمز', /* ... */ },
+    { id: 'image-generator', title: 'رسام الخبير', /* ... */ },
+    { id: 'image-editor', title: 'معدل الصور', /* ... */ },
+    { id: 'moods-generator', title: 'محلل المود', /* ... */ },
+    { id: 'story-maker', title: 'مكمل السيناريوهات', /* ... */ },
+    { id: 'ai-love-messages', title: 'رسائل الحب والغرام', /* ... */ },
+    { id: 'name-generator', title: 'مولد الأسماء', /* ... */ },
+    { id: 'ai-motivator', title: 'المحفز الرخم', /* ... */ },
+    { id: 'post-generator', title: 'مولد بوستات السوشيال', /* ... */ },
+    { id: 'dialect-converter', title: 'مترجم اللهجات', /* ... */ },
+    { id: 'news-summarizer', title: 'ملخص الأخبار الفوري', /* ... */ },
+    { id: 'pdf-summarizer', title: 'ملخص الملفات والنصوص', /* ... */ },
+    { id: 'text-converter', title: 'محول الأساليب', /* ... */ },
     { id: 'code-explainer', title: 'شرح الأكواد', /* ... */ },
-    // ... (and all other tools)
+    { id: 'dream-interpreter', title: 'مفسر الأحلام الفلكي', /* ... */ },
+    { id: 'ai-teacher', title: 'الأستاذ الفهلوي في التخطيط', /* ... */ },
+    { id: 'habit-analyzer', title: 'المحلل الفهلوي', /* ... */ },
+    { id: 'memory-manager', title: 'الذاكرة', /* ... */ },
+    { id: 'khabirkom-settings', title: 'ظبّط خبيركم', /* ... */ },
+    { id: 'voice-analysis', title: 'تحليل الصوت', /* ... */ },
+    { id: 'recipe-generator', title: 'وصفات على قد الإيد', /* ... */ },
+    { id: 'voice-commands', title: 'الأوامر الصوتية', /* ... */ },
 ];
 
 // --- STATE MANAGEMENT (CONTEXTS) ---
@@ -114,7 +157,7 @@ export const deleteApiKey = (keyToDelete: string): void => { /* ... */ };
 // --- UI COMPONENTS ---
 
 // FILE: components/Sidebar.tsx
-// DESCRIPTION: Renders the sidebar with conversation history and tool navigation.
+// DESCRIPTION: Renders the sidebar with conversation history and tool navigation. Includes search and recent tools.
 export const Sidebar: React.FC<SidebarProps> = ({ /* ... */ }) => { /* ... */ };
 
 // FILE: components/Navbar.tsx

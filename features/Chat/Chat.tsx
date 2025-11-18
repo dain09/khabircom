@@ -205,7 +205,7 @@ const Chat: React.FC = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const stopStreamingRef = useRef(false);
@@ -219,8 +219,16 @@ const Chat: React.FC = () => {
     }, []);
     
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [activeConversation?.messages, isResponding]);
+        const container = scrollContainerRef.current;
+        if (container) {
+            // Use a timeout to ensure the DOM is fully rendered before scrolling to the bottom.
+            // This is crucial for when a conversation is first loaded or a new message is added.
+            const timer = setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [activeConversationId, activeConversation?.messages, isResponding]);
     
     const handleCopy = (text: string, messageId: string) => {
         navigator.clipboard.writeText(text);
@@ -482,7 +490,7 @@ const Chat: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
-            <div className="flex-1 overflow-y-auto p-2 sm:p-6">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2 sm:p-6">
                  {activeConversation.messages.length === 0 ? (
                     <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
                 ) : (
@@ -490,8 +498,8 @@ const Chat: React.FC = () => {
                         {activeConversation.messages.map((msg) => (
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' 
-                                ? 'justify-start' // RTL: User on the right (start)
-                                : 'justify-end'   // RTL: Bot on the left (end)
+                                ? 'justify-start' 
+                                : 'justify-end'
                             }`}>
                                 <div className={`flex items-end gap-2 sm:gap-3 max-w-[90%] ${
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
@@ -522,10 +530,10 @@ const Chat: React.FC = () => {
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
                                                     {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
-                                                        <div className="flex space-x-1.5 justify-center items-center px-2">
-                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                        <div className="flex gap-1.5 justify-center items-center px-2 py-1">
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
                                                         <MessageContent content={msg.parts[0].text} />
@@ -572,10 +580,10 @@ const Chat: React.FC = () => {
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
                                     <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
-                                        <div className="flex space-x-1.5 justify-center items-center px-2">
-                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                         </div>
                                     </div>
                                 </div>
@@ -583,7 +591,6 @@ const Chat: React.FC = () => {
                         )}
                     </div>
                  )}
-                <div ref={messagesEndRef} />
             </div>
 
             <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl" onPaste={handlePaste}>

@@ -120,6 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                     onKeyDown={(e) => e.key === 'Enter' && handleSaveRename(convo.id)}
                                                     className="flex-1 bg-transparent border-b border-primary focus:outline-none"
                                                     autoFocus
+                                                    onClick={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
                                                 <span className="flex-1 truncate">{convo.title}</span>
@@ -127,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             
                                             <div className='flex items-center opacity-0 group-hover:opacity-100 transition-opacity'>
                                                 {editingId === convo.id ? (
-                                                    <button onClick={() => handleSaveRename(convo.id)} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleSaveRename(convo.id)}} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
                                                 ) : (
                                                     <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={16} /></button>
                                                 )}

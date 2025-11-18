@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -503,15 +504,15 @@ const Chat: React.FC = () => {
                         {activeConversation.messages.map((msg) => (
                              <div key={msg.id} className={`flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn ${
                                 msg.role === 'user' 
-                                ? 'justify-start' 
-                                : 'justify-end'
+                                ? 'justify-end' 
+                                : 'justify-start'
                             }`}>
-                                <div className={`flex items-start gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
-                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary/20'}`}>
-                                        {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary animate-bot-idle-bob" />}
+                                <div className={`flex items-start gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-primary/20' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                                        {msg.role === 'user' ? <User className="w-5 h-5 text-primary" /> : <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />}
                                     </div>
                                     
-                                    <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-start' : 'items-end'} gap-1`}>
+                                    <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-1`}>
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
                                                 <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
@@ -520,8 +521,8 @@ const Chat: React.FC = () => {
                                         { (msg.parts[0].text || msg.role === 'model') && (
                                             <div className={`p-3 rounded-2xl ${
                                                 msg.role === 'user' 
-                                                ? 'bg-primary text-primary-foreground rounded-tr-none' 
-                                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                                ? 'bg-primary text-primary-foreground rounded-br-none' 
+                                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
                                                     {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
@@ -557,12 +558,12 @@ const Chat: React.FC = () => {
                             </div>
                         ))}
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
-                             <div className="flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn justify-end">
-                                <div className="flex items-start gap-2 sm:gap-3 flex-row-reverse">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                        <Bot className="w-5 h-5 text-primary animate-bot-idle-bob" />
+                             <div className="flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn justify-start">
+                                <div className="flex items-start gap-2 sm:gap-3 flex-row">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                        <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none">
+                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
                                         <div className="flex space-x-1 p-2 justify-center items-center">
                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
@@ -590,31 +591,6 @@ const Chat: React.FC = () => {
                     </div>
                 )}
                  <div className="flex items-end gap-2 sm:gap-3">
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
-
-                    <AutoGrowTextarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        }}
-                        placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
-                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
-                        aria-label="اكتب رسالتك هنا"
-                    />
-
                     <div className="relative">
                         {isRecording ? (
                              <button
@@ -636,7 +612,7 @@ const Chat: React.FC = () => {
                                     <Plus size={24} />
                                 </Button>
                                 {showAttachmentMenu && (
-                                     <div className="absolute bottom-14 right-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
+                                     <div className="absolute bottom-14 left-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
                                         <button 
                                             onClick={() => { imageInputRef.current?.click(); setShowAttachmentMenu(false); }}
                                             className="w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
@@ -654,6 +630,31 @@ const Chat: React.FC = () => {
                             </>
                         )}
                     </div>
+
+                    <AutoGrowTextarea
+                        ref={inputRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                        placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
+                        className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
+                        aria-label="اكتب رسالتك هنا"
+                    />
+
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
                     
                     <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
 

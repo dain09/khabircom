@@ -1,6 +1,6 @@
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus, Image as ImageIcon, Languages, Smile, GraduationCap, Zap } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, Plus, BrainCircuit, ArrowRight, ChevronDown, Square, Volume2, ZoomIn, ZoomOut, RotateCcw, Minus, FileText, Zap, Lightbulb, Sparkles, Flame, Puzzle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -23,37 +23,6 @@ type BriefingData = { greeting: string; suggestions: string[] };
 
 // --- Components ---
 
-const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
-    const { setActiveToolId } = useTool();
-    const tool = TOOLS.find(t => t.id === toolId);
-
-    if (!tool) return null;
-
-    const Icon = tool.icon;
-
-    return (
-        <div 
-            onClick={() => setActiveToolId(toolId)}
-            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm"
-        >
-            <div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}>
-                <Icon size={22} className={`${tool.color}`} />
-            </div>
-            <div className="flex-1 min-w-0 text-start">
-                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">
-                    {tool.title}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                    اضغط للتجربة الآن
-                </p>
-            </div>
-            <div className="flex-shrink-0 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-full group-hover:bg-primary group-hover:text-white transition-all rtl:rotate-180 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0">
-                <ArrowRight size={16} />
-            </div>
-        </div>
-    );
-};
-
 const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
     const { setActiveToolId } = useTool();
     const tool = TOOLS.find(t => t.id === toolId);
@@ -63,13 +32,13 @@ const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
     return (
         <button 
             onClick={() => setActiveToolId(toolId)}
-            className="flex flex-col items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 duration-300 active:scale-95 group w-full h-full"
+            className="flex flex-col items-center justify-center gap-4 p-6 bg-white/40 dark:bg-slate-800/40 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/50 dark:border-slate-700/50 rounded-3xl transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 duration-300 active:scale-95 group w-full backdrop-blur-sm"
         >
-            <div className={`p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-700/50 shadow-inner group-hover:scale-110 transition-transform duration-300`}>
-                <Icon size={24} className={tool.color} />
+            <div className={`p-4 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                <Icon size={32} className={tool.color} />
             </div>
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 truncate w-full text-center">
-                {tool.title.split(' ')[0]}
+            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-full text-center">
+                {tool.title.split(' ')[0]} {tool.title.split(' ')[1]}
             </span>
         </button>
     );
@@ -78,9 +47,9 @@ const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
 const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const { memory } = useMemory();
     const { persona } = usePersona();
-    const { activeToolId } = useTool();
 
-    const isFahimkom = useMemo(() => persona.humor >= 8 && persona.verbosity <= 3, [persona]);
+    // Match strict logic in service: Humor > 7 AND Verbosity < 5
+    const isFahimkom = useMemo(() => persona.humor > 7 && persona.verbosity < 5, [persona]);
     const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
 
     const context = useMemo(() => {
@@ -88,14 +57,14 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
     }, []);
 
-    const { data: briefing, isLoading: isBriefingLoading, error: briefingError, execute: fetchBriefing } = useGemini<BriefingData, void>(
+    const { data: briefing, isLoading: isBriefingLoading, execute: fetchBriefing } = useGemini<BriefingData, void>(
         () => getMorningBriefing(memory, persona, context, botName)
     );
     
     useEffect(() => {
         fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [memory, persona, botName]); // Re-fetch if persona changes
+    }, [memory, persona, botName]);
 
     const suggestions = briefing?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",
@@ -106,87 +75,78 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     
     const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
-    const blobColors = isFahimkom
-        ? ["bg-orange-400/20", "bg-yellow-400/20", "bg-red-400/20"]
-        : ["bg-blue-400/20", "bg-purple-400/20", "bg-indigo-400/20"];
-
     const textShimmerClass = isFahimkom
         ? "bg-gradient-to-r from-orange-600 via-yellow-400 to-orange-600 dark:from-orange-400 dark:via-yellow-300 dark:to-orange-400 bg-[length:200%_auto] animate-shimmer"
         : "bg-gradient-to-r from-slate-800 via-blue-500 to-slate-800 dark:from-white dark:via-blue-400 dark:to-slate-200 bg-[length:200%_auto] animate-shimmer";
 
-    return (
-        <div className="flex flex-col h-full items-center justify-start pt-10 sm:pt-16 p-6 text-center overflow-y-auto no-scrollbar relative overflow-hidden">
-             {/* Animated Background Blobs */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-                <div className={`absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[0]}`}></div>
-                <div className={`absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[1]}`} style={{ animationDelay: '2s', animationDirection: 'reverse' }}></div>
-                <div className={`absolute -bottom-20 left-[20%] w-[50%] h-[50%] rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-60 animate-aurora ${blobColors[2]}`} style={{ animationDelay: '4s' }}></div>
-            </div>
+    const getSuggestionIcon = (index: number) => {
+        const icons = [Lightbulb, Sparkles, Flame, Puzzle];
+        const Icon = icons[index % icons.length];
+        return <Icon size={18} className={isFahimkom ? "text-orange-500" : "text-blue-500"} />;
+    };
 
-            <div className="relative z-10 flex flex-col items-center w-full max-w-4xl">
-                <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 mb-8 relative group cursor-default">
-                    {/* Dynamic Background Glow based on Persona */}
+    return (
+        <div className="flex flex-col items-center justify-start pt-12 sm:pt-20 p-6 text-center relative z-0 w-full min-h-full pb-20">
+            <div className="relative z-10 flex flex-col items-center w-full max-w-4xl mx-auto">
+                {/* Logo / Avatar */}
+                <div className="flex-shrink-0 w-28 h-28 mb-6 relative group cursor-default animate-zoomIn">
                     <div className={`absolute inset-0 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 ${isFahimkom ? 'bg-orange-500/40' : 'bg-blue-500/30'}`}></div>
                     
-                    {/* Icon Container */}
-                    <div className={`relative w-full h-full bg-gradient-to-br rounded-full flex items-center justify-center shadow-2xl border border-white/50 dark:border-slate-700/50 ${
+                    <div className={`relative w-full h-full bg-gradient-to-br rounded-full flex items-center justify-center shadow-2xl border-2 border-white dark:border-slate-700 ${
                         isFahimkom 
                         ? 'from-white to-orange-50 dark:from-slate-800 dark:to-slate-900' 
                         : 'from-white to-slate-100 dark:from-slate-800 dark:to-slate-900'
                     }`}>
                         {isFahimkom ? (
-                            <Zap size={56} className="text-orange-500 drop-shadow-lg sm:w-16 sm:h-16 fill-orange-500/10" />
+                            <Zap size={64} className="text-orange-500 drop-shadow-lg fill-orange-500/10" />
                         ) : (
-                            <Bot size={56} className="text-primary drop-shadow-lg sm:w-16 sm:h-16" />
+                            <Bot size={64} className="text-primary drop-shadow-lg" />
                         )}
                     </div>
                 </div>
                 
                 {/* Greeting */}
                 {isBriefingLoading 
-                    ? <Skeleton className="h-12 w-64 mb-3 rounded-xl mx-auto" />
-                    : <h2 className={`text-2xl sm:text-4xl font-black mb-3 animate-slideInUp bg-clip-text text-transparent leading-relaxed px-2 py-1 ${textShimmerClass}`}>
+                    ? <Skeleton className="h-12 w-64 mb-4 rounded-xl mx-auto" />
+                    : <h2 className={`text-3xl sm:text-5xl font-black mb-4 animate-slideInUp bg-clip-text text-transparent leading-tight px-4 py-2 ${textShimmerClass}`}>
                         {briefing?.greeting || `${botName} تحت أمرك`}
                     </h2>
                 }
                 
-                <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm sm:max-w-md animate-slideInUp leading-relaxed text-base delay-100 font-medium">
-                    {isFahimkom ? "جاهز يا وحش. عايز تخلص إيه النهاردة؟" : "جاهز لأي مهمة. ابدأ دردشة، اسأل سؤال، أو اختار أداة سريعة:"}
+                <p className="text-lg text-slate-600 dark:text-slate-300 mb-12 max-w-xl animate-slideInUp leading-relaxed font-medium">
+                    {isFahimkom ? "جاهز يا وحش. عايز تخلص إيه النهاردة؟" : "مساعدك الشخصي الذكي. اسأل، اطلب، أو استخدم أدواتي السحرية."}
                 </p>
 
                 {/* Quick Tools Grid */}
-                <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full max-w-xl mb-10 animate-slideInUp delay-200">
-                    {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
-                </div>
-
-                <div className="w-full max-w-lg flex items-center gap-4 mb-6 opacity-60">
-                    <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">أو جرب تسألني</span>
-                    <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent flex-1"></div>
+                <div className="w-full mb-12 animate-slideInUp delay-100">
+                    <h3 className="text-start text-sm font-bold text-slate-400 dark:text-slate-500 mb-4 px-2 uppercase tracking-wider">أدوات شائعة</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
+                    </div>
                 </div>
 
                 {/* Suggestions */}
-                <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-3xl pb-8 w-full delay-300">
-                    {isBriefingLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-36 rounded-full" />
-                        ))
-                    ) : (
-                        suggestions.map((s, i) => (
-                            <button 
-                                key={s} 
-                                onClick={() => onSuggestionClick(s)}
-                                className={`group relative px-5 py-3 bg-white/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-full text-sm font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden active:scale-95 backdrop-blur-sm ${
-                                    isFahimkom ? 'hover:border-orange-400/50' : 'hover:border-primary/50'
-                                }`}
-                            >
-                                <span className={`relative z-10 text-slate-700 dark:text-slate-200 group-hover:text-current transition-colors`}>{s}</span>
-                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                                    isFahimkom ? 'bg-gradient-to-r from-orange-500/10 to-yellow-500/10' : 'bg-gradient-to-r from-primary/10 to-purple-500/10'
-                                }`} />
-                            </button>
-                        ))
-                    )}
+                <div className="w-full animate-slideInUp delay-200">
+                    <h3 className="text-start text-sm font-bold text-slate-400 dark:text-slate-500 mb-4 px-2 uppercase tracking-wider">جرب تسألني</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {isBriefingLoading ? (
+                            Array.from({ length: 4 }).map((_, i) => (
+                                <Skeleton key={i} className="h-14 w-full rounded-2xl" />
+                            ))
+                        ) : (
+                            suggestions.map((s, i) => (
+                                <button 
+                                    key={s} 
+                                    onClick={() => onSuggestionClick(s)}
+                                    className={`group flex items-center gap-3 p-4 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl text-start text-sm font-medium shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.99] backdrop-blur-sm`}
+                                >
+                                    <span className="flex-shrink-0 p-2 bg-slate-100 dark:bg-slate-700 rounded-full group-hover:bg-white dark:group-hover:bg-slate-600 transition-colors">{getSuggestionIcon(i)}</span>
+                                    <span className={`flex-1 text-slate-700 dark:text-slate-200`}>{s}</span>
+                                    <ArrowRight size={16} className="text-slate-300 group-hover:text-primary transition-colors rtl:rotate-180" />
+                                </button>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
@@ -196,16 +156,46 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
 const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const content = message.parts[0].text;
     const isUser = message.role === 'user';
+    const { setActiveToolId } = useTool();
 
     const fixMarkdownSpacing = (text: string) => {
         let res = text;
-        res = res.replace(/([^\s])(\*\*|__)/g, '$1 $2');
-        res = res.replace(/(\*\*|__)([^\s.,،؛:?!])/g, '$1 $2');
+        // Fix: Ensure space BEFORE bold/italic if preceded by non-space (e.g., word**bold**)
+        res = res.replace(/([^\s])(\*\*|__|\*|_)/g, '$1 $2');
+        // Fix: Ensure space AFTER bold/italic if followed by non-space (e.g., **bold**word)
+        res = res.replace(/(\*\*|__|\*|_)([^\s\.,،؛:?!])/g, '$1 $2');
         return res;
     };
 
     const processedContent = fixMarkdownSpacing(content);
     
+    const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
+        const tool = TOOLS.find(t => t.id === toolId);
+        if (!tool) return null;
+        const Icon = tool.icon;
+        return (
+            <div 
+                onClick={() => setActiveToolId(toolId)}
+                className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm max-w-sm"
+            >
+                <div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}>
+                    <Icon size={22} className={`${tool.color}`} />
+                </div>
+                <div className="flex-1 min-w-0 text-start">
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">
+                        {tool.title}
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+                        اضغط للتجربة الآن
+                    </p>
+                </div>
+                <div className="flex-shrink-0 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-full group-hover:bg-primary group-hover:text-white transition-all rtl:rotate-180 opacity-100 md:opacity-0 md:group-hover:opacity-100 transform translate-x-0 md:translate-x-2 md:group-hover:translate-x-0">
+                    <ArrowRight size={16} />
+                </div>
+            </div>
+        );
+    };
+
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
         const [isCopied, setIsCopied] = useState(false);
         const match = /language-(\w+)/.exec(className || '');
@@ -235,7 +225,7 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                     </div>
                     <button 
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/50 dark:hover:bg-white/10 transition-colors opacity-0 group-hover/code:opacity-100"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/50 dark:hover:bg-white/10 transition-colors opacity-100 md:opacity-0 md:group-hover/code:opacity-100"
                     >
                         {isCopied ? (
                             <><Check size={14} className="text-green-500"/> <span className="text-[10px] text-green-500 font-bold">منسوخ</span></>
@@ -303,6 +293,26 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         return <li {...props} className={`my-1.5 leading-loose ${textColor}`}>{newChildren}</li>;
     }
 
+    // --- Table Components for Professional Look ---
+    const CustomTable = ({ node, ...props }: any) => (
+        <div className="overflow-x-auto my-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <table {...props} className="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm text-start" />
+        </div>
+    );
+    
+    const CustomThead = ({ node, ...props }: any) => (
+        <thead {...props} className="bg-slate-50 dark:bg-slate-800/50" />
+    );
+
+    const CustomTh = ({ node, ...props }: any) => (
+        <th {...props} className="px-4 py-3 font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider text-xs" />
+    );
+
+    const CustomTd = ({ node, ...props }: any) => (
+        <td {...props} className="px-4 py-3 whitespace-pre-wrap text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800" />
+    );
+
+
     return (
          <div className={`prose prose-base max-w-none break-words ${isUser ? 'prose-invert' : 'dark:prose-invert prose-headings:text-slate-900 dark:prose-headings:text-white prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-bold'} font-sans`}>
             <ReactMarkdown
@@ -313,7 +323,12 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                     ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-1 marker:text-current" />,
                     li: CustomListItem,
                     code: CodeBlock,
-                    a: ({ node, ...props }) => <a {...props} className={`${isUser ? 'text-white underline decoration-white/50' : 'text-primary hover:text-primary-dark underline decoration-primary/30'} font-bold transition-colors`} target="_blank" rel="noopener noreferrer" />
+                    a: ({ node, ...props }) => <a {...props} className={`${isUser ? 'text-white underline decoration-white/50' : 'text-primary hover:text-primary-dark underline decoration-primary/30'} font-bold transition-colors`} target="_blank" rel="noopener noreferrer" />,
+                    // Custom Table Components
+                    table: CustomTable,
+                    thead: CustomThead,
+                    th: CustomTh,
+                    td: CustomTd,
                 }}
             >
                 {processedContent}
@@ -348,24 +363,26 @@ const Chat: React.FC = () => {
     const streamingMessageIdRef = useRef<string | null>(null);
     const recognitionRef = useRef<any>(null);
 
-    const isFahimkom = useMemo(() => persona.humor >= 8 && persona.verbosity <= 3, [persona.humor, persona.verbosity]);
+    // Strict Match logic same as service layer
+    const isFahimkom = useMemo(() => persona.humor > 7 && persona.verbosity < 5, [persona.humor, persona.verbosity]);
     const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }
     }, [activeConversationId]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const container = scrollContainerRef.current;
         if (container) {
-            const timeout = setTimeout(() => {
-                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-            }, 100);
-            return () => clearTimeout(timeout);
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+            if (isNearBottom || isResponding) {
+                container.scrollTo({ top: scrollHeight, behavior: isResponding ? 'auto' : 'smooth' });
+            }
         }
-    }, [isResponding, activeConversation?.messages.length]);
+    }, [isResponding, activeConversation?.messages.length, activeConversation?.messages[activeConversation?.messages.length-1]?.parts[0].text]);
 
     useEffect(() => {
         return () => {
@@ -446,11 +463,17 @@ const Chat: React.FC = () => {
     const streamModelResponse = useCallback(async (convoId: string, userMessage: Message, newMessage: { text: string, imageFile?: File }) => {
         setIsResponding(true);
         stopStreamingRef.current = false;
+        
+        if (window.innerWidth < 768) {
+            inputRef.current?.blur();
+        }
+
         const modelMessageId = uuidv4();
         streamingMessageIdRef.current = modelMessageId;
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
-        const currentBotName = persona.humor >= 8 && persona.verbosity <= 3 ? 'فهيمكم' : 'خبيركم';
+        // Recalculate botName here based on CURRENT persona state
+        const currentBotName = (persona.humor > 7 && persona.verbosity < 5) ? 'فهيمكم' : 'خبيركم';
 
         addMessageToConversation(convoId, {
             id: modelMessageId,
@@ -468,11 +491,11 @@ const Chat: React.FC = () => {
                 .filter(m => m.id !== userMessage.id && m.id !== modelMessageId && !m.error)
                 || [];
 
+            // Pass the current persona object directly
             const stream = await generateChatResponseStream(historyForApi, newMessage, memory, persona);
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) {
-                    console.log("Streaming stopped by user.");
                     setStoppedMessageId(modelMessageId);
                     break;
                 }
@@ -516,7 +539,9 @@ const Chat: React.FC = () => {
             updateMessageInConversation(convoId, modelMessageId, { isStreaming: false });
             stopStreamingRef.current = false;
             streamingMessageIdRef.current = null;
-            inputRef.current?.focus();
+            if (window.innerWidth >= 768) {
+                inputRef.current?.focus();
+            }
         }
     }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona, addToast]);
 
@@ -666,12 +691,6 @@ const Chat: React.FC = () => {
         
         const messages = activeConversation?.messages || [];
         const failedMessageIndex = messages.findIndex(m => m.id === failedMessage.id);
-        
-        if (failedMessageIndex <= 0) {
-             console.error("Cannot retry: No preceding message found or message not found.");
-             return;
-        }
-
         const userMessage = messages[failedMessageIndex - 1];
 
         if (userMessage && userMessage.role === 'user') {
@@ -699,12 +718,12 @@ const Chat: React.FC = () => {
         
         addMessageToConversation(convoId, userMessage);
         await streamModelResponse(convoId, userMessage, { text: prompt });
-    }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation, renameConversation]);
+    }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setMenuOpen(false);
+            setMenuOpen(false); // Close menu after selection
             setAttachedFile(file);
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -735,7 +754,7 @@ const Chat: React.FC = () => {
                 return;
             }
         }
-    };
+        };
     
     const handleListen = useCallback(() => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -775,63 +794,66 @@ const Chat: React.FC = () => {
     }, [isListening]);
 
     if (!activeConversation) {
-        return <DashboardScreen onSuggestionClick={handleSuggestionClick} />;
+        return (
+            <div className="relative h-full overflow-y-auto w-full">
+                 <div className="container mx-auto px-4 h-full">
+                    <DashboardScreen onSuggestionClick={handleSuggestionClick} />
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-white/40 sm:dark:bg-slate-900/40 sm:backdrop-blur-md sm:border border-white/20 dark:border-slate-700/30 sm:rounded-2xl sm:shadow-2xl transition-all duration-300 relative overflow-hidden">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 scroll-smooth">
+        <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300 relative">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2 sm:p-6 relative scroll-smooth">
                  {activeConversation.messages.length === 0 ? (
                     <DashboardScreen onSuggestionClick={handleSuggestionClick} />
                 ) : (
-                    <div className="space-y-5 pb-6">
+                    <div className="space-y-6 pb-4">
                         {activeConversation.messages.map((msg) => (
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' ? 'justify-start' : 'justify-end'
                             }`}>
-                                <div className={`flex items-end gap-2.5 max-w-[95%] sm:max-w-[88%] ${
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[90%] ${
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
                                 }`}>
                                     
-                                    <div className={`self-end flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-md border border-white/20 dark:border-slate-600/30 ${
-                                        msg.role === 'user' 
-                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white' 
-                                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                                    <div className={`self-end flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
+                                        msg.role === 'user' ? 'bg-primary/20' : 'bg-white dark:bg-slate-700'
                                     }`}>
                                         {msg.role === 'user'
-                                            ? <User className="w-5 h-5" />
-                                            : <Bot className="w-5 h-5 animate-bot-idle-bob" />
+                                            ? <User className="w-5 h-5 text-primary" />
+                                            : <Bot className={`w-5 h-5 ${msg.senderName === 'فهيمكم' ? 'text-orange-500' : 'text-blue-500'} animate-bot-idle-bob`} />
                                         }
                                     </div>
 
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
-                                        <span className={`text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 px-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
-                                            {msg.role === 'user' ? 'أنت' : (msg.senderName || botName)}
-                                        </span>
+                                        {/* Sender Name Label */}
+                                        {msg.role === 'model' && (
+                                            <span className={`text-[10px] font-bold px-2 opacity-50 ${msg.senderName === 'فهيمكم' ? 'text-orange-500' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                {msg.senderName || 'خبيركم'}
+                                            </span>
+                                        )}
 
                                         {msg.role === 'user' && msg.imageUrl && (
-                                            <div 
-                                                className="p-1.5 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 cursor-pointer hover:opacity-90 transition-all hover:scale-[1.01]"
-                                                onClick={() => {
-                                                    setImageZoom(1);
-                                                    setSelectedImage(msg.imageUrl || null);
-                                                }}
-                                            >
-                                                <img src={msg.imageUrl} alt="User upload" className="rounded-xl max-w-xs max-h-64 object-contain" />
+                                            <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+                                                <button onClick={() => setSelectedImage(msg.imageUrl!)} className="focus:outline-none">
+                                                    <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain cursor-zoom-in" />
+                                                </button>
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
-                                            <div className={`relative px-4 py-3.5 sm:px-6 sm:py-5 shadow-sm ${
+                                            <div className={`relative p-3 sm:p-4 rounded-2xl shadow-sm ${
                                                 msg.role === 'user' 
-                                                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-3xl rounded-br-none' 
-                                                : `bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700/60 rounded-3xl rounded-bl-none ${msg.error ? 'border-red-500/30 bg-red-50/80 dark:bg-red-900/20' : ''}`
+                                                ? 'bg-primary text-primary-foreground rounded-br-none' 
+                                                : `bg-white dark:bg-slate-800 text-foreground dark:text-dark-foreground rounded-bl-none border border-slate-100 dark:border-slate-700 ${msg.error ? 'border-red-500/50 bg-red-50 dark:bg-red-900/10' : ''}`
                                             }`}>
-                                                <div className="text-[15px] sm:text-base leading-relaxed">
+                                                <div className="text-sm whitespace-pre-wrap leading-relaxed">
                                                     {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
-                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
-                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                            <span className="w-2 h-2 bg-slate-400/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
                                                         <MessageContent message={msg} />
@@ -839,267 +861,193 @@ const Chat: React.FC = () => {
                                                 </div>
                                             </div>
                                         )}
-
-                                        {msg.role === 'model' && !msg.error && !msg.isStreaming && (
-                                            <div className="flex gap-2 mt-1.5 px-1 flex-wrap justify-end opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
-                                                <button 
-                                                    onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
-                                                    className={`p-1.5 rounded-full transition-all active:scale-90 ${speakingMessageId === msg.id ? 'bg-primary/20 text-primary animate-pulse' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                                                    aria-label="نطق"
-                                                >
-                                                    {speakingMessageId === msg.id ? <Square size={16} className="fill-current" /> : <Volume2 size={16} />}
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleCopy(msg.parts[0].text, msg.id)}
-                                                    className={`p-1.5 rounded-full transition-all active:scale-90 ${copiedMessageId === msg.id ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                                                    aria-label="نسخ"
-                                                >
-                                                    {copiedMessageId === msg.id ? <Check size={16} /> : <Copy size={16} />}
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleRetry(msg)} 
-                                                    className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all active:scale-90"
-                                                    aria-label="إعادة المحاولة"
-                                                >
-                                                    <RefreshCw size={16} />
-                                                </button>
-                                            </div>
-                                        )}
-                                        
                                         {msg.error && (
-                                            <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
-                                                <span className="text-xs text-red-500 font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">فشل الرد</span>
-                                                <button onClick={() => handleRetry(msg)} className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 text-red-500 text-xs rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors active:scale-95 shadow-sm">
-                                                    <RefreshCw size={12} /> إعادة المحاولة
+                                            <div className="mt-1.5 flex items-center gap-2">
+                                                <span className="text-xs text-red-500 font-medium">فشل الرد</span>
+                                                <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full transition-colors" aria-label="إعادة المحاولة">
+                                                    <RefreshCw size={14} />
                                                 </button>
                                             </div>
                                         )}
                                         {!msg.error && msg.id === stoppedMessageId && !isResponding && (
-                                            <div className="mt-1.5 flex items-center gap-2 animate-slideInUp">
-                                                <span className="text-xs text-yellow-600 dark:text-yellow-500 font-bold bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full">تم الإيقاف</span>
-                                                <button onClick={handleContinue} className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-yellow-200 dark:border-yellow-900 text-yellow-600 dark:text-yellow-500 text-xs rounded-full hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors active:scale-95 shadow-sm">
-                                                    <Play size={12} /> إكمال الرد
+                                            <div className="mt-1.5 flex items-center gap-2">
+                                                <span className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">تم الإيقاف</span>
+                                                <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full transition-colors" aria-label="تكملة" title="إكمال الرد">
+                                                    <Play size={14} />
                                                 </button>
                                             </div>
                                         )}
                                     </div>
+
+                                    {msg.role === 'model' && !msg.error && msg.parts[0].text && (
+                                        <div className="self-center flex flex-col gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+                                            <button 
+                                                onClick={() => handleCopy(msg.parts[0].text, msg.id)}
+                                                className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                                aria-label="نسخ الرد"
+                                            >
+                                                {copiedMessageId === msg.id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                            </button>
+                                            <button 
+                                                onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
+                                                className={`p-1.5 rounded-full transition-colors ${speakingMessageId === msg.id ? 'text-red-500 bg-red-50 dark:bg-red-900/20 animate-pulse' : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                                aria-label={speakingMessageId === msg.id ? "إيقاف القراءة" : "قراءة الرد"}
+                                            >
+                                                {speakingMessageId === msg.id ? <Square size={12} fill="currentColor" /> : <Volume2 size={16} />}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
                              <div className="flex w-full animate-bubbleIn justify-end">
-                                <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse max-w-[90%]">
-                                    <div className="self-end flex-shrink-0 w-9 h-9 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shadow-md">
-                                        <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
+                                <div className="flex items-end gap-2 sm:gap-3 flex-row-reverse">
+                                    <div className="self-end flex-shrink-0 w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                        <Bot className="w-5 h-5 text-slate-400 animate-pulse" />
                                     </div>
-                                    <div className="flex flex-col gap-1 w-full items-end">
-                                         <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 ml-1">
-                                            {botName} 
-                                        </span>
-                                        <div className="p-5 rounded-3xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-bl-none shadow-sm">
-                                             <div className="flex gap-1.5 justify-center items-center">
-                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
-                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
-                                            </div>
+                                    <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 text-foreground dark:text-dark-foreground rounded-bl-none shadow-sm border border-slate-100 dark:border-slate-700">
+                                         <div className="flex gap-1.5 justify-center items-center px-1">
+                                            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
+                        <div className="h-2" /> 
                     </div>
                  )}
             </div>
+            
+             {/* Scroll to Bottom Button */}
+             <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-20 transition-all duration-300 ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+                <button 
+                    onClick={handleScrollToBottomButton}
+                    className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 text-primary hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                    <ChevronDown size={20} />
+                </button>
+            </div>
 
-            {/* Scroll to bottom button */}
-            <button 
-                onClick={handleScrollToBottomButton}
-                className={`absolute bottom-28 right-6 p-3 bg-white dark:bg-slate-800 text-primary border border-slate-200 dark:border-slate-700 rounded-full shadow-lg transition-all duration-300 z-20 hover:shadow-xl active:scale-95 hover:-translate-y-1 ${showScrollButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-            >
-                <ChevronDown size={20} />
-            </button>
-
-            {/* Floating Input Bar */}
-            <div className="p-3 sm:p-5 bg-transparent backdrop-blur-none" onPaste={handlePaste}>
+            <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/80 dark:bg-dark-card/80 backdrop-blur-xl sm:rounded-b-xl z-30" onPaste={handlePaste}>
                  {attachedFile && (
-                    <div className="relative w-fit max-w-full mb-3 p-2 pr-3 pl-8 border rounded-xl border-primary/30 bg-white/90 dark:bg-slate-800/90 shadow-lg animate-slideInUp backdrop-blur-md mx-auto sm:mx-0">
+                    <div className="relative w-fit max-w-full mb-2 p-2 pr-8 border rounded-lg border-primary/50 bg-primary/10 animate-slideInUp">
                         {filePreview ? (
-                            <div className="relative group">
-                                <img src={filePreview} alt="Preview" className="h-24 rounded-lg border border-slate-200 dark:border-slate-700 object-cover"/>
-                                <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"/>
-                            </div>
+                            <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-md shadow-sm"/>
                         ) : (
-                            <div className='flex items-center gap-3 text-slate-700 dark:text-slate-200 px-2 py-1'>
-                                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-500">
-                                    <FileText size={20} />
-                                </div>
-                                <span className='text-sm font-bold truncate max-w-[200px]'>{attachedFile.name}</span>
+                            <div className='flex items-center gap-2 text-primary'>
+                                <FileText size={24} />
+                                <span className='text-sm font-medium truncate max-w-[150px]'>{attachedFile.name}</span>
                             </div>
                         )}
                         <button 
                             onClick={() => { setAttachedFile(null); setFilePreview(null); }}
-                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-all active:scale-90"
+                            className="absolute top-1 right-1 p-1 bg-white/80 text-red-500 rounded-full hover:bg-white shadow-sm transition-colors"
                         >
                             <X size={14} />
                         </button>
                     </div>
                 )}
-
-                 <div className="flex items-end gap-2 relative max-w-3xl mx-auto">
-                    <div className="flex-1 relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg dark:shadow-slate-900/50 rounded-[26px] transition-all focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 focus-within:shadow-xl">
+                 <div className="flex items-end gap-2">
+                    {/* Send / Stop Button */}
+                    <div className="order-1 flex-shrink-0">
+                        {isResponding ? (
+                            <Button onClick={handleStop} className="p-3.5 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full shadow-md hover:shadow-lg" aria-label="إيقاف التوليد">
+                                <StopCircle size={30} className="fill-current" />
+                            </Button>
+                        ) : (
+                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="p-3.5 rounded-full shadow-md hover:shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:shadow-none" aria-label="إرسال الرسالة">
+                                <Send size={30} className={(!input.trim() && !attachedFile) ? "text-slate-300" : "fill-current"} strokeWidth={2.5} />
+                            </Button>
+                        )}
+                    </div>
+                    
+                    {/* Input Area */}
+                    <div className="order-2 flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[26px] shadow-sm focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-primary transition-all duration-300 flex items-end overflow-hidden">
                         <AutoGrowTextarea
                             ref={inputRef}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSend();
+                                    if (window.innerWidth >= 768) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }
                                 }
                             }}
-                            placeholder={isFahimkom ? "اسأل فهيمكم..." : "اسأل خبيركم..."}
-                            className="w-full py-3.5 pl-12 pr-4 bg-transparent border-none outline-none resize-none max-h-32 min-h-[52px] text-base text-slate-800 dark:text-slate-200 placeholder:text-slate-400 rounded-[26px] textarea-scrollbar"
+                            placeholder="اسأل خبيركم..."
+                            className="w-full max-h-32 py-3.5 px-4 bg-transparent border-none focus:ring-0 resize-none text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed textarea-scrollbar"
                             aria-label="اكتب رسالتك هنا"
                         />
-                        
-                        {/* Attachment Button inside input */}
-                        <div className="absolute left-2 bottom-1.5">
-                            <Button
-                                variant="secondary"
-                                className="p-2 rounded-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary shadow-none active:scale-95 transition-all"
-                                aria-label="خيارات إضافية"
-                                onClick={() => setMenuOpen(prev => !prev)}
-                            >
-                                <Plus size={22} className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-45 text-primary' : ''}`} />
-                            </Button>
-                        </div>
                     </div>
 
-                    <div className="self-end mb-1">
-                        {isResponding ? (
-                            <Button onClick={handleStop} className="w-12 h-12 p-0 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:shadow-red-500/30 transform hover:scale-105 active:scale-95 transition-all" aria-label="إيقاف التوليد">
-                                <StopCircle size={22} className="fill-white/20" />
-                            </Button>
-                        ) : (
-                            <Button 
-                                onClick={handleSend} 
-                                disabled={(!input.trim() && !attachedFile)} 
-                                className={`w-12 h-12 p-0 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 active:scale-90 ${
-                                    (!input.trim() && !attachedFile) 
-                                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed' 
-                                    : 'bg-gradient-to-r from-primary to-blue-600 hover:to-blue-700 text-white hover:shadow-primary/30 hover:scale-105'
-                                }`} 
-                                aria-label="إرسال الرسالة"
-                            >
-                                <Send size={22} className={(!input.trim() && !attachedFile) ? "" : "ml-0.5"} />
-                            </Button>
+                     {/* Attachment Button */}
+                    <div className='relative order-3 flex-shrink-0'>
+                        <Button
+                            variant="secondary"
+                            className={`p-3.5 rounded-full shadow-sm hover:shadow-md transition-transform active:scale-95 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 ${isMenuOpen ? 'bg-slate-200 dark:bg-slate-700 rotate-45' : ''}`}
+                            aria-label="خيارات إضافية"
+                            onClick={() => setMenuOpen(prev => !prev)}
+                        >
+                            <Plus size={32} strokeWidth={2.5} />
+                        </Button>
+                        
+                        {/* Attachment Menu */}
+                        {isMenuOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)}></div>
+                                <div 
+                                    className="absolute bottom-full left-0 mb-3 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-700 p-2 z-20 animate-slideInUp origin-bottom-left"
+                                >
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full flex items-center gap-3 p-3 text-sm font-bold text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                    >
+                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full">
+                                            <Paperclip size={18} />
+                                        </div>
+                                        <span>إرفاق ملف</span>
+                                    </button>
+                                    <button
+                                        onClick={handleListen}
+                                        className="w-full flex items-center gap-3 p-3 text-sm font-bold text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                    >
+                                         <div className={`p-2 rounded-full ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600'}`}>
+                                            <Mic size={18} />
+                                        </div>
+                                        <span>{isListening ? 'جاري الاستماع...' : 'تسجيل صوتي'}</span>
+                                    </button>
+                                </div>
+                            </>
                         )}
                     </div>
-
-                     {isMenuOpen && (
-                        <div 
-                            className="absolute bottom-full left-0 mb-3 w-56 bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-100 dark:border-slate-700 p-1.5 z-30 animate-slideInUp origin-bottom-left"
-                            onMouseLeave={() => setMenuOpen(false)}
-                        >
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-full flex items-center gap-3 p-3 text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 group"
-                            >
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors"><Paperclip size={18} /></div>
-                                <div className="flex flex-col items-start">
-                                    <span className="font-bold">ملف / صورة</span>
-                                    <span className="text-[10px] text-slate-400">PDF, PNG, JPG</span>
-                                </div>
-                            </button>
-                            <button
-                                disabled
-                                className="w-full flex items-center gap-3 p-3 text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-slate-700 dark:text-slate-200 opacity-50 cursor-not-allowed group"
-                            >
-                                <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-lg"><Mic size={18} /></div>
-                                <div className="flex flex-col items-start">
-                                    <span className="font-bold">تسجيل صوتي</span>
-                                    <span className="text-[10px] text-slate-400">قريباً...</span>
-                                </div>
-                            </button>
-                        </div>
-                    )}
-                    
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>
             </div>
-            
-             {/* Image Lightbox Modal with Zoom */}
-             {selectedImage && (
-                <div 
-                    className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-xl transition-all animate-fadeIn"
-                    role="dialog"
-                    aria-label="عارض الصور"
-                    onClick={() => setSelectedImage(null)}
-                >
-                    {/* Header/Close */}
-                    <div className="absolute top-4 right-4 z-50">
-                         <button 
-                            className="p-3 text-white/80 bg-white/10 rounded-full hover:bg-white/20 hover:text-white transition-all active:scale-90"
-                            onClick={() => setSelectedImage(null)}
-                            aria-label="إغلاق"
-                        >
-                            <X size={24} />
-                        </button>
-                    </div>
 
-                    {/* Image Container */}
-                    <div className="flex-1 flex items-center justify-center overflow-hidden p-4 animate-zoomIn">
-                         <img 
+            {/* Image Viewer Modal */}
+            {selectedImage && (
+                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" onClick={() => setSelectedImage(null)}>
+                    <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+                        <img 
                             src={selectedImage} 
                             alt="Full view" 
-                            className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out origin-center shadow-2xl"
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl transition-transform duration-200"
                             style={{ transform: `scale(${imageZoom})` }}
-                            onClick={(e) => e.stopPropagation()} 
-                            draggable={false}
                         />
-                    </div>
-
-                    {/* Zoom Controls */}
-                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 bg-slate-900/80 backdrop-blur-lg rounded-full border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <button 
-                            onClick={() => setImageZoom(prev => Math.max(0.5, prev - 0.2))}
-                            className="p-2 text-white hover:text-primary transition-colors active:scale-90"
-                            aria-label="تصغير"
-                        >
-                            <Minus size={20} />
-                        </button>
-                        
-                        <div className="flex items-center gap-3 w-32 sm:w-48 px-2">
-                            <ZoomOut size={14} className="text-slate-400"/>
-                            <input 
-                                type="range" 
-                                min="0.5" 
-                                max="3" 
-                                step="0.1" 
-                                value={imageZoom}
-                                onChange={(e) => setImageZoom(parseFloat(e.target.value))}
-                                className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
-                            />
-                             <ZoomIn size={14} className="text-slate-400"/>
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full">
+                            <button onClick={() => setImageZoom(prev => Math.max(0.5, prev - 0.2))} className="p-2 text-white hover:text-primary"><Minus size={20}/></button>
+                            <button onClick={() => setImageZoom(1)} className="p-2 text-white hover:text-primary"><RotateCcw size={20}/></button>
+                            <button onClick={() => setImageZoom(prev => Math.min(3, prev + 0.2))} className="p-2 text-white hover:text-primary"><Plus size={20}/></button>
                         </div>
-
-                        <button 
-                            onClick={() => setImageZoom(prev => Math.min(3, prev + 0.2))}
-                            className="p-2 text-white hover:text-primary transition-colors active:scale-90"
-                            aria-label="تكبير"
+                         <button 
+                            onClick={() => setSelectedImage(null)}
+                            className="absolute -top-12 right-0 p-2 text-white hover:bg-white/20 rounded-full"
                         >
-                            <Plus size={20} />
-                        </button>
-
-                        <div className="w-px h-6 bg-white/10 mx-1"></div>
-
-                        <button 
-                            onClick={() => setImageZoom(1)}
-                            className="p-2 text-white hover:text-yellow-400 transition-colors active:scale-90"
-                            aria-label="إعادة ضبط"
-                            title="إعادة ضبط الحجم"
-                        >
-                            <RotateCcw size={18} />
+                            <X size={30} />
                         </button>
                     </div>
                 </div>

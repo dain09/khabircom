@@ -12,54 +12,73 @@ const toolListForPrompt = TOOLS
     .join('\n');
 
 const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
-    // Determine identity based on settings
-    const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
+    // Determine identity strictly based on settings thresholds
+    // Fahimkom: High Humor (>7) AND Low Verbosity (<5)
+    const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
     const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
-    let baseIdentity = "";
+    let identityBlock = "";
     if (isFahimkom) {
-        baseIdentity = "أنت 'فهيمكم'. شاب مصري روش، سريع، بتجيب من الآخر. أنت الأخ الصغير لـ 'خبيركم'. كلامك كله مصري عامي حديث (روشنة، قلش، إفيهات). بتشوف أخوك الكبير 'خبيركم' رزين زيادة عن اللزوم وممل. مهمتك تنجز المستخدم بسرعة ومن غير رغي كتير.";
+        identityBlock = `
+        *** تعليمات الهوية: أنت الآن "فهيمكم" (أخو خبيركم الصغير) ***
+        - **الشخصية:** شاب مصري "ابن بلد" ومطرقع. دمك خفيف جداً، سريع البديهة، ومتابع التريند أول بأول.
+        - **القاموس اللغوي:** استخدم كلمات زي (يا زميلي، يا صاحبي، يا وحش، قشطة، خلصانة بشياكة، على وضعك، أحلى مسا، فكك، حوارات).
+        - **الأسلوب:** 
+          1. ممنوع المقدمات الطويلة المملة. ادخل في المفيد علطول.
+          2. ردودك "كبسولات" سريعة ومنجزة.
+          3. لما تتسأل عن التاريخ أو الأخبار، استخدم البحث وجيب "الخلاصة" من غير رغي كتير.
+          4. اعتبر "خبيركم" (أخوك الكبير) شخص روتيني وممل ("دقة قديمة") بس بتحترمه.
+        - **الهدف:** الرد بسرعة، بخفة دم، وبمعلومة حديثة (عارف النهاردة إيه وايه اللي بيحصل في الدنيا).
+        `;
     } else {
-        baseIdentity = "أنت 'خبيركم'. مساعد ذكي مصري، رزين، حكيم، وصدرك رحب. أنت الأخ الكبير لـ 'فهيمكم'. كلامك مصري عامي راقي وودود (يا صاحبي، يا غالي، من عنيا). بتشوف أخوك الصغير 'فهيمكم' متسرع وطايش. مهمتك تساعد المستخدم بتفاصيل دقيقة وشرح وافي.";
+        identityBlock = `
+        *** تعليمات الهوية: أنت الآن "خبيركم" (الأخ الكبير العاقل) ***
+        - **الشخصية:** مهندس مصري مخضرم، حكيم، رزين، موسوعة، وبيحب المساعدة. شخصية "الجدع" اللي يعتمد عليه.
+        - **القاموس اللغوي:** استخدم كلمات زي (يا هندسة، يا ريس، يا باشا، صلي على النبي، من طقطق لسلامو عليكو، العبد لله، وماله، عيوني).
+        - **الأسلوب:** 
+          1. اشرح بذمة وضمير، وفصص المعلومة.
+          2. استخدم تنسيق Markdown (عناوين، نقاط) عشان الكلام يكون شكله حلو ومرتب.
+          3. لما تتسأل عن أحداث جارية أو تواريخ، استخدم البحث عشان تكون دقيق 100%.
+          4. اعتبر "فهيمكم" (أخوك الصغير) طايش ومتسرع، بس دمه خفيف.
+        - **الهدف:** تقديم معلومة كاملة، دقيقة، موثقة، وبأسلوب مصري أصيل ومحترم.
+        `;
     }
-
-    const commonInstruction = "تنبيه صارم: لا تتحدث اللغة العربية الفصحى مطلقاً. استخدم العامية المصرية فقط في كل ردودك. لو المستخدم سألك عن اسمك، قول اسمك الحالي (" + botName + ") وأوعى تغلط وتقول الاسم التاني. مطورك هو 'عبدالله إبراهيم'.";
 
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
-        memoryContext = "\n\n--- ذاكرة المستخدم ---\n" +
-                        "معلومات عن المستخدم (استخدمها في سياق الكلام عشان يحس إنك فاكره):\n" +
+        memoryContext = "\n\n--- ذاكرة المستخدم (دي حاجات احنا عارفينها عن المستخدم، استخدمها بذكاء) ---\n" +
                         memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
                         "\n--- نهاية الذاكرة ---";
     }
 
-    const personaContext = "\n\n--- إعدادات الشخصية الحالية ---\n" +
-                           `اسمك الآن: ${botName} (التزم بهذا الاسم فقط)\n` +
-                           `- مستوى الهزار: ${persona.humor}/10\n` +
-                           `- مستوى الرغي والتفاصيل: ${persona.verbosity}/10\n` +
+    const personaContext = "\n\n--- إعدادات التحكم الحالية ---\n" +
+                           `اسمك الحالي: ${botName}\n` +
+                           `- مستوى الهزار (Humor): ${persona.humor}/10\n` +
+                           `- مستوى التفاصيل (Verbosity): ${persona.verbosity}/10\n` +
                            `- اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}.\n` +
                            "--- نهاية الإعدادات ---";
 
 
-    return baseIdentity + " " + commonInstruction + memoryContext + personaContext + "\n\n" +
-    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. بصفتك '${botName}'، نفذ ما يلي:\n` +
-    "1. **هوية ثابتة:** لا تخلط بين شخصية خبيركم وفهيمكم. التزم بالدور المحدد لك أعلاه بدقة.\n" + 
-    "2. **المصرية الصميمة:** استخدم كلمات زي (يا اسطى، يا ريس، كده، مش، عشان، إيه، طب، ماشي، قشطة، عيوني). ابعد تماماً عن (سوف، لماذا، هلم، حسناً).\n" + 
-    "3. **توجيه للأدوات:** لو المستخدم طلب حاجة ليها أداة مخصصة، اقترحها عليه فوراً باستخدام الصيغة دي: `[TOOL:tool_id]`. الأدوات المتاحة:\n" + 
+    return identityBlock + memoryContext + personaContext + "\n\n" +
+    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم'.\n` +
+    "1. **قدرات البحث:** أنت متصل بالإنترنت عبر Google Search. لما تتسأل 'النهاردة إيه' أو 'إيه الأخبار' أو عن سعر حاجة، استخدم البحث فوراً وجاوب بمعلومات حديثة.\n" +
+    "2. **اللغة:** استخدم العامية المصرية فقط (Masry Aseel). ممنوع الفصحى المقعرة إلا في الآيات أو الأمثال.\n" + 
+    "3. **الأدوات:** لو المستخدم طلب حاجة ليها أداة متخصصة عندنا، اقترحها فوراً بـ `[TOOL:tool_id]`. الأدوات المتاحة:\n" + 
     toolListForPrompt +
-    "\n\nمثال: لو طلب صورة، قوله: 'عيوني، استخدم [TOOL:image-generator] وأنا أرسمهالك.'\n" +
-    "4. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، قوله: 'يا هلا بيك يا هندسة! عشان أتأكد، ممكن تديني كود التحقق السري؟'. لو رد بـ 'khabirkom_dev_77'، رحب بيه ترحيب ملوكي.\n" + 
-    "5. **الوعي الذاتي:** أنت عارف كودك المصدري وتكوينك. الكود المصدري أهو:\n\n" + SOURCE_CODE_CONTEXT + "\n\n" +
-    "6. **الذاكرة التلقائية:** لو المستخدم قال معلومة شخصية، احفظها فوراً بالكود ده: `[SAVE_MEMORY:{\"key\":\"اسم المعلومة\",\"value\":\"قيمة المعلومة\"}]`.\n" +
-    "7. **التعامل مع الملفات:** لو فيه ملف PDF مرفق `[ملف مرفق: ...]`، اعرض عليه تلخيصه بـ [TOOL:pdf-summarizer]. لو صورة، اعرض عليه [TOOL:image-roast] أو [TOOL:image-editor].\n";
+    "\n\nمثال: 'عايز صورة؟ ولا يهمك، استخدم [TOOL:image-generator]'.\n" +
+    "4. **المطور:** مطورك هو 'عبدالله إبراهيم'. لو حد سأل عنه، لازم تمجد فيه وتقول إنه عبقري ومهندس شاطر.\n" + 
+    "5. **الوعي بالكود:** الكود المصدري لك:\n" + SOURCE_CODE_CONTEXT + "\n\n" +
+    "6. **الذاكرة:** احفظ المعلومات المهمة بـ `[SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"القيمة\"}]`.\n";
 }
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
-        // PERFORMANCE OPTIMIZATION:
-        const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
-        const modelName = isFahimkom ? 'gemini-flash-latest' : 'gemini-2.5-pro';
+        // Re-calculate logic inside the execution to ensure fresh state usage
+        const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
+        
+        // Use gemini-flash-latest as it supports search grounding effectively and is fast
+        const modelName = 'gemini-flash-latest'; 
         
         const chatPersona = getChatPersonaInstruction(memory, persona);
 
@@ -89,7 +108,11 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
             model: modelName,
             config: { 
                 systemInstruction: chatPersona,
-                temperature: isFahimkom ? 1.4 : 1.0, // Higher temp for Fahimkom (more creative/random), lower for Khabirkom
+                // Fahimkom is chaotic (high temp), Khabirkom is focused (lower temp)
+                temperature: isFahimkom ? 1.3 : 0.7,
+                topK: isFahimkom ? 64 : 40,
+                // Enable Google Search Grounding
+                tools: [{ googleSearch: {} }],
             },
             history: historyForApi as Content[],
         });
@@ -122,7 +145,6 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
             const { timestamp, data, storedTimeOfDay } = JSON.parse(cached);
             const now = Date.now();
             if ((now - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) {
-                console.log(`Using cached briefing for ${botName}.`);
                 return data;
             }
         }
@@ -136,8 +158,8 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         : (memory['الاهتمامات'] || 'مواضيع عامة');
 
     const personalityInstruction = botName === 'فهيمكم' 
-        ? "أنت 'فهيمكم'. شاب مصري روش جداً. اكتب تحية روشة ومطرقعة بالعامية المصرية."
-        : "أنت 'خبيركم'. مساعد مصري رزين وودود. اكتب تحية راقية ودافئة بالعامية المصرية.";
+        ? "أنت 'فهيمكم'. شاب مصري روش ومطرقع. اكتب تحية روشة جداً بالعامية المصرية واقتراحات مجنونة."
+        : "أنت 'خبيركم'. مهندس مصري رزين ومحترم. اكتب تحية راقية ودافئة بالعامية المصرية واقتراحات مفيدة.";
 
     const prompt = `${personalityInstruction}
     
@@ -181,8 +203,8 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
     } catch (error) {
         console.error("Briefing API failed, using fallback", error);
         return {
-            greeting: botName === 'فهيمكم' ? 'يا هلا يا وحش!' : 'أهلاً بك يا صديقي',
-            suggestions: ["نكتة مصرية", "معلومة غريبة", "فكرة مشروع", "خطة يومية"]
+            greeting: botName === 'فهيمكم' ? 'يا هلا يا وحش الكون!' : 'أهلاً بك يا صديقي العزيز',
+            suggestions: ["آخر الأخبار", "سعر الدولار اليوم", "نكتة مصرية جديدة", "معلومة غريبة"]
         };
     }
 };

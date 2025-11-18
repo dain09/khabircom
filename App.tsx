@@ -57,14 +57,20 @@ const App: React.FC = () => {
     const activeTool = useMemo((): Tool | undefined => TOOLS.find(tool => tool.id === activeToolId), [activeToolId]);
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
 
+    const blobColors = theme === 'dark' 
+        ? ["bg-blue-600/20", "bg-purple-600/20", "bg-indigo-600/20"]
+        : ["bg-blue-400/30", "bg-purple-400/30", "bg-indigo-400/30"];
+
     return (
         <div className={`relative flex h-full text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
-             {/* 
-                Optimization: Fixed background layer.
-                Light Mode: Uses a subtle gradient (slate-50 to blue-50) to avoid harsh white.
-                Dark Mode: Uses deep slate/black.
-             */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-none pointer-events-none" />
+             {/* Global Animated Background */}
+            <div className="fixed inset-0 -z-20 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-500" />
+            
+            <div className="fixed inset-0 overflow-hidden pointer-events-none select-none -z-10">
+                <div className={`absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[0]}`}></div>
+                <div className={`absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[1]}`} style={{ animationDelay: '2s', animationDirection: 'reverse' }}></div>
+                <div className={`absolute -bottom-20 left-[20%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[2]}`} style={{ animationDelay: '4s' }}></div>
+            </div>
             
             <Sidebar 
                 isSidebarOpen={isSidebarOpen}
@@ -79,8 +85,8 @@ const App: React.FC = () => {
                     theme={theme}
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto relative scroll-smooth">
-                    <div key={activeToolId} className="h-full p-1 sm:p-2 max-w-7xl mx-auto animate-fadeIn">
+                <main className="flex-1 relative h-full overflow-hidden">
+                    <div key={activeToolId} className="h-full w-full animate-fadeIn">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

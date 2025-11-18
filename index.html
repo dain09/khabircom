@@ -32,7 +32,7 @@
           extend: {
             colors: {
               background: '#f8fafc', // slate-50
-              foreground: '#1e293b', // slate-800 (Was slate-900, softened)
+              foreground: '#1e293b', // slate-800
               primary: {
                 DEFAULT: '#3b82f6', // blue-500
                 foreground: '#ffffff',
@@ -82,9 +82,7 @@
               },
               aurora: {
                 '0%': { transform: 'translate(0, 0) scale(1)' },
-                '33%': { transform: 'translate(20px, -30px) scale(1.1)' },
-                '66%': { transform: 'translate(-15px, 15px) scale(0.95)' },
-                '100%': { transform: 'translate(0, 0) scale(1)' },
+                '100%': { transform: 'translate(50px, -30px) scale(1.2)' },
               },
               shimmer: {
                 '0%': { backgroundPosition: '200% center' },
@@ -134,7 +132,7 @@
       
       /* Glow effect for inputs */
       .glow-effect:focus-within {
-          box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
       }
 
       .textarea-scrollbar::-webkit-scrollbar {
@@ -174,11 +172,6 @@
         margin: 0;
       }
 
-      /* 
-         CRITICAL FIX FOR FLICKERING:
-         Disable all CSS transitions while the View Transition is active.
-         The React context adds 'data-transition' attribute during the switch.
-      */
       html[data-transition] * {
         transition: none !important;
       }
@@ -186,14 +179,9 @@
       ::view-transition-old(root),
       ::view-transition-new(root) {
         mix-blend-mode: normal;
-        /* IMPORTANT: Disable the browser's default cross-fade.
-           We are handling the animation manually via JS/CSS clip-path. 
-           This makes the circle expansion sharp and consistent. */
         animation: none; 
       }
       
-      /* Ensure the new view is always on top during the transition 
-         so the clip-path expansion "reveals" it over the old one. */
       ::view-transition-new(root) {
         z-index: 9999; 
       }

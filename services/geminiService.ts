@@ -9,7 +9,7 @@ import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
 const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. كن مبدعًا ومضحكًا في ردودك. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
 
 const toolListForPrompt = TOOLS
-    .filter(t => t.id !== 'chat' && t.category !== 'الإعدادات')
+    .filter(t => t.id !== 'chat')
     .map(t => `- ${t.title} (للوصول إليها استخدم ID: ${t.id})`)
     .join('\n');
 
@@ -172,28 +172,12 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
     });
 };
 
-// Fix: Add the missing 'generateWelcomeSuggestions' function.
-export const generateWelcomeSuggestions = async (context: { timeOfDay: string, lastToolTitle?: string }): Promise<{ suggestions: string[] }> => {
-    const { timeOfDay, lastToolTitle } = context;
+// New function for dynamic welcome suggestions (DEPRECATED, REPLACED BY getMorningBriefing)
+export const generateWelcomeSuggestions = async (context: { lastToolTitle?: string, timeOfDay: string }): Promise<{ suggestions: string[] }> => {
+    const timePrompt = `الوقت الحالي هو ${context.timeOfDay}.`;
+    const toolPrompt = context.lastToolTitle ? `آخر أداة استخدمها المستخدم كانت '${context.lastToolTitle}'.` : 'المستخدم لم يستخدم أي أداة متخصصة بعد.';
     
-    let prompt = `أنت 'خبيركم'، مساعد مصري ذكي وفكاهي. مهمتك اقتراح 3 أفكار محادثة للمستخدم ليبدأ بها.
-الوقت الحالي: ${timeOfDay}.`;
-
-    if (lastToolTitle) {
-        prompt += `\nآخر أداة استخدمها المستخدم كانت: "${lastToolTitle}".`;
-    }
-
-    prompt += `\n\nاقترح 3 مواضيع محادثة متنوعة ومبتكرة. يجب أن تكون الاقتراحات قصيرة ومناسبة للغة المصرية العامية.
-يجب أن يكون الرد بصيغة JSON بالSchema التالية:
-{
-  "suggestions": ["string", "string", "string"]
-}
-
-أمثلة:
-- "اكتبلي نكتة عن المبرمجين"
-- "لخصلي مفهوم الثقب الأسود"
-- "اقترح فكرة مشروع جديدة"
-- "ايه رأيك في مسلسل [اسم مسلسل مشهور]؟"`;
+    const prompt = `بناءً على هذا السياق: ${timePrompt} ${toolPrompt}\n\nاقترح 3 مواضيع شيقة ومبتكرة وذات صلة لبدء محادثة مع مساعد ذكاء اصطناعي مصري فكاهي. خلي الاقتراحات قصيرة ومباشرة ومختلفة عن بعضها. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string"] \n}`;
 
     const result = await withApiKeyRotation(async (ai) => {
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -271,27 +255,31 @@ export const generateMemeSuggestions = async (imageFile: File) => {
     return JSON.parse(result).suggestions;
 };
 
-// 5. Image Generator - UPDATED to use Imagen for better quality and reliability
+// 5. Image Generator
 export const generateImage = async (prompt: string): Promise<string> => {
     return withApiKeyRotation(async (ai) => {
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    { text: prompt },
+                ],
+            },
             config: {
-              numberOfImages: 1,
-              outputMimeType: 'image/png', // Use PNG for better quality
+                responseModalities: [Modality.IMAGE],
             },
         });
         
-        if (response.generatedImages && response.generatedImages.length > 0) {
-            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            const base64ImageBytes: string = part.inlineData.data;
             return `data:image/png;base64,${base64ImageBytes}`;
+          }
         }
 
         throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
     });
 };
-
 
 // NEW: Image Editor
 export const editImage = async ({ imageFile, prompt }: { imageFile: File, prompt: string }): Promise<string> => {

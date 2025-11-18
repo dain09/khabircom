@@ -9,13 +9,15 @@ export const initializeApiKeys = () => {
         const storedKeys = localStorage.getItem(KEYS_STORAGE_KEY);
         // Only initialize from env var if localStorage is empty
         if (storedKeys === null || JSON.parse(storedKeys).length === 0) {
-            // API key is obtained from process.env.API_KEY as per guidelines
-            const apiKey = process.env.API_KEY;
-            if (apiKey) {
-                const keysArray = [apiKey.trim()]; // Treat it as a single key in an array
-                localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keysArray));
-                localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
-                console.log(`Initialized with 1 API key from environment variable.`);
+            // In Vite, environment variables are accessed via import.meta.env
+            const envKeys = import.meta.env.VITE_API_KEYS;
+            if (envKeys) {
+                const keysArray = envKeys.split(',').map(k => k.trim()).filter(Boolean);
+                if (keysArray.length > 0) {
+                    localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keysArray));
+                    localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+                    console.log(`Initialized with ${keysArray.length} API keys from environment variable.`);
+                }
             }
         }
     } catch (e) {

@@ -55,11 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     };
 
     const handleToolClick = (toolId: string) => {
-        if (toolId === 'api-key-manager') {
-            onOpenApiKeyManager();
-            closeSidebarOnMobile();
-            return;
-        }
         setActiveToolId(toolId);
         setActiveConversationId(null); // Deselect any active chat
         closeSidebarOnMobile();
@@ -189,8 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
                                         </summary>
                                         <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
-                                            {/* FIX: Explicitly cast 'tools' as 'Tool[]' to resolve a TypeScript error where its type was being inferred as 'unknown'. */}
-                                            {(tools as Tool[]).map((tool) => (
+                                            {tools.map((tool) => (
                                                 <li key={tool.id}>
                                                     <button
                                                         onClick={() => handleToolClick(tool.id)}
@@ -215,6 +209,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                 </nav>
 
                 <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
+                     <button
+                        onClick={onOpenApiKeyManager}
+                        className='w-full flex items-center gap-2 p-2 mb-4 rounded-md text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-card/50 transition-colors'
+                        aria-label="إدارة مفاتيح API"
+                    >
+                        <KeyRound size={16} />
+                        <span>إدارة مفاتيح API</span>
+                    </button>
                     <div className="text-center">
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             © {new Date().getFullYear()} تم التطوير بواسطة <br />

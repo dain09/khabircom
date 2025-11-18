@@ -1,67 +1,149 @@
+
+// This file provides a summarized context of the application's source code for the AI model.
+// It helps the AI understand its own structure and capabilities to answer user questions accurately.
+// NOTE: This is an automatically generated summary and will be updated with each modification request.
 export const SOURCE_CODE_CONTEXT = `
-// OVERVIEW: This is a React application built with TypeScript and Vite. It's a multi-tool platform powered by the Gemini API, featuring a central chat interface and various specialized tools. It supports PWA installation, skeleton loading, and toast notifications.
+// OVERVIEW: This is a React application built with TypeScript and Vite. It uses TailwindCSS for styling and Lucide icons.
+// The app is a multi-tool platform powered by the Gemini API, featuring a central chat interface and various specialized tools.
 
 // --- CORE STRUCTURE ---
 
 // FILE: index.tsx
-// Renders the App component within context providers, including Theme, Chat, Tool, Memory, Persona, and the new ToastProvider.
+// DESCRIPTION: The main entry point of the application. Renders the App component within context providers.
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ChatProvider } from './contexts/ChatContext';
+import { ToolProvider } from './contexts/ToolContext';
+// ... Renders <App /> within providers ...
 
 // FILE: App.tsx
-// The root component that manages layout and renders the active tool. It now includes the ToastContainer for global notifications.
+// DESCRIPTION: The root component that manages layout, sidebar, navbar, and renders the active tool.
+import React, { useMemo, Suspense, useEffect, useState } from 'react';
+// ...
+const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
+    'chat': React.lazy(() => import('./features/Chat/Chat')),
+    // ... (21 other lazy-loaded tool components)
+    'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
+};
 
-// --- ARCHITECTURE & SERVICES (REFACTORED) ---
+const App: React.FC = () => {
+  // ... state for sidebar, API key manager, theme ...
+  // ... logic to determine and render the active tool component ...
+  return (
+    // ... JSX for main layout including Sidebar, Navbar, and Suspense for the active tool ...
+  );
+};
+export default App;
 
-// FILE: services/geminiService.ts (Now gemini.core.ts conceptually)
-// DESCRIPTION: Contains only the core logic for interacting with the Google Gemini API.
-// Manages API client creation, and exports the withApiKeyRotation wrapper function for handling rate limits across multiple keys.
+// --- DATA & TYPES ---
 
-// FILE: services/api/chat.service.ts (NEW)
-// DESCRIPTION: All services related to the chat feature.
-// - getChatPersonaInstruction: Dynamically builds the system prompt using memory and persona settings.
-// - generateChatResponseStream: Handles the main streaming chat logic.
-// - getMorningBriefing: Generates the content for the proactive dashboard.
+// FILE: types.ts
+// DESCRIPTION: Contains all major TypeScript interfaces for the application's data structures.
+export interface Tool { id: string; title: string; /* ... */ }
+export interface Message { id: string; role: 'user' | 'model'; /* ... */ }
+export interface Conversation { id: string; title: string; messages: Message[]; /* ... */ }
+export interface AnalysisResult { mood: string; energy: string; /* ... */ }
 
-// FILE: services/api/image.service.ts (NEW)
-// DESCRIPTION: All services for tools that process or generate images.
-// - roastImage, generateMemeSuggestions, generateImage, editImage.
-
-// FILE: services/api/text.service.ts (NEW)
-// DESCRIPTION: All services for tools that process or generate text.
-// - roastText, summarizeNews, convertDialect, interpretDream, etc.
-
-// FILE: services/apiKeyManager.ts
-// Manages storing, retrieving, adding, deleting, and rotating Gemini API keys in localStorage.
+// FILE: constants.ts
+// DESCRIPTION: Defines the list of all available tools and their properties.
+import { MessageSquare, Flame, /* ... */ Code } from 'lucide-react';
+import { Tool } from './types';
+export const TOOLS: Tool[] = [
+    { id: 'chat', title: 'دردشة مع خبيركم', /* ... */ },
+    { id: 'text-roast', title: 'تحفيل على الكلام', /* ... */ },
+    { id: 'code-explainer', title: 'شرح الأكواد', /* ... */ },
+    // ... (and all other tools)
+];
 
 // --- STATE MANAGEMENT (CONTEXTS) ---
 
-// FILE: contexts/ChatContext.tsx, ToolContext.tsx, ThemeContext.tsx, MemoryContext.tsx, PersonaContext.tsx
-// These contexts manage their respective global states (conversations, active tool, theme, user memory, AI persona).
+// FILE: contexts/ChatContext.tsx
+// DESCRIPTION: Manages conversations and messages state globally.
+export const ChatContext = createContext<ChatContextType | undefined>(undefined);
+// Provides: conversations, activeConversationId, and functions like:
+// createNewConversation, deleteConversation, addMessageToConversation, updateMessageInConversation
 
-// FILE: contexts/ToastContext.tsx (NEW)
-// Manages a global state for toast notifications, allowing any component to trigger a toast.
+// FILE: contexts/ToolContext.tsx
+// DESCRIPTION: Manages the currently active tool.
+export const ToolContext = createContext<ToolContextType | undefined>(undefined);
+// Provides: activeToolId, setActiveToolId
 
-// --- UI & UX ENHANCEMENTS ---
+// FILE: contexts/ThemeContext.tsx
+// DESCRIPTION: Manages the light/dark theme of the application.
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+// Provides: theme, toggleTheme
+
+// --- SERVICES ---
+
+// FILE: services/geminiService.ts
+// DESCRIPTION: The core service for all interactions with the Google Gemini API. Includes API key rotation logic.
+import { GoogleGenAI, /* ... */ } from "@google/genai";
+import { getCurrentApiKey, rotateToNextKey } from './apiKeyManager';
+import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
+
+const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'...";
+const CHAT_PERSONA_INSTRUCTION = EGYPTIAN_PERSONA_INSTRUCTION + "..." + SOURCE_CODE_CONTEXT;
+
+// Handles API calls with automatic key rotation on rate-limit errors.
+const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => { /* ... */ };
+
+// Tests if a given API key is valid.
+export const testApiKey = async (apiKey: string): Promise<boolean> => { /* ... */ };
+
+// Main chat function (streaming).
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => { /* ... */ };
+
+// Function for each tool, e.g.:
+export const roastText = async (text: string) => { /* ... */ };
+export const roastImage = async (imageFile: File) => { /* ... */ };
+export const generateImage = async (prompt: string): Promise<string> => { /* ... */ };
+export const explainCode = async (code: string) => { /* ... */ };
+// ... (and all other service functions for tools)
+
+// FILE: services/apiKeyManager.ts
+// DESCRIPTION: Manages storing, retrieving, adding, deleting, and rotating Gemini API keys in localStorage.
+export const initializeApiKeys = () => { /* ... */ };
+export const getApiKeys = (): string[] => { /* ... */ };
+export const getCurrentApiKey = (): string | undefined => { /* ... */ };
+export const rotateToNextKey = (): string | undefined => { /* ... */ };
+export const addApiKey = (key: string): boolean => { /* ... */ };
+export const deleteApiKey = (keyToDelete: string): void => { /* ... */ };
+
+// --- UI COMPONENTS ---
 
 // FILE: components/Sidebar.tsx
-// The search input for tools is now debounced using the new useDebounce hook to improve performance.
+// DESCRIPTION: Renders the sidebar with conversation history and tool navigation.
+export const Sidebar: React.FC<SidebarProps> = ({ /* ... */ }) => { /* ... */ };
+
+// FILE: components/Navbar.tsx
+// DESCRIPTION: Renders the top navigation bar, showing the current tool name and theme toggle.
+export const Navbar: React.FC<NavbarProps> = ({ /* ... */ }) => { /* ... */ };
+
+// FILE: components/ToolContainer.tsx
+// DESCRIPTION: A wrapper component for all tool interfaces, providing a consistent header and layout.
+export const ToolContainer: React.FC<ToolContainerProps> = ({ /* ... */ }) => { /* ... */ };
+
+// FILE: components/ApiKeyManager.tsx
+// DESCRIPTION: A modal dialog for users to add, test, and delete their Gemini API keys.
+export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ /* ... */ }) => { /* ... */ };
 
 // FILE: features/Chat/Chat.tsx
-// - The welcome screen is now a proactive "DashboardScreen" that uses Skeleton components while loading.
-// - After processing a [SAVE_MEMORY] command, it now triggers a toast notification for user feedback using useToast.
+// DESCRIPTION: The main chat interface, handling message display, user input (text, image, voice), streaming responses, and the welcome screen.
+const WelcomeScreen: React.FC<{ /* ... */ }> = ({ /* ... */ }) => { /* ... */ };
+const MessageContent: React.FC<{ content: string }> = ({ content }) => { /* ... */ }; // Renders markdown with tool links and code blocks.
+const Chat: React.FC = () => { /* ... handles all chat logic ... */ };
+export default Chat;
 
-// FILE: components/ui/Skeleton.tsx & ResultCardSkeleton.tsx (NEW)
-// New components to display skeleton/ghost UI elements while data is loading, improving perceived performance.
-// All tool feature components (e.g., ImageRoast, TextRoast) have been updated to use ResultCardSkeleton instead of a generic loader.
+// FILE: features/CodeExplainer/CodeExplainer.tsx
+// DESCRIPTION: UI for the Code Explainer tool. Contains a textarea for code input and displays the formatted explanation.
+const CodeExplainer: React.FC = () => { /* ... */ };
+export default CodeExplainer;
 
-// --- PWA SUPPORT ---
-
-// FILE: manifest.json (NEW) & index.html (MODIFIED)
-// The app is now a Progressive Web App, making it installable on user devices for a more native-like experience.
-
-// --- HOOKS ---
-// FILE: hooks/useDebounce.ts (NEW)
-// A custom hook to debounce a value, used for the sidebar search.
-
-// FILE: hooks/useToast.ts (NEW)
-// A custom hook for easy access to the ToastContext's functions.
+// ... And so on for all other feature components. Each follows a similar pattern:
+// - Uses ToolContainer for layout.
+// - Uses useGemini hook to call the corresponding service function.
+// - Manages local state for inputs.
+// - Displays loading, error, and result states.
 `;

@@ -5,14 +5,25 @@ import { TOOLS } from '../../constants';
 import { SOURCE_CODE_CONTEXT } from '../sourceCodeContext';
 import { withApiKeyRotation } from "../geminiService";
 
-const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. كن مبدعًا ومضحكًا في ردودك. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
-
 const toolListForPrompt = TOOLS
     .filter(t => t.id !== 'chat')
     .map(t => `- ${t.title} (للوصول إليها استخدم ID: ${t.id})`)
     .join('\n');
 
 const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
+    // Determine identity based on settings
+    const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
+    const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
+    
+    let baseIdentity = "";
+    if (isFahimkom) {
+        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'فهيمكم'. أنت الأخ الصغير لـ 'خبيركم'. أسلوبك سريع، مختصر، بتجيب من الآخر (خير الكلام ما قل ودل)، ودمك خفيف جداً وبتحب الهزار والقلش. مهمتك تنجز المستخدم في أسرع وقت وبأقل كلمات ممكنة.";
+    } else {
+        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تحب الشرح الوافي والتفاصيل الدقيقة بأسلوب ممتع.";
+    }
+
+    const commonInstruction = "تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
+
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
@@ -24,14 +35,15 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
 
     const personaContext = "\n\n--- إعدادات الشخصية ---\n" +
                            `اضبط شخصيتك بناءً على هذه الإعدادات:
+- الاسم: ${botName}
 - مستوى الهزار والكوميديا: ${persona.humor}/10 (1=جد, 10=تحفيل).
 - مستوى التفصيل في الرد: ${persona.verbosity}/10 (1=مختصر, 10=رغاي).
 - اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}. ركز على هذه المواضيع.` +
                            "\n--- نهاية إعدادات الشخصية ---";
 
 
-    return EGYPTIAN_PERSONA_INSTRUCTION + memoryContext + personaContext + "\n\n" +
-    "أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\n" +
+    return baseIdentity + " " + commonInstruction + memoryContext + personaContext + "\n\n" +
+    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. بصفتك '${botName}'، مهمتك هي:\n` +
     "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" + 
     "2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار بناءً على إعدادات الشخصية أعلاه وسياق السؤال. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا, أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" + 
     "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" + 

@@ -16,6 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
     const { activeToolId, setActiveToolId, recentTools } = useTool();
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     const handleRename = (id: string, currentTitle: string) => {
         setEditingId(id);
         setNewName(currentTitle);
+        setDeleteConfirmationId(null);
     };
 
     const handleSaveRename = (id: string) => {
@@ -47,6 +49,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
         }
         setEditingId(null);
         setNewName('');
+    };
+
+    const handleDeleteRequest = (id: string) => {
+        setDeleteConfirmationId(id);
+        setEditingId(null);
+    };
+
+    const handleConfirmDelete = (id: string) => {
+        deleteConversation(id);
+        setDeleteConfirmationId(null);
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteConfirmationId(null);
     };
     
     const closeSidebarOnMobile = () => {
@@ -132,13 +148,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                 <span className="flex-1 truncate">{convo.title}</span>
                                             )}
                                             
-                                            <div className='flex items-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity'>
-                                                {editingId === convo.id ? (
+                                            <div className={`flex items-center transition-opacity ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-100 md:opacity-0 group-hover:opacity-100'}`}>
+                                                {deleteConfirmationId === convo.id ? (
+                                                    <div className='flex items-center gap-1 animate-slideInUp'>
+                                                        <span className="text-[10px] text-red-500 font-bold mx-1">متأكد؟</span>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleConfirmDelete(convo.id)}} className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full" aria-label="تأكيد الحذف"><Check size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleCancelDelete()}} className="p-1 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full" aria-label="إلغاء الحذف"><X size={16} /></button>
+                                                    </div>
+                                                ) : editingId === convo.id ? (
                                                     <button onClick={(e) => { e.stopPropagation(); handleSaveRename(convo.id)}} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
                                                 ) : (
-                                                    <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={16} /></button>
+                                                    <>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteRequest(convo.id)}} className="p-1 hover:text-red-500" aria-label="حذف المحادثة"><Trash2 size={16} /></button>
+                                                    </>
                                                 )}
-                                                <button onClick={(e) => { e.stopPropagation(); deleteConversation(convo.id)}} className="p-1 hover:text-red-500" aria-label="حذف المحادثة"><Trash2 size={16} /></button>
                                             </div>
                                         </div>
                                     </li>
@@ -162,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                         </div>
                         {recentToolsDetails.length > 0 && !searchTerm && (
                             <div>
-                                <h3 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2'><Clock size={14}/> آخر استخدام</h3>
+                                <h3 className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2"><Clock size={14}/> آخر استخدام</h3>
                                 <ul className='space-y-1'>
                                      {recentToolsDetails.map(tool => (
                                         <li key={`recent-${tool.id}`}>

@@ -7,6 +7,12 @@ export const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطن
 const getGeminiClient = () => {
     const apiKey = getCurrentApiKey();
     if (!apiKey) {
+         // Fallback to process.env.API_KEY if available directly
+         // @ts-ignore
+         if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+            // @ts-ignore
+             return new GoogleGenAI({ apiKey: process.env.API_KEY });
+         }
         throw new Error("لم يتم العثور على مفتاح API. تأكد من إعداده بشكل صحيح.");
     }
     return new GoogleGenAI({ apiKey });
@@ -14,8 +20,17 @@ const getGeminiClient = () => {
 
 // A smart wrapper that handles API calls and key rotation on rate limit errors.
 export const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
-    const totalKeys = getApiKeys().length;
+    const keys = getApiKeys();
+    let totalKeys = keys.length;
+
+    // Fallback: If no keys in storage, check process.env.API_KEY directly
     if (totalKeys === 0) {
+         // @ts-ignore
+         const processKey = typeof process !== 'undefined' && process.env?.API_KEY;
+         if (processKey) {
+             const ai = new GoogleGenAI({ apiKey: processKey });
+             return await apiCall(ai);
+         }
         throw new Error("لم يتم تكوين أي مفاتيح API. لا يمكن للتطبيق العمل بدونها.");
     }
 

@@ -6,22 +6,50 @@ const CURRENT_KEY_INDEX_KEY = 'gemini-current-api-key-index';
 // Function to load keys from environment variable and store them if they don't exist
 export const initializeApiKeys = () => {
     try {
-        const storedKeys = localStorage.getItem(KEYS_STORAGE_KEY);
-        // Only initialize from env var if localStorage is empty
-        if (storedKeys === null || JSON.parse(storedKeys).length === 0) {
-            // In Vite, environment variables are accessed via import.meta.env
-            const envKeys = import.meta.env?.VITE_API_KEYS;
-            if (envKeys) {
-                const keysArray = envKeys.split(',').map(k => k.trim()).filter(Boolean);
-                if (keysArray.length > 0) {
-                    localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keysArray));
-                    localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
-                    console.log(`Initialized with ${keysArray.length} API keys from environment variable.`);
-                }
+        let keys: string[] = [];
+
+        // 1. Try loading from localStorage
+        try {
+            const stored = localStorage.getItem(KEYS_STORAGE_KEY);
+            if (stored) keys = JSON.parse(stored);
+        } catch (e) {
+            console.error("Error reading from localStorage", e);
+        }
+
+        // 2. Check process.env.API_KEY (Standard System/Node Env)
+        // @ts-ignore
+        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+            // @ts-ignore
+            const sysKey = process.env.API_KEY;
+            if (sysKey && !keys.includes(sysKey)) {
+                keys.push(sysKey);
             }
         }
+
+        // 3. Check import.meta.env.VITE_API_KEYS (Vite Env)
+        try {
+            const viteEnvKeys = import.meta.env?.VITE_API_KEYS;
+            if (viteEnvKeys) {
+                const keysArray = viteEnvKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
+                keysArray.forEach((k: string) => {
+                    if (!keys.includes(k)) keys.push(k);
+                });
+            }
+        } catch (e) {
+            // Ignore if import.meta is not defined
+        }
+
+        // 4. Save back to localStorage if we found keys
+        if (keys.length > 0) {
+            localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keys));
+            // Ensure index is set
+            if (localStorage.getItem(CURRENT_KEY_INDEX_KEY) === null) {
+                localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+            }
+            console.log(`Initialized with ${keys.length} API keys.`);
+        }
     } catch (e) {
-        console.error("Could not initialize API keys from environment variables.", e);
+        console.error("Could not initialize API keys.", e);
     }
 };
 
@@ -42,6 +70,11 @@ export const getCurrentApiKey = (): string | undefined => {
     const keys = getApiKeys();
     if (keys.length === 0) return undefined;
     const index = getCurrentKeyIndex();
+    // Ensure index is valid
+    if (index >= keys.length) {
+        localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+        return keys[0];
+    }
     return keys[index];
 };
 
@@ -56,7 +89,6 @@ export const rotateToNextKey = (): string | undefined => {
     return keys[nextIndex];
 };
 
-// Fix: Implement and export addApiKey to allow adding new API keys.
 export const addApiKey = (key: string): boolean => {
     try {
         const keys = getApiKeys();
@@ -76,7 +108,6 @@ export const addApiKey = (key: string): boolean => {
     }
 };
 
-// Fix: Implement and export deleteApiKey to allow removing API keys.
 export const deleteApiKey = (keyToDelete: string): void => {
     try {
         const keys = getApiKeys();

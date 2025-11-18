@@ -1,5 +1,5 @@
 
-import React, { useMemo, Suspense, useEffect } from 'react';
+import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { TOOLS } from './constants';
@@ -8,6 +8,7 @@ import { useTheme } from './hooks/useTheme';
 import { Loader } from './components/ui/Loader';
 import { initializeApiKeys } from './services/apiKeyManager';
 import { useTool } from './hooks/useTool';
+import { ApiKeyManager } from './components/ApiKeyManager';
 
 // Dynamic import for all feature components
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
@@ -35,8 +36,9 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
 };
 
 const App: React.FC = () => {
-    const { activeToolId, setActiveToolId } = useTool();
-    const [isSidebarOpen, setSidebarOpen] = React.useState<boolean>(true);
+    const { activeToolId } = useTool();
+    const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
+    const [isApiKeyManagerOpen, setApiKeyManagerOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
@@ -52,6 +54,7 @@ const App: React.FC = () => {
             <Sidebar 
                 isSidebarOpen={isSidebarOpen}
                 setSidebarOpen={setSidebarOpen}
+                onOpenApiKeyManager={() => setApiKeyManagerOpen(true)}
             />
             <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'md:mr-80' : 'mr-0'}`}>
                 <Navbar 
@@ -68,6 +71,7 @@ const App: React.FC = () => {
                     </div>
                 </main>
             </div>
+            <ApiKeyManager isOpen={isApiKeyManagerOpen} onClose={() => setApiKeyManagerOpen(false)} />
         </div>
     );
 };

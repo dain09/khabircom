@@ -1,4 +1,5 @@
 
+
 import React, { useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
 import { getGrumpyMotivation } from '../../services/geminiService';

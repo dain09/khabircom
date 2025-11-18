@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
@@ -9,9 +9,10 @@ import { useTool } from '../hooks/useTool';
 interface SidebarProps {
     isSidebarOpen: boolean;
     setSidebarOpen: (isOpen: boolean) => void;
+    onOpenApiKeyManager: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, onOpenApiKeyManager }) => {
     const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
     const { activeToolId, setActiveToolId } = useTool();
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -102,12 +103,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen 
                                     <li key={convo.id} className="group">
                                         <div
                                             onClick={() => handleConversationClick(convo.id)}
-                                            className={`w-full flex items-center justify-between p-3 my-1 rounded-md text-start cursor-pointer transition-all duration-200 hover:-translate-x-1 ${
+                                            className={`relative w-full flex items-center justify-between p-3 my-1 rounded-md text-start cursor-pointer transition-all duration-200 hover:-translate-x-1 ${
                                                 activeConversationId === convo.id
                                                     ? 'bg-primary/10 text-primary font-bold'
                                                     : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
                                             }`}
                                         >
+                                            {activeConversationId === convo.id && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-primary rounded-e-full"></div>}
                                             <MessageSquare className="w-5 h-5 me-3 text-slate-500" />
                                             {editingId === convo.id ? (
                                                 <input 
@@ -155,12 +157,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen 
                                                 <li key={tool.id}>
                                                     <button
                                                         onClick={() => handleToolClick(tool.id)}
-                                                        className={`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:translate-x-1 ${
+                                                        className={`relative w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:translate-x-1 ${
                                                             activeToolId === tool.id && !activeConversationId
                                                                 ? 'bg-primary/10 text-primary font-bold'
                                                                 : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
                                                         }`}
                                                     >
+                                                        {activeToolId === tool.id && !activeConversationId && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-primary rounded-e-full"></div>}
                                                         <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
                                                         <span className='text-sm'>{tool.title}</span>
                                                     </button>
@@ -175,6 +178,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen 
                 </nav>
 
                 <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
+                     <button
+                        onClick={onOpenApiKeyManager}
+                        className='w-full flex items-center gap-2 p-2 mb-4 rounded-md text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-card/50 transition-colors'
+                        aria-label="إدارة مفاتيح API"
+                    >
+                        <KeyRound size={16} />
+                        <span>إدارة مفاتيح API</span>
+                    </button>
                     <div className="text-center">
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             © {new Date().getFullYear()} تم التطوير بواسطة <br />

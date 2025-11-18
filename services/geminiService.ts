@@ -63,7 +63,7 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
     }
 
     // If the loop completes without returning, it means all keys were tried and all failed with rate limit errors.
-    throw new Error("كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء المحاولة لاحقًا.");
+    throw new Error("كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. جرب تضيف مفتاح جديد من 'إدارة مفاتيح API' أو حاول لاحقًا.");
 };
 
 

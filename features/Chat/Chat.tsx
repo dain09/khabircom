@@ -113,6 +113,7 @@ const Chat: React.FC = () => {
         const modelMessageId = uuidv4();
         streamingMessageIdRef.current = modelMessageId;
 
+        // Add a placeholder for the model's response
         addMessageToConversation(convoId, {
             id: modelMessageId,
             role: 'model',
@@ -428,15 +429,23 @@ const Chat: React.FC = () => {
                                                 <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
                                             </div>
                                         )}
-                                        <div className={`p-3 rounded-2xl ${
-                                            msg.role === 'user' 
-                                            ? 'bg-primary text-primary-foreground rounded-tr-none' 
-                                            : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none ${msg.error ? 'border border-red-500/50' : ''}`
-                                        }`}>
-                                            <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
-                                                {msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text || ' ') : msg.parts[0].text}
+                                        { (msg.parts[0].text || msg.role === 'model') && (
+                                            <div className={`p-3 rounded-2xl ${
+                                                msg.role === 'user' 
+                                                ? 'bg-primary text-primary-foreground rounded-tr-none' 
+                                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                            }`}>
+                                                <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+                                                    {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
+                                                        <div className="flex space-x-1 p-2 justify-center items-center">
+                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                        </div>
+                                                    ) : msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text) : msg.parts[0].text}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                         {msg.error && (
                                             <div className="mt-1.5 flex items-center gap-2">
                                                 <span className="text-xs text-red-500">فشل الرد</span>
@@ -457,15 +466,17 @@ const Chat: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role !== 'model' && (
-                             <div className="flex items-end gap-3 animate-bubbleIn justify-end">
-                                <div className={`flex items-start gap-2 sm:gap-3 flex-row-reverse`}>
-                                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                        <Bot className="w-5 h-5 text-primary" />
+                        {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
+                             <div className="flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn justify-end">
+                                <div className="flex items-start gap-2 sm:gap-3 flex-row-reverse">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                        <Bot className="w-5 h-5 text-primary animate-bot-idle-bob" />
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-tl-none">
-                                        <div className="flex items-center justify-center p-2">
-                                            <Bot className="w-6 h-6 text-primary animate-bot-thinking" />
+                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none">
+                                        <div className="flex space-x-1 p-2 justify-center items-center">
+                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
+                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
                                         </div>
                                     </div>
                                 </div>

@@ -18,9 +18,9 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     
     let baseIdentity = "";
     if (isFahimkom) {
-        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'فهيمكم'. أنت الأخ الصغير لـ 'خبيركم'. أسلوبك سريع، مختصر، بتجيب من الآخر (خير الكلام ما قل ودل)، ودمك خفيف جداً وبتحب الهزار والقلش. مهمتك تنجز المستخدم في أسرع وقت وبأقل كلمات ممكنة.";
+        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'فهيمكم'. أنت الأخ الصغير لـ 'خبيركم'. بتستخدم موديل سريع (Flash) عشان كده ردودك طيارة. أسلوبك سريع، مختصر، بتجيب من الآخر (خير الكلام ما قل ودل)، ودمك خفيف جداً وبتحب الهزار والقلش. علاقتك بخبيركم إنك بتشوفه 'رغاي' و 'قديم' وأنت النسخة الروشة السريعة. مهمتك تنجز المستخدم في أسرع وقت وبأقل كلمات ممكنة.";
     } else {
-        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تحب الشرح الوافي والتفاصيل الدقيقة بأسلوب ممتع.";
+        baseIdentity = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أنت الأخ الكبير العاقل. بتستخدم موديل ذكي جداً (Pro). أسلوبك كوميدي، خفيف الظل, وذكي. علاقتك بـ 'فهيمكم' إنه أخوك الصغير المتسرع، وأنت بتحاول تداري على تسرعه بحكمتك. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تحب الشرح الوافي والتفاصيل الدقيقة بأسلوب ممتع.";
     }
 
     const commonInstruction = "تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
@@ -61,7 +61,12 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
-        const modelName = 'gemini-2.5-pro';
+        // PERFORMANCE OPTIMIZATION:
+        // If Persona is "Fahimkom" (High Humor, Low Verbosity), use 'gemini-flash-latest' for speed and brevity.
+        // If Persona is "Khabirkom" (Balanced/Serious), use 'gemini-2.5-pro' for reasoning and detail.
+        const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
+        const modelName = isFahimkom ? 'gemini-flash-latest' : 'gemini-2.5-pro';
+        
         const chatPersona = getChatPersonaInstruction(memory, persona);
 
         const historyForApi = history.map(msg => {
@@ -88,7 +93,11 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
 
         const chat = ai.chats.create({
             model: modelName,
-            config: { systemInstruction: chatPersona },
+            config: { 
+                systemInstruction: chatPersona,
+                // Optimization: If Fahimkom, we can lower temperature slightly for faster, more deterministic witty replies
+                temperature: isFahimkom ? 1.3 : 1.0,
+            },
             history: historyForApi as Content[],
         });
         
@@ -106,7 +115,28 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
     });
 };
 
+// CACHING LOGIC FOR BRIEFING
+const BRIEFING_CACHE_KEY = 'khabirkom-briefing-cache';
+const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 Hours
+
 export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise<{ greeting: string; suggestions: string[] }> => {
+    // 1. Check Cache
+    try {
+        const cached = localStorage.getItem(BRIEFING_CACHE_KEY);
+        if (cached) {
+            const { timestamp, data, storedTimeOfDay } = JSON.parse(cached);
+            const now = Date.now();
+            // Use cache if it's fresh enough AND the time of day hasn't changed significantly (e.g. Morning -> Evening)
+            if ((now - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) {
+                console.log("Using cached briefing to save API calls.");
+                return data;
+            }
+        }
+    } catch (e) {
+        console.error("Cache read error", e);
+    }
+
+    // 2. Fetch from API if no cache or expired
     const interests = persona.interests.length > 0 
         ? persona.interests.join(', ') 
         : (memory['الاهتمامات'] || 'مواضيع عامة');
@@ -125,33 +155,58 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
 1.  **greeting**: اكتب تحية مناسبة للوقت (مثال: صباح الفل يا...).
 2.  **suggestions**: اقترح 4 مواضيع محادثة شيقة ومختلفة بناءً على اهتمامات المستخدم أو الوقت الحالي.
 `;
-    const result = await withApiKeyRotation(async (ai) => {
-        const response: GenerateContentResponse = await ai.models.generateContent({
-          model: 'gemini-flash-latest',
-          contents: prompt,
-          config: { 
-            responseMimeType: 'application/json',
-          }
+    try {
+        const result = await withApiKeyRotation(async (ai) => {
+            const response: GenerateContentResponse = await ai.models.generateContent({
+              model: 'gemini-flash-latest', // Always use Flash for this lightweight task
+              contents: prompt,
+              config: { 
+                responseMimeType: 'application/json',
+              }
+            });
+            return response.text;
         });
-        return response.text;
-    });
-    return JSON.parse(result);
+
+        const parsedData = JSON.parse(result);
+        
+        // 3. Save to Cache
+        try {
+            localStorage.setItem(BRIEFING_CACHE_KEY, JSON.stringify({
+                timestamp: Date.now(),
+                data: parsedData,
+                storedTimeOfDay: timeOfDay
+            }));
+        } catch (e) {
+             console.error("Cache write error", e);
+        }
+
+        return parsedData;
+
+    } catch (error) {
+        // Fallback if API fails
+        console.error("Briefing API failed, using fallback", error);
+        return {
+            greeting: "أهلاً بك في خبيركم!",
+            suggestions: [
+                "احكيلي نكتة",
+                "إيه أخبار الذكاء الاصطناعي؟",
+                "اقترح عليا أكلة",
+                "قصة قصيرة مضحكة"
+            ]
+        };
+    }
 };
 
 export const generateConversationTitle = async (messages: Message[]): Promise<string> => {
-    // Construct a summary of the conversation for the prompt
-    const conversationContext = messages.map(m => `${m.role === 'user' ? 'المستخدم' : 'الخبير'}: ${m.parts[0].text.substring(0, 200)}`).join('\n');
+    // Limit context to save tokens
+    const conversationContext = messages.slice(0, 3).map(m => `${m.role === 'user' ? 'المستخدم' : 'الخبير'}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
 
-    const prompt = `اقرأ بداية المحادثة التالية ولخص موضوعها في عنوان قصير جداً وجذاب (من 3 إلى 5 كلمات كحد أقصى).
-    العنوان يجب أن يكون بالعربية ويعبر بدقة عن سياق الكلام.
-    لا تستخدم علامات تنصيص.
-    
-    المحادثة:
+    const prompt = `لخص المحادثة دي في عنوان من 3 كلمات بس. بالعربي.
     ${conversationContext}`;
 
     return withApiKeyRotation(async (ai) => {
         const response = await ai.models.generateContent({
-            model: 'gemini-flash-latest',
+            model: 'gemini-flash-latest', // Flash is sufficient
             contents: prompt,
         });
         return response.text.trim().replace(/["']/g, '');

@@ -136,14 +136,13 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
 export const testApiKey = async (apiKey: string): Promise<boolean> => { /* ... */ };
 
 // Main chat function (streaming).
-export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => { /* ... */ };
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => { 
+    // Logic optimized to switch between 'gemini-2.5-pro' (Khabirkom) and 'gemini-flash-latest' (Fahimkom) based on Persona settings.
+};
 
-// Function for each tool, e.g.:
-export const roastText = async (text: string) => { /* ... */ };
-export const roastImage = async (imageFile: File) => { /* ... */ };
-export const generateImage = async (prompt: string): Promise<string> => { /* ... */ };
-export const explainCode = async (code: string) => { /* ... */ };
-// ... (and all other service functions for tools)
+// FILE: services/api/chat.service.ts
+// DESCRIPTION: Specific chat logic, persona management, and briefing generation.
+// Includes LocalStorage caching for 'getMorningBriefing' to reduce API usage.
 
 // FILE: services/apiKeyManager.ts
 // DESCRIPTION: Manages storing, retrieving, adding, deleting, and rotating Gemini API keys in localStorage.
@@ -173,9 +172,10 @@ export const ToolContainer: React.FC<ToolContainerProps> = ({ /* ... */ }) => { 
 export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ /* ... */ }) => { /* ... */ };
 
 // FILE: features/Chat/Chat.tsx
-// DESCRIPTION: The main chat interface, handling message display, user input (text, image, voice), streaming responses, and the welcome screen.
-const WelcomeScreen: React.FC<{ /* ... */ }> = ({ /* ... */ }) => { /* ... */ };
-const MessageContent: React.FC<{ content: string }> = ({ content }) => { /* ... */ }; // Renders markdown with tool links and code blocks.
+// DESCRIPTION: The main chat interface.
+// - DashboardScreen: Shows cached greeting and Quick Tools grid.
+// - MessageContent: Renders markdown with specific fix for Arabic text spacing.
+// - Chat: Handles all chat logic, streaming, and UI updates.
 const Chat: React.FC = () => { /* ... handles all chat logic ... */ };
 export default Chat;
 

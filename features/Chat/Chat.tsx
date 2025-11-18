@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square, ZoomIn, ZoomOut, RotateCcw, Minus, Image as ImageIcon, Languages, Smile, GraduationCap } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -53,15 +54,38 @@ const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
     );
 };
 
+const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
+    const { setActiveToolId } = useTool();
+    const tool = TOOLS.find(t => t.id === toolId);
+    if (!tool) return null;
+    const Icon = tool.icon;
+    
+    return (
+        <button 
+            onClick={() => setActiveToolId(toolId)}
+            className="flex flex-col items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all hover:shadow-md hover:scale-105 active:scale-95"
+        >
+            <div className={`p-2.5 rounded-full bg-white dark:bg-slate-700 shadow-sm ${tool.color.replace('text-', 'text-').replace('500', '600')}`}>
+                <Icon size={20} />
+            </div>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-300 truncate w-full text-center">
+                {tool.title.split(' ')[0]}
+            </span>
+        </button>
+    );
+};
+
 const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const { memory } = useMemory();
     const { persona } = usePersona();
+    const { activeToolId } = useTool(); // Just to trigger re-render if needed
 
     const context = useMemo(() => {
         const hour = new Date().getHours();
         return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
     }, []);
 
+    // useGemini will now utilize the caching logic implemented in getMorningBriefing
     const { data: briefing, isLoading: isBriefingLoading, error: briefingError, execute: fetchBriefing } = useGemini<BriefingData, void>(
         () => getMorningBriefing(memory, persona, context)
     );
@@ -69,7 +93,7 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     useEffect(() => {
         fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [memory, persona]);
+    }, [memory, persona]); // Re-fetch only if memory/persona changes heavily
 
     const suggestions = briefing?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",
@@ -77,22 +101,40 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         "اقترح فكرة مشروع جديدة",
         "إيه رأيك في الذكاء الاصطناعي؟"
     ];
+    
+    const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
     return (
-        <div className="flex flex-col h-full items-center justify-center p-4 text-center overflow-y-auto no-scrollbar">
-            <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 mb-4 sm:mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
+        <div className="flex flex-col h-full items-center justify-start pt-8 sm:pt-12 p-4 text-center overflow-y-auto no-scrollbar">
+            <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
                 <Bot size={48} className="text-primary drop-shadow-md sm:w-14 sm:h-14" />
             </div>
+            
+            {/* Greeting */}
             {isBriefingLoading 
-                ? <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-3 rounded-lg" />
-                : <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 px-2 leading-normal">
+                ? <Skeleton className="h-8 sm:h-10 w-48 sm:w-64 mb-2 rounded-lg" />
+                : <h2 className="text-xl sm:text-3xl font-bold mb-2 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 px-2 leading-normal">
                     {briefing?.greeting || "خبيركم تحت أمرك"}
                   </h2>
             }
-            <p className="text-slate-500 dark:text-slate-400 mb-6 sm:mb-8 max-w-xs sm:max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base" style={{ animationDelay: '200ms' }}>
-                أنا هنا عشان أساعدك، أضحكك، وأنجز معاك أي مهمة. اختار حاجة نبدأ بيها:
+            
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-xs sm:max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base delay-100">
+                جاهز لأي مهمة. ابدأ دردشة أو اختار أداة سريعة:
             </p>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-slideInUp max-w-2xl pb-4 w-full px-2" style={{ animationDelay: '300ms' }}>
+
+            {/* Quick Tools Grid - New Feature */}
+            <div className="grid grid-cols-4 gap-3 w-full max-w-lg mb-8 animate-slideInUp delay-200">
+                {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
+            </div>
+
+            <div className="w-full max-w-2xl border-t border-slate-200/50 dark:border-slate-700/50 mb-6"></div>
+
+            {/* Suggestions */}
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 animate-slideInUp delay-300">
+                أو جرب تسألني
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-slideInUp max-w-2xl pb-4 w-full px-2 delay-300">
                  {isBriefingLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
                         <Skeleton key={i} className="h-9 w-32 sm:w-40 rounded-full" />
@@ -103,7 +145,6 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
                             key={s} 
                             onClick={() => onSuggestionClick(s)}
                             className="group relative px-3 py-2 sm:px-4 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden active:scale-95 flex-grow sm:flex-grow-0"
-                            style={{ animationDelay: `${400 + i * 100}ms` }}
                         >
                             <span className="relative z-10 group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">{s}</span>
                             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -111,7 +152,6 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
                     ))
                 )}
             </div>
-            {briefingError && <p className="text-xs text-red-500 mt-4 opacity-80">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
         </div>
     );
 };
@@ -120,13 +160,19 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const content = message.parts[0].text;
     const isUser = message.role === 'user';
 
-    // Clean up bold text spacing and Markdown issues
+    // Enhanced Markdown Spacing Fix
+    // This explicitly targets Arabic characters followed immediately by bold/italic markers
     const fixMarkdownSpacing = (text: string) => {
         let res = text;
-        // Force space before bold if it sticks to previous word (excluding punctuation)
-        res = res.replace(/([^\s\(\[])(\*\*)/g, '$1 $2');
-        // Force space after bold if it sticks to next word (excluding punctuation)
-        res = res.replace(/(\*\*)([^\s.,،؛:?!])/g, '$1 $2');
+        // Ensure space between any word ending (including Arabic letters) and the start of bold (** or __)
+        // \S matches any non-whitespace character. 
+        res = res.replace(/([^\s])(\*\*|__)/g, '$1 $2');
+        
+        // Ensure space between end of bold (** or __) and the next word
+        res = res.replace(/(\*\*|__)([^\s.,،؛:?!])/g, '$1 $2');
+        
+        // Specific fix for Arabic 'Alif' variants (أ، إ، آ) if stuck to non-arabic latin characters or symbols
+        // (Usually the previous regex covers this, but this is a failsafe)
         return res;
     };
 

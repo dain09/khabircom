@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useLayoutEffect, forwardRef, useImperativeHandle } from 'react';
 
 type AutoGrowTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
@@ -12,11 +12,13 @@ export const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, AutoGrowTextarea
         useImperativeHandle(ref, () => internalTextareaRef.current!, []);
 
         // Adjust height on value change
-        useEffect(() => {
+        useLayoutEffect(() => {
             const textarea = internalTextareaRef.current;
             if (textarea) {
-                textarea.style.height = 'auto'; // Reset height to recalculate
-                textarea.style.height = `${textarea.scrollHeight}px`; // Set to content height
+                // Reset height to 0 to force recalculation of scrollHeight, fixing layout bugs
+                textarea.style.height = '0px'; 
+                const scrollHeight = textarea.scrollHeight;
+                textarea.style.height = scrollHeight + 'px';
             }
         }, [props.value]);
 

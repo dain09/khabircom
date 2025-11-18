@@ -124,6 +124,20 @@
       .dark ::-webkit-scrollbar-thumb:hover {
         background-color: hsl(222, 40%, 35%);
       }
+      /* Custom thin scrollbar for textarea */
+      .textarea-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .textarea-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .textarea-scrollbar::-webkit-scrollbar-thumb {
+        background-color: hsl(210, 13%, 75%);
+        border-radius: 20px;
+      }
+      .dark .textarea-scrollbar::-webkit-scrollbar-thumb {
+        background-color: hsl(222, 40%, 35%);
+      }
     </style>
   </head>
   <body>

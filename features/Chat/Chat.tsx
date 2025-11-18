@@ -636,16 +636,17 @@ const Chat: React.FC = () => {
                             }
                         }}
                         placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
-                        className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
+                        className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect textarea-scrollbar"
                         aria-label="اكتب رسالتك هنا"
                     />
-                     <button
-                        className="order-3 p-3 rounded-full bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-dark-foreground dark:hover:bg-slate-600 transition-colors" 
+                     <Button
+                        variant="secondary"
+                        className="order-3 p-3 rounded-full"
                         aria-label="إرفاق صورة"
                         onClick={() => imageInputRef.current?.click()}
                     >
                         <Plus size={24} />
-                    </button>
+                    </Button>
                     <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                 </div>
             </div>

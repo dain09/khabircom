@@ -1,34 +1,30 @@
 
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateMoodContent } from '../../services/geminiService';
 import { Loader } from '../../components/ui/Loader';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
-import { Smile, Brain, Zap, Flame, Bomb } from 'lucide-react';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
-const MOODS = [
-    { id: 'laugh', text: 'عاوز أضحك', icon: <Smile size={20} /> },
-    { id: 'wisdom', text: 'اديني حكمة', icon: <Brain size={20} /> },
-    { id: 'motivation', text: 'شجعني شوية', icon: <Zap size={20} /> },
-    { id: 'roast', text: 'حفّل عليا', icon: <Flame size={20} /> },
-    { id: 'joke', text: 'نكتة بايخة', icon: <Bomb size={20} /> },
-];
+interface MoodResult {
+    mood_name: string;
+    mood_description: string;
+    advice: string;
+}
 
 const MoodsGenerator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'moods-generator')!;
-    const [currentMood, setCurrentMood] = useState<string>('');
-    const { data: result, isLoading, error, execute } = useGemini<string, string>(generateMoodContent);
+    const [text, setText] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<MoodResult, string>(generateMoodContent);
 
-    const handleMoodClick = (moodId: string) => {
-        const mood = MOODS.find(m => m.id === moodId);
-        if (mood) {
-            setCurrentMood(mood.text);
-            execute(moodId);
-        }
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        execute(text);
     };
 
     return (
@@ -37,30 +33,31 @@ const MoodsGenerator: React.FC = () => {
             description={toolInfo.description} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="مش عارف تقول إيه؟ اختار مودك من الأزرار دي، والخبير هيبعتلك حاجة تليق على حالتك بالظبط."
+            introText="فضفض أو اكتب أي حاجة شاغلة بالك، والخبير هيحلل مودك ويقولك تشخيص كوميدي ونصيحة على الماشي."
         >
-            <p className="mb-4 text-center text-lg">إيه مودك دلوقتي؟</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {MOODS.map(mood => (
-                    <Button
-                        key={mood.id}
-                        variant="secondary"
-                        onClick={() => handleMoodClick(mood.id)}
-                        isLoading={isLoading && currentMood === mood.text}
-                        disabled={isLoading && currentMood !== mood.text}
-                        className="flex-col h-28 text-center"
-                    >
-                        {mood.icon}
-                        <span className="mt-2">{mood.text}</span>
-                    </Button>
-                ))}
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="اكتب اللي حاسس بيه هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
+                    حلل مودي
+                </Button>
             </div>
-            {isLoading && !result && <Loader />}
+            {isLoading && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`طلبك لـ "${currentMood}" جاهز`}>
-                    <p className="text-lg">{result}</p>
-                </ResultCard>
+                 <div className="mt-6 space-y-4">
+                    <ResultCard title={`تشخيص المود: ${result.mood_name}`}>
+                        <p>{result.mood_description}</p>
+                    </ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡">
+                        <p>{result.advice}</p>
+                    </ResultCard>
+                </div>
             )}
         </ToolContainer>
     );

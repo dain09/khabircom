@@ -15,7 +15,7 @@ const toolListForPrompt = TOOLS
 const CHAT_PERSONA_INSTRUCTION = EGYPTIAN_PERSONA_INSTRUCTION + "\n\n" +
 "أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\n" +
 "1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\n" +
-"2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا، أطلق العنان لروحك الكوميدية.\n" +
+"2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا، أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\n" +
 "3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\n" +
 "4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: `[TOOL:tool_id]`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\n" +
 toolListForPrompt +
@@ -221,15 +221,10 @@ export const summarizeNews = async (newsText: string) => {
 
 
 // 8. Moods Generator
-export const generateMoodContent = async (mood: string) => {
-    const prompts: { [key: string]: string } = {
-        laugh: 'قولي نكتة مصرية جديدة ومضحكة.',
-        wisdom: 'اديني حكمة عميقة بس بطريقة سهلة ومصرية.',
-        motivation: 'اديني دفعة تحفيز قوية عشان أقوم أشوف حالي.',
-        roast: 'اعملي roast خفيف، اعتبرني واحد قاعد على النت طول اليوم.',
-        joke: 'قولي نكتة بايخة من اللي بتضحك من كتر سخافتها.',
-    };
-    return await callGemini('gemini-flash-latest', prompts[mood]);
+export const generateMoodContent = async (text: string) => {
+    const prompt = `حلل النص التالي واكتب تقييم كوميدي لحالة كاتبه المزاجية. كن مبدعًا ومضحكًا جدًا. النص: "${text}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "mood_name": "string", \n "mood_description": "string", \n "advice": "string" \n}\n\n- mood_name: اسم كوميدي للمود (مثال: نمرود بيصيف في سيبيريا).\n- mood_description: وصف مضحك للحالة.\n- advice: نصيحة فكاهية لتغيير المود.`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
 };
 
 // 9. Dream Interpreter
@@ -247,8 +242,8 @@ export const generateRecipe = async (ingredients: string) => {
 };
 
 // 11. Story Maker
-export const generateStory = async (name: string, place: string, idea: string) => {
-    const prompt = `اكتبلي 3 قصص قصيرة. البطل اسمه '${name}'، المكان '${place}'، والفكرة '${idea}'.\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "funny_story": "string",\n  "drama_story": "string",\n  "kids_story": "string"\n}\n\n- **funny_story**: قصة كوميدية.\n- **drama_story**: قصة درامية.\n- **kids_story**: قصة للأطفال.`;
+export const generateStory = async (scenario: string) => {
+    const prompt = `أكمل السيناريو التالي بطريقة كوميدية وغير متوقعة. اجعل النهاية مضحكة جدًا. السيناريو: "${scenario}".\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "funny_story": "string"\n}`;
     const result = await callGemini('gemini-2.5-pro', prompt, true);
     return JSON.parse(result);
 };
@@ -262,7 +257,7 @@ export const summarizeLongText = async (text: string) => {
 
 // 13. AI Teacher
 export const teachTopic = async (topic: string) => {
-    const prompt = `اشرحلي موضوع "${topic}" كأني طفل عندي 10 سنين، بأسلوب مصري بسيط ومضحك، واستخدم أمثلة من الحياة اليومية.`;
+    const prompt = `لموضوع "${topic}"، اقترح خطة مذاكرة "فهلوانية" وسهلة جدًا ومضحكة. اجعل الخطة تبدو بسيطة ومكافئاتها ممتعة. اشرح بأسلوب الأستاذ الفهلوي.`;
     return await callGemini('gemini-2.5-pro', prompt);
 };
 
@@ -274,6 +269,7 @@ export const generateLoveMessage = async (type: string) => {
         shy: 'اكتب رسالة حب بأسلوب واحد مكسوف.',
         toxic: 'اكتب رسالة حب toxic بس خفيفة.',
         apology: 'اكتب رسالة اعتذار وحب بعد خناقة.',
+        witty_roast: 'اكتب رسالة عتاب رومانسية كوميدية، فيها تحفيل راقي.',
     };
     return await callGemini('gemini-flash-latest', prompts[type]);
 };
@@ -312,7 +308,7 @@ export const generateNames = async (category: string) => {
 
 // 19. Habit Analyzer
 export const analyzeHabits = async (habitAnswers: string) => {
-    const prompt = `بناءً على العادات دي: "${habitAnswers}", حلل الشخصية وادي نصايح عملية وكوميدية. الرد بصيغة JSON بالSchema دي:\n{\n  "analysis": "string",\n  "practical_advice": "string",\n  "comic_advice": "string"\n}`;
+    const prompt = `بناءً على الـ5 أشياء التالية التي يحبها المستخدم أو يفعلها، استنتج "موهبة خفية" كوميدية لديه. كن مبدعًا جدًا في استنتاجك. الأشياء هي: "${habitAnswers}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "talent_name": "string", \n "talent_description": "string", \n "advice": "string" \n}\n\n- talent_name: اسم الموهبة الخفية (مثال: أفضل نموذج كسول في العالم).\n- talent_description: شرح كوميدي للموهبة.\n- advice: نصيحة فكاهية لتنمية هذه الموهبة.`;
     const result = await callGemini('gemini-2.5-pro', prompt, true);
     return JSON.parse(result);
 };

@@ -304,6 +304,25 @@ const Chat: React.FC = () => {
             reader.readAsDataURL(file);
         }
     };
+    
+    const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+        const items = event.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    setImageFile(file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImagePreview(reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                event.preventDefault();
+                return;
+            }
+        }
+    };
 
     const handleToggleRecording = () => {
         if (isRecording) {
@@ -368,7 +387,7 @@ const Chat: React.FC = () => {
                         <button
                             key={`${tool.id}-${index}`}
                             onClick={() => setActiveToolId(tool.id)}
-                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm"
+                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-md"
                         >
                             <Icon size={18} className={tool.color} />
                             <span>{tool.title}</span>
@@ -400,7 +419,7 @@ const Chat: React.FC = () => {
                             }`}>
                                 <div className={`flex items-start gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
                                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary/20'}`}>
-                                        {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary" />}
+                                        {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary animate-bot-idle-bob" />}
                                     </div>
                                     
                                     <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-start' : 'items-end'} gap-1`}>
@@ -445,10 +464,8 @@ const Chat: React.FC = () => {
                                         <Bot className="w-5 h-5 text-primary" />
                                     </div>
                                     <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-tl-none">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                        <div className="flex items-center justify-center p-2">
+                                            <Bot className="w-6 h-6 text-primary animate-bot-thinking" />
                                         </div>
                                     </div>
                                 </div>
@@ -459,7 +476,7 @@ const Chat: React.FC = () => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl">
+            <div className="p-2 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-background/70 dark:bg-dark-card/70 backdrop-blur-lg sm:rounded-b-xl" onPaste={handlePaste}>
                  {imagePreview && (
                     <div className="relative w-24 h-24 mb-2 p-1 border rounded-lg border-primary/50">
                         <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-md"/>
@@ -492,7 +509,7 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder={isMobile ? "اسأل أي حاجة..." : "اسأل أي حاجة... (Shift+Enter لسطر جديد)"}
+                        placeholder={isMobile ? "اسأل أي حاجة أو الصق صورة..." : "اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"}
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />

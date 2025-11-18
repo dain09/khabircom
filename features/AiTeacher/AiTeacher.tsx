@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { teachTopic } from '../../services/geminiService';
@@ -25,24 +26,24 @@ const AiTeacher: React.FC = () => {
             description={toolInfo.description} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="اكتب أي موضوع أو سؤال صعب عليك، والأستاذ الفهلوي هيشرحهولك بطريقة بسيطة ومضحكة بالأمثلة اللي تفهمها."
+            introText="اكتب أي موضوع أو مادة صعبة عليك، والأستاذ الفهلوي هيعملك خطة مذاكرة بسيطة ومضحكة عشان تنجز."
         >
             <div className="space-y-4">
                 <input
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="عايز تفهم إيه؟ (مثال: نظرية النسبية لأينشتاين)"
+                    placeholder="عايز تذاكر إيه؟ (مثال: مادة الفيزياء الكمية)"
                     className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!topic.trim()}>
-                    اشرح يا خبير
+                    اعملي خطة
                 </Button>
             </div>
             {isLoading && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`شرح فكاهي ومبسط عن: ${topic}`}>
+                <ResultCard title={`خطة فهلوانية لمذاكرة: ${topic}`}>
                     <p>{result}</p>
                 </ResultCard>
             )}

@@ -15,9 +15,9 @@ export const TOOLS: Tool[] = [
     { id: 'image-roast', title: 'تحفيل على الصور', description: 'وريني أي صورة وأنا هقولك رأيي بصراحة', icon: ImageIcon, color: 'text-orange-500', category: 'المرح والإبداع' },
     { id: 'meme-generator', title: 'صانع الميمز', description: 'حوّل صورك لميمز تفرط من الضحك', icon: Smile, color: 'text-red-500', category: 'المرح والإبداع' },
     { id: 'image-generator', title: 'رسام الخبير', description: 'حوّل خيالك لصور فنية بالذكاء الاصطناعي', icon: Paintbrush, color: 'text-teal-500', category: 'المرح والإبداع' },
-    { id: 'moods-generator', title: 'مولد المود', description: 'قولي مودك وأنا هظبطك', icon: Sparkles, color: 'text-gray-500', category: 'المرح والإبداع' },
-    { id: 'story-maker', title: 'مؤلف القصص', description: 'اديني خيط وأنا هنسجلك قصة', icon: BookOpen, color: 'text-orange-400', category: 'المرح والإبداع' },
-    { id: 'ai-love-messages', title: 'رسائل الحب والغرام', description: 'رسائل لكل الأذواق والمناسبات', icon: Heart, color: 'text-yellow-400', category: 'المرح والإبداع' },
+    { id: 'moods-generator', title: 'محلل المود', description: 'اكتب أي حاجة والخبير هيحلل مودك بطريقة كوميدية', icon: Sparkles, color: 'text-gray-500', category: 'المرح والإبداع' },
+    { id: 'story-maker', title: 'مكمل السيناريوهات', description: 'ابدأ أي سيناريو وأنا هكملهولك بنهاية كوميدية', icon: BookOpen, color: 'text-orange-400', category: 'المرح والإبداع' },
+    { id: 'ai-love-messages', title: 'رسائل الحب والغرام', description: 'رسائل لكل الأذواق والمناسبات، حتى العتاب الرخم', icon: Heart, color: 'text-yellow-400', category: 'المرح والإبداع' },
     { id: 'name-generator', title: 'مولد الأسماء', description: 'أسماء مشاريع وحسابات مبتكرة', icon: Lightbulb, color: 'text-green-600', category: 'المرح والإبداع' },
     { id: 'ai-motivator', title: 'المحفز الرخم', description: 'كلام يحفزك... بس على طريقتي', icon: Zap, color: 'text-red-600', category: 'المرح والإبداع' },
     { id: 'post-generator', title: 'مولد بوستات السوشيال', description: 'بوستات جاهزة لكل المنصات', icon: Send, color: 'text-brown-400', category: 'المرح والإبداع' },
@@ -30,8 +30,8 @@ export const TOOLS: Tool[] = [
 
     // المعرفة والمساعدة
     { id: 'dream-interpreter', title: 'مفسر الأحلام الفلكي', description: 'تفسيرات منطقية وفكاهية لأحلامك', icon: Cloud, color: 'text-blue-400', category: 'المعرفة والمساعدة' },
-    { id: 'ai-teacher', title: 'الأستاذ الفهلوي', description: 'افهم أي حاجة بطريقة سهلة ومضحكة', icon: GraduationCap, color: 'text-purple-400', category: 'المعرفة والمساعدة' },
-    { id: 'habit-analyzer', title: 'محلل العادات', description: 'حلل عاداتك اليومية بطريقة فكاهية', icon: Target, color: 'text-orange-600', category: 'المعرفة والمساعدة' },
+    { id: 'ai-teacher', title: 'الأستاذ الفهلوي في التخطيط', description: 'اديني اسم موضوع صعب وأنا هعملك خطة مذاكرة فهلوانية', icon: GraduationCap, color: 'text-purple-400', category: 'المعرفة والمساعدة' },
+    { id: 'habit-analyzer', title: 'المحلل الفهلوي', description: 'قول 5 حاجات عنك وأنا هطلعلك موهبتك الخفية', icon: Target, color: 'text-orange-600', category: 'المعرفة والمساعدة' },
 
     // الإنتاجية اليومية
     { id: 'voice-analysis', title: 'تحليل الصوت', description: 'من صوتك هقولك مودك إيه (تجريبي)', icon: Mic, color: 'text-brown-500', category: 'الإنتاجية اليومية' },

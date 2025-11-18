@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateLoveMessage } from '../../services/geminiService';
@@ -15,6 +16,7 @@ const MESSAGE_TYPES = [
     { id: 'shy', text: 'واحد مكسوف' },
     { id: 'toxic', text: 'توكسيك خفيفة' },
     { id: 'apology', text: 'صلح واعتذار' },
+    { id: 'witty_roast', text: 'عتاب رخمة' },
 ];
 
 const AiLoveMessages: React.FC = () => {

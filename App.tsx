@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -64,7 +63,7 @@ const App: React.FC = () => {
         : ["bg-blue-400/30", "bg-purple-400/30", "bg-indigo-400/30"];
 
     return (
-        <div className={`relative flex h-full text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
+        <div className={`relative flex h-[100dvh] text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
              {/* Global Animated Background */}
             <div className="fixed inset-0 -z-20 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-500" />
             
@@ -88,7 +87,7 @@ const App: React.FC = () => {
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
                 <main className="flex-1 relative h-full overflow-hidden">
-                    <div key={activeToolId} className="h-full w-full animate-slideInUpFade">
+                    <div key={activeToolId} className="h-full w-full">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

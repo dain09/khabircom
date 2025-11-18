@@ -1,12 +1,12 @@
 
-
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, Search, Clock, Code, Heart, Star } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, Search, Clock, Code, Heart, Star, Zap } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
 import { useDebounce } from '../hooks/useDebounce';
+import { useToast } from '../hooks/useToast';
 
 interface SidebarProps {
     isSidebarOpen: boolean;
@@ -21,7 +21,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [logoClicks, setLogoClicks] = useState(0);
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    const { addToast } = useToast();
     
     // Exclude admin/utility tools from the main list
     const hiddenTools = ['khabirkom-settings', 'memory-manager'];
@@ -106,6 +108,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     }
 
     const handleLogoClick = () => {
+        setLogoClicks(prev => prev + 1);
+        if (logoClicks + 1 === 5) {
+            addToast("🕵️ تم تفعيل وضع المطور... بهزر معاك بس شكراً لاهتمامك!", { 
+                icon: <Zap className="text-yellow-500" />, 
+                duration: 5000 
+            });
+            setLogoClicks(0);
+        }
         navigateTo('chat/');
         closeSidebarOnMobile();
     };
@@ -156,8 +166,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
             ></div>
             <aside className={`fixed top-0 right-0 h-full bg-white/90 dark:bg-slate-900/95 backdrop-blur-2xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 cubic-bezier(0.2, 0, 0, 1) z-[60] ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col font-sans antialiased`}>
                 <div className="flex justify-between items-center p-5 pb-2 border-b border-transparent flex-shrink-0">
-                    <button onClick={handleLogoClick} className="flex items-center gap-2 group focus:outline-none" aria-label="العودة للرئيسية">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                    <button onClick={handleLogoClick} className="flex items-center gap-2 group focus:outline-none select-none" aria-label="العودة للرئيسية">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300 active:scale-90">
                             <span className="text-white font-black text-lg">خ</span>
                         </div>
                         <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight group-hover:text-primary transition-colors">خبيركم</h1>

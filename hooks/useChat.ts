@@ -1,11 +1,21 @@
+
 import { useContext } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
+import { useTool } from './useTool';
 
 export const useChat = () => {
-    const context = useContext(ChatContext);
-    if (context === undefined) {
+    const chatContext = useContext(ChatContext);
+    const { activeConversationId, navigateTo } = useTool();
+
+    if (chatContext === undefined) {
         throw new Error('useChat must be used within a ChatProvider');
     }
-    // This hook now implicitly provides updateMessageInConversation
-    return context;
+    
+    return {
+        ...chatContext,
+        activeConversationId, // Provide the ID derived from navigation
+        setActiveConversationId: (id: string | null) => {
+            navigateTo(id ? `chat/${id}` : 'chat/');
+        },
+    };
 };

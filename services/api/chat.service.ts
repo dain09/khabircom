@@ -1,9 +1,9 @@
 
+
 import { GenerateContentResponse, Content } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
 import { Message, PersonaSettings } from "../../types";
 import { TOOLS } from '../../constants';
-import { SOURCE_CODE_CONTEXT } from '../sourceCodeContext';
 import { withApiKeyRotation } from "../geminiService";
 
 const toolListForPrompt = TOOLS
@@ -12,8 +12,6 @@ const toolListForPrompt = TOOLS
     .join('\n');
 
 const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
-    // Determine identity strictly based on settings thresholds
-    // Fahimkom: High Humor (>7) AND Low Verbosity (<5)
     const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
     const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
@@ -21,109 +19,78 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     if (isFahimkom) {
         identityBlock = `
         *** تعليمات الهوية: أنت الآن "فهيمكم" (أخو خبيركم الصغير) ***
-        - **الشخصية:** شاب مصري "ابن بلد" ومطرقع. دمك خفيف جداً، سريع البديهة، ومتابع التريند أول بأول.
-        - **القاموس اللغوي:** استخدم كلمات زي (يا زميلي، يا صاحبي، يا وحش، قشطة، خلصانة بشياكة، على وضعك، أحلى مسا، فكك، حوارات).
-        - **الأسلوب:** 
-          1. ممنوع المقدمات الطويلة المملة. ادخل في المفيد علطول.
-          2. ردودك "كبسولات" سريعة ومنجزة.
-          3. لما تتسأل عن التاريخ أو الأخبار، استخدم البحث وجيب "الخلاصة" من غير رغي كتير.
-          4. اعتبر "خبيركم" (أخوك الكبير) شخص روتيني وممل ("دقة قديمة") بس بتحترمه.
-        - **الهدف:** الرد بسرعة، بخفة دم، وبمعلومة حديثة (عارف النهاردة إيه وايه اللي بيحصل في الدنيا).
+        - **الشخصية:** شاب مصري "ابن بلد" ومطرقع. دمك خفيف جداً، سريع البديهة، ومتابع التريند أول بأول. أسلوبك مليان إفيهات وهزار.
+        - **الأسلوب:** ممنوع المقدمات الطويلة. ادخل في المفيد. استخدم "يا زميلي"، "يا وحش"، "فكك"، "من الآخر".
+        - **الهدف:** الرد بسرعة، بخفة دم، وبمعلومة حديثة ومختصرة.
         `;
     } else {
         identityBlock = `
         *** تعليمات الهوية: أنت الآن "خبيركم" (الأخ الكبير العاقل) ***
-        - **الشخصية:** مهندس مصري مخضرم، حكيم، رزين، موسوعة، وبيحب المساعدة. شخصية "الجدع" اللي يعتمد عليه.
-        - **القاموس اللغوي:** استخدم كلمات زي (يا هندسة، يا ريس، يا باشا، صلي على النبي، من طقطق لسلامو عليكو، العبد لله، وماله، عيوني).
-        - **الأسلوب:** 
-          1. اشرح بذمة وضمير، وفصص المعلومة.
-          2. استخدم تنسيق Markdown (عناوين، نقاط) عشان الكلام يكون شكله حلو ومرتب.
-          3. لما تتسأل عن أحداث جارية أو تواريخ، استخدم البحث عشان تكون دقيق 100%.
-          4. اعتبر "فهيمكم" (أخوك الصغير) طايش ومتسرع، بس دمه خفيف.
-        - **الهدف:** تقديم معلومة كاملة، دقيقة، موثقة، وبأسلوب مصري أصيل ومحترم.
+        - **الشخصية:** مهندس مصري مخضرم، حكيم، رزين، وموسوعة معرفية. أسلوبك هادئ ومحترم.
+        - **الأسلوب:** اشرح بذمة وضمير، استخدم "يا هندسة"، "صلي على النبي"، "وصلت الفكرة؟".
+        - **الهدف:** تقديم معلومة كاملة، دقيقة، وموثقة بأسلوب سهل ومبسط.
         `;
     }
 
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
-        memoryContext = "\n\n--- ذاكرة المستخدم (دي حاجات احنا عارفينها عن المستخدم، استخدمها بذكاء) ---\n" +
+        memoryContext = "\n\n--- ذاكرة المستخدم (معلومات سابقة، استخدمها بذكاء) ---\n" +
                         memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
                         "\n--- نهاية الذاكرة ---";
     }
 
-    const personaContext = "\n\n--- إعدادات التحكم الحالية ---\n" +
-                           `اسمك الحالي: ${botName}\n` +
-                           `- مستوى الهزار (Humor): ${persona.humor}/10\n` +
-                           `- مستوى التفاصيل (Verbosity): ${persona.verbosity}/10\n` +
-                           `- اهتمامات المستخدم: ${persona.interests.length > 0 ? persona.interests.join(', ') : 'غير محددة'}.\n` +
-                           "--- نهاية الإعدادات ---";
-
-
-    return identityBlock + memoryContext + personaContext + "\n\n" +
+    return identityBlock + memoryContext + "\n\n" +
     `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم'.\n` +
-    "1. **قدرات البحث:** أنت متصل بالإنترنت عبر Google Search. لما تتسأل 'النهاردة إيه' أو 'إيه الأخبار' أو عن سعر حاجة، استخدم البحث فوراً وجاوب بمعلومات حديثة.\n" +
-    "2. **اللغة:** استخدم العامية المصرية فقط (Masry Aseel). ممنوع الفصحى المقعرة إلا في الآيات أو الأمثال.\n" + 
-    "3. **الأدوات:** لو المستخدم طلب حاجة ليها أداة متخصصة عندنا، اقترحها فوراً بـ `[TOOL:tool_id]`. الأدوات المتاحة:\n" + 
-    toolListForPrompt +
-    "\n\nمثال: 'عايز صورة؟ ولا يهمك، استخدم [TOOL:image-generator]'.\n" +
-    "4. **المطور:** مطورك هو 'عبدالله إبراهيم'. لو حد سأل عنه، لازم تمجد فيه وتقول إنه عبقري ومهندس شاطر.\n" + 
-    "5. **الوعي بالكود:** الكود المصدري لك:\n" + SOURCE_CODE_CONTEXT + "\n\n" +
-    "6. **الذاكرة:** احفظ المعلومات المهمة بـ `[SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"القيمة\"}]`.\n";
+    "1. **البحث (مهم جداً):** أنت متصل بـ Google Search. استخدمه للأخبار، الأسعار، التواريخ، أو أي معلومة حديثة. **عند عرض النتائج، اعرض الروابط دائمًا** كـ Markdown links واضحة `[اسم الموقع](URL)`.\n" +
+    "2. **اللغة:** **دائماً وأبداً** استخدم العامية المصرية (Masry Aseel) إلا في المصطلحات التقنية أو الآيات.\n" + 
+    "3. **التنسيق (مهم جداً جداً):**\n" +
+    "   - **دائماً** استخدم **Bold** (خط عريض) للنقاط المهمة والكلمات المفتاحية.\n" +
+    "   - **دائماً** افصل بين النقاط والفقرات بمسافات واضحة لتسهيل القراءة.\n" +
+    "   - **دائماً** عند كتابة كود، استخدم Block Code صحيح مع تحديد اللغة.\n" +
+    "4. **الأدوات:** اقترح الأدوات المناسبة للسياق باستخدام `[TOOL:tool_id]`. الأدوات المتاحة:\n" + toolListForPrompt + "\n" +
+    "5. **الذاكرة (Memory Operations):**\n" +
+    "   - لحفظ معلومة: `[SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"القيمة\"}]`\n" +
+    "   - لحذف معلومة (إذا طلب المستخدم مسح شيء محدد): `[DELETE_MEMORY:{\"key\":\"الاسم\"}]`\n" +
+    "6. **الملفات:** يمكنك تحليل الصور والملفات النصية (PDF, TXT). لو أرفق المستخدم ملفًا، حلله بناءً على سؤاله.\n" +
+    "7. **مطورك:** عبدالله إبراهيم، لو حد سألك عنه اشكر فيه وقول إنه مطور شاطر جداً.";
 }
 
-export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; file?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
-        // Re-calculate logic inside the execution to ensure fresh state usage
         const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
-        
-        // Use gemini-flash-latest as it supports search grounding effectively and is fast
         const modelName = 'gemini-flash-latest'; 
-        
         const chatPersona = getChatPersonaInstruction(memory, persona);
 
-        const historyForApi = history.map(msg => {
+        const historyForApi = await Promise.all(history.map(async (msg) => {
             const parts: any[] = [];
-            if (msg.parts[0]?.text) {
-                parts.push({ text: msg.parts[0].text });
-            }
+            if (msg.parts[0]?.text) parts.push({ text: msg.parts[0].text });
             if (msg.imageUrl && msg.role === 'user') {
-                const [header, base64Data] = msg.imageUrl.split(',');
-                if (base64Data) {
-                    const mimeTypeMatch = header.match(/:(.*?);/);
-                    if (mimeTypeMatch && mimeTypeMatch[1]) {
-                        parts.push({
-                            inlineData: {
-                                mimeType: mimeTypeMatch[1],
-                                data: base64Data
-                            }
-                        });
-                    }
-                }
+                const response = await fetch(msg.imageUrl);
+                const blob = await response.blob();
+                const mimeType = msg.imageUrl!.match(/data:(.*?);base64,/)?.[1] || blob.type;
+                const imageFile = new File([blob], 'history-image.png', { type: mimeType });
+                parts.push(await fileToGenerativePart(imageFile));
             }
             return { role: msg.role, parts };
-        }).filter(msg => msg.parts.length > 0);
+        }));
 
         const chat = ai.chats.create({
             model: modelName,
             config: { 
                 systemInstruction: chatPersona,
-                // Fahimkom is chaotic (high temp), Khabirkom is focused (lower temp)
-                temperature: isFahimkom ? 1.3 : 0.7,
+                temperature: isFahimkom ? 1.2 : 0.8,
                 topK: isFahimkom ? 64 : 40,
-                // Enable Google Search Grounding
                 tools: [{ googleSearch: {} }],
             },
             history: historyForApi as Content[],
         });
         
         const messageParts: any[] = [];
-        if (newMessage.text) {
-            messageParts.push({ text: newMessage.text });
-        }
-        if (newMessage.imageFile) {
-            const imagePart = await fileToGenerativePart(newMessage.imageFile);
-            messageParts.push(imagePart);
+        if (newMessage.text) messageParts.push({ text: newMessage.text });
+        if (newMessage.file) {
+            const filePart = await fileToGenerativePart(newMessage.file);
+            messageParts.push(filePart);
         }
 
         const resultStream = await chat.sendMessageStream({ message: messageParts });
@@ -131,93 +98,47 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
     });
 };
 
-// CACHING LOGIC FOR BRIEFING
 const BRIEFING_CACHE_KEY = 'khabirkom-briefing-cache';
-const CACHE_DURATION_MS = 6 * 60 * 60 * 1000; // 6 Hours
+const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
 
 export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string, botName: string): Promise<{ greeting: string; suggestions: string[] }> => {
     const personaCacheKey = `${BRIEFING_CACHE_KEY}-${botName}`;
-
-    // 1. Check Cache
     try {
         const cached = localStorage.getItem(personaCacheKey);
         if (cached) {
             const { timestamp, data, storedTimeOfDay } = JSON.parse(cached);
-            const now = Date.now();
-            if ((now - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) {
-                return data;
-            }
+            if ((Date.now() - timestamp < CACHE_DURATION_MS) && storedTimeOfDay === timeOfDay) return data;
         }
-    } catch (e) {
-        console.error("Cache read error", e);
-    }
+    } catch (e) {}
 
-    // 2. Fetch from API
-    const interests = persona.interests.length > 0 
-        ? persona.interests.join(', ') 
-        : (memory['الاهتمامات'] || 'مواضيع عامة');
+    const interests = persona.interests.length > 0 ? persona.interests.join(', ') : (memory['الاهتمامات'] || 'مواضيع عامة');
+    const personalityInstruction = botName === 'فهيمكم' ? "أنت 'فهيمكم' شاب مصري روش." : "أنت 'خبيركم' مهندس مصري رزين.";
 
-    const personalityInstruction = botName === 'فهيمكم' 
-        ? "أنت 'فهيمكم'. شاب مصري روش ومطرقع. اكتب تحية روشة جداً بالعامية المصرية واقتراحات مجنونة."
-        : "أنت 'خبيركم'. مهندس مصري رزين ومحترم. اكتب تحية راقية ودافئة بالعامية المصرية واقتراحات مفيدة.";
-
-    const prompt = `${personalityInstruction}
-    
-جهز تحية ${timeOfDay} واقتراحات محادثة للمستخدم.
-الوقت: ${timeOfDay}.
-الاهتمامات: ${interests}.
-
-الرد JSON فقط:
-{
-  "greeting": "string",
-  "suggestions": ["string", "string", "string", "string"]
-}
-
-اكتب باللهجة المصرية فقط.`;
+    const prompt = `${personalityInstruction} جهز تحية ${timeOfDay} واقتراحات محادثة. الاهتمامات: ${interests}. الرد JSON: { "greeting": "string", "suggestions": ["string"] }`;
     try {
         const result = await withApiKeyRotation(async (ai) => {
-            const response: GenerateContentResponse = await ai.models.generateContent({
+            const response = await ai.models.generateContent({
               model: 'gemini-flash-latest', 
               contents: prompt,
-              config: { 
-                responseMimeType: 'application/json',
-              }
+              config: { responseMimeType: 'application/json' }
             });
             return response.text;
         });
-
         const parsedData = JSON.parse(result);
-        
         try {
-            localStorage.setItem(personaCacheKey, JSON.stringify({
-                timestamp: Date.now(),
-                data: parsedData,
-                storedTimeOfDay: timeOfDay
-            }));
-        } catch (e) {
-             console.error("Cache write error", e);
-        }
-
+            localStorage.setItem(personaCacheKey, JSON.stringify({ timestamp: Date.now(), data: parsedData, storedTimeOfDay: timeOfDay }));
+        } catch (e) {}
         return parsedData;
-
     } catch (error) {
-        console.error("Briefing API failed, using fallback", error);
-        return {
-            greeting: botName === 'فهيمكم' ? 'يا هلا يا وحش الكون!' : 'أهلاً بك يا صديقي العزيز',
-            suggestions: ["آخر الأخبار", "سعر الدولار اليوم", "نكتة مصرية جديدة", "معلومة غريبة"]
-        };
+        return { greeting: 'يا هلا!', suggestions: ["آخر الأخبار", "نكتة جديدة", "معلومة غريبة"] };
     }
 };
 
 export const generateConversationTitle = async (messages: Message[]): Promise<string> => {
-    const conversationContext = messages.slice(0, 3).map(m => `${m.role === 'user' ? 'المستخدم' : 'الخبير'}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
-    const prompt = `لخص المحادثة دي في عنوان مصري قصير وجذاب من 3 كلمات بس.\n${conversationContext}`;
-
+    const conversationContext = messages.slice(0, 3).map(m => `${m.role}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
+    const prompt = `لخص المحادثة في عنوان مصري قصير (3 كلمات): ${conversationContext}`;
     return withApiKeyRotation(async (ai) => {
-        const response = await ai.models.generateContent({
-            model: 'gemini-flash-latest',
-            contents: prompt,
-        });
+        const response = await ai.models.generateContent({ model: 'gemini-flash-latest', contents: prompt });
         return response.text.trim().replace(/["']/g, '');
     });
 };

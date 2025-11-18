@@ -12,7 +12,7 @@ import { ApiKeyManager } from '../../components/ApiKeyManager';
 const Settings: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'khabirkom-settings')!;
     const { persona, setHumor, setVerbosity, setInterests, setPersona } = usePersona();
-    const { setActiveToolId } = useTool();
+    const { navigateTo } = useTool();
     const { addToast } = useToast();
     const [tempInterests, setTempInterests] = useState(persona.interests.join(', '));
     const [isApiKeyManagerOpen, setApiKeyManagerOpen] = useState(false);
@@ -230,7 +230,7 @@ const Settings: React.FC = () => {
                                 إدارة مفاتيح API
                             </Button>
                             <Button 
-                                onClick={() => setActiveToolId('memory-manager')} 
+                                onClick={() => navigateTo('memory-manager')} 
                                 className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm"
                                 icon={<Database size={18} className="text-pink-500"/>}
                             >

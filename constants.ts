@@ -1,8 +1,10 @@
 
+
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
-    Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal
+    Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Send, Swords,
+    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal,
+    CheckSquare, Tag, Star
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -10,6 +12,10 @@ export const TOOLS: Tool[] = [
     // Special tool, no category
     { id: 'chat', title: 'دردشة مع خبيركم', description: 'اسأل، اطلب، فضفض... أنا معاك', icon: MessageSquare, color: 'text-blue-500', category: '' },
     
+    // الأدوات الجديدة
+    { id: 'task-manager', title: 'مدير المهام الذكي', description: 'نظم يومك ومهامك بمساعدة الذكاء الاصطناعي', icon: CheckSquare, color: 'text-emerald-500', category: 'المعرفة والمساعدة' },
+    { id: 'price-comparator', title: 'مقارن الأسعار', description: 'هاتلي أرخص سعر لأي منتج في مصر', icon: Tag, color: 'text-rose-500', category: 'المعرفة والمساعدة' },
+
     // المرح والإبداع
     { id: 'text-roast', title: 'تحفيل على الكلام', description: 'ابعت أي جملة وأنا هروّق عليها', icon: Flame, color: 'text-green-500', category: 'المرح والإبداع' },
     { id: 'image-roast', title: 'تحفيل على الصور', description: 'وريني أي صورة وأنا هقولك رأيي بصراحة', icon: ImageIcon, color: 'text-orange-500', category: 'المرح والإبداع' },
@@ -40,5 +46,4 @@ export const TOOLS: Tool[] = [
     // الإنتاجية اليومية
     { id: 'voice-analysis', title: 'تحليل الصوت', description: 'من صوتك هقولك مودك إيه (تجريبي)', icon: Mic, color: 'text-brown-500', category: 'الإنتاجية اليومية' },
     { id: 'recipe-generator', title: 'وصفات على قد الإيد', description: 'قولي عندك إيه وأنا هعملك أكلة', icon: CookingPot, color: 'text-green-400', category: 'الإنتاجية اليومية' },
-    { id: 'voice-commands', title: 'الأوامر الصوتية', description: 'دوس واتكلم، وأنا هنفذ (تجريبي)', icon: Voicemail, color: 'text-gray-400', category: 'الإنتاجية اليومية' },
 ];

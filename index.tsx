@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -17,8 +18,8 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <ChatProvider>
-        <ToolProvider>
+      <ToolProvider>
+        <ChatProvider>
           <MemoryProvider>
             <PersonaProvider>
               <ToastProvider>
@@ -26,8 +27,8 @@ root.render(
               </ToastProvider>
             </PersonaProvider>
           </MemoryProvider>
-        </ToolProvider>
-      </ChatProvider>
+        </ChatProvider>
+      </ToolProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

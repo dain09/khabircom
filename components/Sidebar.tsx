@@ -1,7 +1,8 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, Search, Clock, Code, Heart } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, Search, Clock, Code, Heart, Star } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
@@ -14,8 +15,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, onOpenApiKeyManager }) => {
-    const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
-    const { activeToolId, setActiveToolId, recentTools } = useTool();
+    const { conversations, createNewConversation, deleteConversation, renameConversation } = useChat();
+    const { navigateTo, activeToolId, activeConversationId, recentTools, favoriteTools, addFavorite, removeFavorite } = useTool();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
@@ -25,18 +26,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     // Exclude admin/utility tools from the main list
     const hiddenTools = ['khabirkom-settings', 'memory-manager'];
 
+    const filteredTools = useMemo(() => {
+        return TOOLS.filter(tool => 
+            tool.id !== 'chat' && 
+            !hiddenTools.includes(tool.id) && 
+            tool.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        );
+    }, [debouncedSearchTerm]);
+    
+    const favoriteToolsDetails = useMemo(() => {
+        return favoriteTools
+            .map(id => TOOLS.find(tool => tool.id === id))
+            .filter((tool): tool is Tool => !!tool && filteredTools.includes(tool));
+    }, [favoriteTools, filteredTools]);
+    
     const toolsByCategory = useMemo(() => {
         const categories: Record<string, Tool[]> = {};
-        TOOLS
-            .filter(tool => tool.id !== 'chat' && !hiddenTools.includes(tool.id) && tool.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-            .forEach(tool => {
+        filteredTools.forEach(tool => {
             if (!categories[tool.category]) {
                 categories[tool.category] = [];
             }
             categories[tool.category].push(tool);
         });
         return categories;
-    }, [debouncedSearchTerm]);
+    }, [filteredTools]);
     
     const recentToolsDetails = useMemo(() => {
         return recentTools.map(id => TOOLS.find(tool => tool.id === id)).filter((tool): tool is Tool => !!tool && !hiddenTools.includes(tool.id));
@@ -78,27 +91,59 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     };
 
     const handleToolClick = (toolId: string) => {
-        setActiveToolId(toolId);
-        setActiveConversationId(null); // Deselect any active chat
+        navigateTo(toolId);
         closeSidebarOnMobile();
     };
     
     const handleConversationClick = (id: string) => {
-        setActiveToolId('chat');
-        setActiveConversationId(id);
+        navigateTo(`chat/${id}`);
         closeSidebarOnMobile();
     }
     
     const handleNewChat = () => {
         createNewConversation();
-        setActiveToolId('chat');
         closeSidebarOnMobile();
     }
 
     const handleLogoClick = () => {
-        setActiveToolId('chat');
-        setActiveConversationId(null); // This returns to the Dashboard/Home screen
+        navigateTo('chat/');
         closeSidebarOnMobile();
+    };
+
+    const ToolListItem: React.FC<{ tool: Tool }> = ({ tool }) => {
+        const isFavorite = favoriteTools.includes(tool.id);
+
+        const handleFavoriteToggle = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (isFavorite) {
+                removeFavorite(tool.id);
+            } else {
+                addFavorite(tool.id);
+            }
+        };
+
+        return (
+            <div className="group relative">
+                <button
+                    onClick={() => handleToolClick(tool.id)}
+                    className={`w-full flex items-center p-2 rounded-lg text-start transition-all duration-200 hover:bg-white dark:hover:bg-slate-700 ${
+                        activeToolId === tool.id && !activeConversationId
+                            ? 'bg-white dark:bg-slate-700 text-primary font-bold shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                >
+                    <tool.icon className={`w-4 h-4 me-3 ${tool.color}`} />
+                    <span className='text-sm flex-1 truncate'>{tool.title}</span>
+                </button>
+                 <button 
+                    onClick={handleFavoriteToggle}
+                    aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+                    className="absolute left-1 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 opacity-0 group-hover:opacity-100 focus:opacity-100 hover:text-amber-500 transition-all"
+                >
+                    <Star size={16} className={`${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`} />
+                </button>
+            </div>
+        );
     };
 
     return (
@@ -171,7 +216,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             
                                             <div className={`flex items-center gap-1 transition-opacity duration-200 ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'}`}>
                                                 {deleteConfirmationId === convo.id ? (
-                                                    <div className='flex items-center gap-1 animate-slideInUp'>
+                                                    <div className='flex items-center gap-1 animate-slideInUpFade'>
                                                         <button onClick={(e) => { e.stopPropagation(); handleConfirmDelete(convo.id)}} className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors" aria-label="تأكيد الحذف"><Check size={14} /></button>
                                                         <button onClick={(e) => { e.stopPropagation(); handleCancelDelete()}} className="p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors" aria-label="إلغاء الحذف"><X size={14} /></button>
                                                     </div>
@@ -207,13 +252,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                             <Search size={18} className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
                         </div>
                         
+                        {favoriteToolsDetails.length > 0 && !searchTerm && (
+                             <div>
+                                <h3 className="px-2 mb-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2"><Star size={12} className="text-amber-500"/> المفضلة</h3>
+                                <ul className='space-y-1'>
+                                     {favoriteToolsDetails.map(tool => (
+                                        <li key={`fav-${tool.id}`}>
+                                            <ToolListItem tool={tool} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
                         {recentToolsDetails.length > 0 && !searchTerm && (
                             <div>
                                 <h3 className="px-2 mb-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2"><Clock size={12}/> آخر استخدام</h3>
                                 <ul className='space-y-1'>
                                      {recentToolsDetails.map(tool => (
                                         <li key={`recent-${tool.id}`}>
-                                            <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-2.5 rounded-xl text-start transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 ${activeToolId === tool.id && !activeConversationId ? 'bg-white dark:bg-slate-800 text-primary font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300'}`}>
+                                             <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-2.5 rounded-xl text-start transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 ${activeToolId === tool.id && !activeConversationId ? 'bg-white dark:bg-slate-800 text-primary font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300'}`}>
                                                 <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 me-3`}>
                                                     <tool.icon className={`w-4 h-4 ${tool.color}`} />
                                                 </div>
@@ -238,17 +296,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                             <ul className='p-2 pt-0 space-y-1'>
                                                 {toolsByCategory[category].map((tool) => (
                                                     <li key={tool.id}>
-                                                        <button
-                                                            onClick={() => handleToolClick(tool.id)}
-                                                            className={`w-full flex items-center p-2 rounded-lg text-start transition-all duration-200 hover:bg-white dark:hover:bg-slate-700 ${
-                                                                activeToolId === tool.id && !activeConversationId
-                                                                    ? 'bg-white dark:bg-slate-700 text-primary font-bold shadow-sm'
-                                                                    : 'text-slate-600 dark:text-slate-300'
-                                                            }`}
-                                                        >
-                                                            <tool.icon className={`w-4 h-4 me-3 ${tool.color}`} />
-                                                            <span className='text-sm'>{tool.title}</span>
-                                                        </button>
+                                                        <ToolListItem tool={tool} />
                                                     </li>
                                                 ))}
                                             </ul>

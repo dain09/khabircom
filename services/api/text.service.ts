@@ -1,3 +1,4 @@
+
 import { GenerateContentResponse } from "@google/genai";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
 import { AnalysisResult } from "../../types";
@@ -5,7 +6,8 @@ import { AnalysisResult } from "../../types";
 const callGemini = async (
     modelName: 'gemini-2.5-pro' | 'gemini-flash-latest',
     prompt: string,
-    isJson = false
+    isJson = false,
+    useGrounding = false
 ): Promise<string> => {
     return withApiKeyRotation(async (ai) => {
         const response: GenerateContentResponse = await ai.models.generateContent({
@@ -13,7 +15,8 @@ const callGemini = async (
           contents: prompt,
           config: { 
             responseMimeType: isJson ? 'application/json' : 'text/plain',
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION
+            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION,
+            tools: useGrounding ? [{ googleSearch: {} }] : undefined
           }
         });
         return response.text;
@@ -129,6 +132,26 @@ export const explainCode = async (code: string) => {
     const prompt = `اشرح الكود التالي بالتفصيل وبشكل بسيط جدًا. استخدم اللغة العامية المصرية. الرد يكون بصيغة JSON بالSchema دي:\n{\n "explanation": "string",\n "breakdown": "string",\n "language": "string"\n}\n\n- **explanation**: شرح عام ومبسط للكود بيعمل إيه.\n- **breakdown**: شرح تفصيلي سطر بسطر أو جزء بجزء، استخدم markdown للتنسيق.\n- **language**: اللغة البرمجية المستخدمة.\n\nالكود:\n\`\`\`\n${code}\n\`\`\``;
     const result = await callGemini('gemini-2.5-pro', prompt, true);
     return JSON.parse(result);
+};
+
+export const organizeTasks = async (input: string) => {
+    const prompt = `رتب المهام دي في جدول أولويات منطقي. المهام هي: "${input}".
+    الرد JSON Schema:
+    {
+      "tasks": [
+        { "task": "string", "priority": "High/Medium/Low", "estimated_time": "string", "category": "string" }
+      ],
+      "summary_advice": "string"
+    }`;
+    const result = await callGemini('gemini-flash-latest', prompt, true);
+    return JSON.parse(result);
+};
+
+export const comparePrices = async (product: string) => {
+    const prompt = `ابحث عن سعر "${product}" في المتاجر المصرية (أمازون مصر، نون، بي تك، إلخ) وقارن الأسعار.
+    اعمل جدول markdown بالأسعار والمتاجر، وتحته "الخلاصة" عن أفضل مكان للشراء حالياً. خليك دقيق واستخدم أحدث بيانات متاحة.`;
+    // We use gemini-flash-latest with grounding enabled (passed as true)
+    return await callGemini('gemini-flash-latest', prompt, false, true);
 };
 
 export const analyzeVoice = async (audioFile: File): Promise<AnalysisResult> => {

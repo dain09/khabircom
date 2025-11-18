@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Sparkles, Copy, Check } from 'lucide-react';
 
@@ -20,7 +21,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ title, children, classNa
     };
 
     return (
-        <div className={`mt-6 border border-gray-200 dark:border-gray-700/50 rounded-lg p-4 bg-gray-50/80 dark:bg-dark-background/80 backdrop-blur-sm transition-all duration-300 animate-slideInUp ${className}`}>
+        <div className={`mt-6 border border-gray-200 dark:border-gray-700/50 rounded-lg p-4 bg-gray-50/80 dark:bg-dark-background/80 backdrop-blur-sm transition-all duration-300 animate-slideInUpFade ${className}`}>
             <div className="flex justify-between items-center mb-3">
                 <h3 className="flex items-center text-lg font-semibold text-primary">
                     <Sparkles className="w-5 h-5 me-2" />

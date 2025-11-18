@@ -1,4 +1,5 @@
 
+
 import { LucideIcon } from 'lucide-react';
 
 export interface Tool {
@@ -17,6 +18,7 @@ export interface Message {
     timestamp: string;
     error?: boolean;
     imageUrl?: string; // For UI rendering
+    fileInfo?: { name: string; type: string }; // For non-image files
     isStreaming?: boolean; // To control UI during streaming
     senderName?: string; // Persist sender identity (Khabirkom/Fahimkom)
 }

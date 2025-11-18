@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -28,7 +29,6 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'pdf-summarizer': React.lazy(() => import('./features/PdfSummarizer/PdfSummarizer')),
     'ai-teacher': React.lazy(() => import('./features/AiTeacher/AiTeacher')),
     'ai-love-messages': React.lazy(() => import('./features/AiLoveMessages/AiLoveMessages')),
-    'voice-commands': React.lazy(() => import('./features/VoiceCommands/VoiceCommands')),
     'post-generator': React.lazy(() => import('./features/PostGenerator/PostGenerator')),
     'text-converter': React.lazy(() => import('./features/TextConverter/TextConverter')),
     'name-generator': React.lazy(() => import('./features/NameGenerator/NameGenerator')),
@@ -38,6 +38,8 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'memory-manager': React.lazy(() => import('./features/MemoryManager/MemoryManager')),
     'image-editor': React.lazy(() => import('./features/ImageEditor/ImageEditor')),
     'khabirkom-settings': React.lazy(() => import('./features/Settings/Settings')),
+    'task-manager': React.lazy(() => import('./features/TaskManager/TaskManager')),
+    'price-comparator': React.lazy(() => import('./features/PriceComparator/PriceComparator')),
 };
 
 const App: React.FC = () => {
@@ -86,7 +88,7 @@ const App: React.FC = () => {
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
                 <main className="flex-1 relative h-full overflow-hidden">
-                    <div key={activeToolId} className="h-full w-full animate-fadeIn">
+                    <div key={activeToolId} className="h-full w-full animate-slideInUpFade">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

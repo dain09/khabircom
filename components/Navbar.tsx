@@ -2,7 +2,6 @@
 import React from 'react';
 import { Menu, Sun, Moon, Settings, ArrowRight } from 'lucide-react';
 import { useTool } from '../hooks/useTool';
-import { useChat } from '../hooks/useChat';
 
 interface NavbarProps {
     toggleSidebar: () => void;
@@ -12,21 +11,8 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, theme, toolName }) => {
-    const { setActiveToolId, activeToolId } = useTool();
-    const { activeConversationId, setActiveConversationId } = useChat();
-
-    // Logic to determine if we can "Go Back"
-    // 1. If we are in a specific tool (not chat), we go back to Chat (Dashboard).
-    // 2. If we are in Chat but inside a specific conversation, we go back to Dashboard (New Chat/Home).
-    const canGoBack = activeToolId !== 'chat' || activeConversationId !== null;
-
-    const handleBack = () => {
-        if (activeToolId !== 'chat') {
-            setActiveToolId('chat');
-        } else if (activeConversationId !== null) {
-            setActiveConversationId(null);
-        }
-    };
+    const { history, goBack, navigateTo } = useTool();
+    const canGoBack = history.length > 1;
 
     return (
         <header className="sticky top-0 w-full z-50 bg-background/80 dark:bg-dark-background/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 h-16 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 transition-all duration-300">
@@ -42,10 +28,10 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
 
                 {canGoBack && (
                     <button 
-                        onClick={handleBack}
+                        onClick={goBack}
                         className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-200 active:scale-95 animate-fadeIn"
                         aria-label="رجوع"
-                        title="رجوع للرئيسية"
+                        title="رجوع"
                     >
                         <ArrowRight size={26} strokeWidth={2} className="rtl:rotate-180" />
                     </button>
@@ -62,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
             {/* Left Side (End in RTL) */}
             <div className="flex-1 flex justify-end items-center gap-2">
                  <button
-                    onClick={() => setActiveToolId('khabirkom-settings')}
+                    onClick={() => navigateTo('khabirkom-settings')}
                     className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-200 active:scale-95 active:rotate-45"
                     aria-label="الإعدادات"
                     title="إعدادات خبيركم"

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { generateChatResponseStream, getMorningBriefing } from '../../services/api/chat.service';
+import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -183,7 +183,7 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
 };
 
 const Chat: React.FC = () => {
-    const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations } = useChat();
+    const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations, renameConversation } = useChat();
     const { memory, updateMemory } = useMemory();
     const { persona } = usePersona();
     const { addToast } = useToast();
@@ -305,6 +305,11 @@ const Chat: React.FC = () => {
 
         setStoppedMessageId(null);
         let currentConvoId = activeConversationId;
+        
+        // Determine if this is the start of a new conversation
+        const activeConvo = conversations.find(c => c.id === currentConvoId);
+        const isFirstMessage = !activeConvo || activeConvo.messages.length === 0;
+
         if (!currentConvoId) {
             const newConvo = createNewConversation();
             currentConvoId = newConvo.id;
@@ -334,9 +339,19 @@ const Chat: React.FC = () => {
         setAttachedFile(null);
         setFilePreview(null);
         
+        // Generate smart title if it's the first message
+        if (isFirstMessage) {
+            // Fire and forget: don't await this, let it happen in background
+            generateConversationTitle(textToSend).then(smartTitle => {
+                if (smartTitle && currentConvoId) {
+                    renameConversation(currentConvoId, smartTitle);
+                }
+            }).catch(err => console.error("Failed to generate title:", err));
+        }
+        
         await streamModelResponse(currentConvoId, userMessage, { text: textToSend, imageFile: imageToSend });
 
-    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse, attachedFile, filePreview]);
+    }, [input, isResponding, activeConversationId, createNewConversation, addMessageToConversation, streamModelResponse, attachedFile, filePreview, conversations, renameConversation]);
 
     const handleStop = () => {
         stopStreamingRef.current = true;
@@ -443,6 +458,11 @@ const Chat: React.FC = () => {
             convoId = newConvo.id;
         }
         
+        // Rename conversation based on suggestion
+        generateConversationTitle(prompt).then(smartTitle => {
+            if (smartTitle) renameConversation(convoId!, smartTitle);
+        }).catch(e => console.error(e));
+        
         const userMessage: Message = { 
             id: uuidv4(),
             role: 'user', 
@@ -452,7 +472,7 @@ const Chat: React.FC = () => {
         
         addMessageToConversation(convoId, userMessage);
         await streamModelResponse(convoId, userMessage, { text: prompt });
-    }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation]);
+    }, [createNewConversation, addMessageToConversation, streamModelResponse, activeConversationId, activeConversation, renameConversation]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

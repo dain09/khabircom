@@ -124,3 +124,15 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
     });
     return JSON.parse(result);
 };
+
+export const generateConversationTitle = async (firstMessageText: string): Promise<string> => {
+    const prompt = `لخص نص المستخدم التالي في عنوان قصير جداً وجذاب للمحادثة (من 3 إلى 6 كلمات كحد أقصى). العنوان يجب أن يكون بالعربية ويعبر عن محتوى الرسالة. لا تستخدم علامات تنصيص.\n\nالنص: "${firstMessageText}"`;
+
+    return withApiKeyRotation(async (ai) => {
+        const response = await ai.models.generateContent({
+            model: 'gemini-flash-latest',
+            contents: prompt,
+        });
+        return response.text.trim().replace(/["']/g, '');
+    });
+};

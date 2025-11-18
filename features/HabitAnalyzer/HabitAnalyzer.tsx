@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { analyzeHabits } from '../../services/geminiService';
@@ -50,10 +51,10 @@ const HabitAnalyzer: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title={`موهبتك الخفية هي: ${result?.talent_name}`}>
+                    <ResultCard title={`موهبتك الخفية هي: ${result?.talent_name}`} copyText={result?.talent_description}>
                         <p>{result?.talent_description}</p>
                     </ResultCard>
-                    <ResultCard title="نصيحة لتنمية الموهبة 🚀">
+                    <ResultCard title="نصيحة لتنمية الموهبة 🚀" copyText={result?.advice}>
                         <p>{result?.advice}</p>
                     </ResultCard>
                 </div>

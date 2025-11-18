@@ -34,7 +34,7 @@ const AiMotivator: React.FC = () => {
                 {isLoading && <Loader />}
                 {error && <ErrorDisplay message={error} />}
                 {motivation && (
-                    <ResultCard title="جرعة تحفيز على السريع">
+                    <ResultCard title="جرعة تحفيز على السريع" copyText={motivation}>
                         <blockquote className="text-2xl lg:text-3xl font-bold italic text-center leading-relaxed">
                            "{motivation}"
                         </blockquote>

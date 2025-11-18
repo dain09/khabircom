@@ -76,7 +76,7 @@ const VoiceCommands: React.FC = () => {
                 <p className="text-sm text-gray-500">ملحوظة: الميزة دي تجريبية وممكن متشتغلش على كل المتصفحات.</p>
             </div>
             {transcript && (
-                <ResultCard title="الكلام اللي اتقال">
+                <ResultCard title="الكلام اللي اتقال" copyText={transcript}>
                     <p>"{transcript}"</p>
                 </ResultCard>
             )}

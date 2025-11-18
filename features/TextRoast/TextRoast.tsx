@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { roastText } from '../../services/geminiService';
@@ -50,10 +51,10 @@ const TextRoast: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="التحفيل 🔥">{result?.roast}</ResultCard>
-                    <ResultCard title="التصحيح اللغوي 🤓">{result?.corrected}</ResultCard>
-                    <ResultCard title="تحليل نفسي على الماشي 🤔">{result?.analysis}</ResultCard>
-                    <ResultCard title="نصيحة الخبير 💡">{result?.advice}</ResultCard>
+                    <ResultCard title="التحفيل 🔥" copyText={result?.roast}>{result?.roast}</ResultCard>
+                    <ResultCard title="التصحيح اللغوي 🤓" copyText={result?.corrected}>{result?.corrected}</ResultCard>
+                    <ResultCard title="تحليل نفسي على الماشي 🤔" copyText={result?.analysis}>{result?.analysis}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

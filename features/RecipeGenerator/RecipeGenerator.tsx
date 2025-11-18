@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateRecipe } from '../../services/geminiService';
@@ -48,13 +49,19 @@ const RecipeGenerator: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title={`وصفة بجد: ${result?.real_recipe?.name}`}>
+                    <ResultCard 
+                        title={`وصفة بجد: ${result?.real_recipe?.name}`}
+                        copyText={`${result?.real_recipe?.name}\n\n${result?.real_recipe?.steps}`}
+                    >
                        <p>{result?.real_recipe?.steps}</p>
                     </ResultCard>
-                    <ResultCard title={`وصفة فكاهية: ${result?.comic_recipe?.name}`}>
+                    <ResultCard 
+                        title={`وصفة فكاهية: ${result?.comic_recipe?.name}`}
+                        copyText={`${result?.comic_recipe?.name}\n\n${result?.comic_recipe?.steps}`}
+                    >
                        <p>{result?.comic_recipe?.steps}</p>
                     </ResultCard>
-                    <ResultCard title="نصيحة الشيف 🧑‍🍳">{result?.advice}</ResultCard>
+                    <ResultCard title="نصيحة الشيف 🧑‍🍳" copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

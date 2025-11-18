@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateMoodContent } from '../../services/geminiService';
@@ -49,10 +50,10 @@ const MoodsGenerator: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                  <div className="mt-6 space-y-4">
-                    <ResultCard title={`تشخيص المود: ${result.mood_name}`}>
+                    <ResultCard title={`تشخيص المود: ${result.mood_name}`} copyText={result.mood_description}>
                         <p>{result.mood_description}</p>
                     </ResultCard>
-                    <ResultCard title="نصيحة الخبير 💡">
+                    <ResultCard title="نصيحة الخبير 💡" copyText={result.advice}>
                         <p>{result.advice}</p>
                     </ResultCard>
                 </div>

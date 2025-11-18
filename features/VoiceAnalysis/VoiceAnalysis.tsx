@@ -60,10 +60,10 @@ const VoiceAnalysis: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="المود بتاعك 🎭">{result.mood}</ResultCard>
-                    <ResultCard title="مستوى الطاقة ⚡️">{result.energy}</ResultCard>
-                    <ResultCard title="تحفيل على الصوت 🎤">{result.roast}</ResultCard>
-                    <ResultCard title="نصيحة الخبير 🎧">{result.advice}</ResultCard>
+                    <ResultCard title="المود بتاعك 🎭" copyText={result.mood}>{result.mood}</ResultCard>
+                    <ResultCard title="مستوى الطاقة ⚡️" copyText={result.energy}>{result.energy}</ResultCard>
+                    <ResultCard title="تحفيل على الصوت 🎤" copyText={result.roast}>{result.roast}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 🎧" copyText={result.advice}>{result.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

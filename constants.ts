@@ -1,7 +1,7 @@
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush
+    Lightbulb, Target, Zap, Paintbrush, Code
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -26,6 +26,7 @@ export const TOOLS: Tool[] = [
     { id: 'news-summarizer', title: 'ملخص الأخبار الفوري', description: 'لخّص أي خبر في ثواني, بجد أو بهزار', icon: Newspaper, color: 'text-yellow-500', category: 'أدوات النصوص' },
     { id: 'pdf-summarizer', title: 'ملخص الملفات والنصوص', description: 'لخّص أي ملف أو كلام كتير', icon: FileText, color: 'text-red-400', category: 'أدوات النصوص' },
     { id: 'text-converter', title: 'محول الأساليب', description: 'غيّر أسلوب أي كلام بمزاجك', icon: Swords, color: 'text-blue-600', category: 'أدوات النصوص' },
+    { id: 'code-explainer', title: 'شرح الأكواد', description: 'اشرحلي أي كود برمجي بلغة بسيطة', icon: Code, color: 'text-indigo-500', category: 'أدوات النصوص' },
 
     // المعرفة والمساعدة
     { id: 'dream-interpreter', title: 'مفسر الأحلام الفلكي', description: 'تفسيرات منطقية وفكاهية لأحلامك', icon: Cloud, color: 'text-blue-400', category: 'المعرفة والمساعدة' },

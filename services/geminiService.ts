@@ -334,6 +334,14 @@ export const getGrumpyMotivation = async () => {
     return await callGemini('gemini-flash-latest', prompt);
 };
 
+// 21. Code Explainer
+export const explainCode = async (code: string) => {
+    const prompt = `اشرح الكود التالي بالتفصيل وبشكل بسيط جدًا. استخدم اللغة العامية المصرية. الرد يكون بصيغة JSON بالSchema دي:\n{\n "explanation": "string",\n "breakdown": "string",\n "language": "string"\n}\n\n- **explanation**: شرح عام ومبسط للكود بيعمل إيه.\n- **breakdown**: شرح تفصيلي سطر بسطر أو جزء بجزء، استخدم markdown للتنسيق.\n- **language**: اللغة البرمجية المستخدمة.\n\nالكود:\n\`\`\`\n${code}\n\`\`\``;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+
 // Placeholder for audio analysis
 export const analyzeVoice = async (audioFile: File): Promise<AnalysisResult> => {
     console.log("Analyzing audio file (mock):", audioFile.name);

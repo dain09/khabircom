@@ -60,6 +60,7 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'name-generator': React.lazy(() => import('./features/NameGenerator/NameGenerator')),
     'habit-analyzer': React.lazy(() => import('./features/HabitAnalyzer/HabitAnalyzer')),
     'ai-motivator': React.lazy(() => import('./features/AiMotivator/AiMotivator')),
+    'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
 };
 
 const App: React.FC = () => {
@@ -143,7 +144,7 @@ export interface AnalysisResult {
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush
+    Lightbulb, Target, Zap, Paintbrush, Code
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -175,6 +176,9 @@ import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIc
 
 // ... (Chat component content as updated, including WelcomeScreen and MessageContent)
 
+// FILE: features/CodeExplainer/CodeExplainer.tsx
+// ... (Content of the new CodeExplainer.tsx file)
+
 // FILE: services/geminiService.ts
 import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../utils/fileUtils";
@@ -183,7 +187,7 @@ import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
 import { TOOLS } from '../constants';
 import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
 
-// ... (geminiService.ts content as updated, including testApiKey)
+// ... (geminiService.ts content as updated, including testApiKey and explainCode)
 
 // ... (content of all other provided files) ...
 `;

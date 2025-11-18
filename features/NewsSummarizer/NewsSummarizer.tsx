@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { summarizeNews } from '../../services/geminiService';
@@ -49,9 +50,9 @@ const NewsSummarizer: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="الملخص الجد 🧐">{result?.serious_summary}</ResultCard>
-                    <ResultCard title="الملخص الكوميدي 😂">{result?.comic_summary}</ResultCard>
-                    <ResultCard title="نصيحة الخبير 💡">{result?.advice}</ResultCard>
+                    <ResultCard title="الملخص الجد 🧐" copyText={result?.serious_summary}>{result?.serious_summary}</ResultCard>
+                    <ResultCard title="الملخص الكوميدي 😂" copyText={result?.comic_summary}>{result?.comic_summary}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

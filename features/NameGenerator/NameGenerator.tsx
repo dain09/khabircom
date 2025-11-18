@@ -53,7 +53,7 @@ const NameGenerator: React.FC = () => {
             {isLoading && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`أسماء مقترحة لـ "${category}"`}>
+                <ResultCard title={`أسماء مقترحة لـ "${category}"`} copyText={result.join('\n')}>
                     <ul className="list-disc pe-5 space-y-2">
                         {result.map((name, index) => <li key={index}>{name}</li>)}
                     </ul>

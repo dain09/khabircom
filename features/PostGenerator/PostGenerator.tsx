@@ -56,7 +56,7 @@ const PostGenerator: React.FC = () => {
             {isLoading && !result && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`بوست ${currentType} جاهز`}>
+                <ResultCard title={`بوست ${currentType} جاهز`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

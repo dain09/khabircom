@@ -1,10 +1,10 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic, Copy, Check } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
-import { Message, Tool } from '../../types';
+import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import { useGemini } from '../../hooks/useGemini';
@@ -200,23 +200,14 @@ const Chat: React.FC = () => {
     const [isResponding, setIsResponding] = useState(false);
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [recordingTime, setRecordingTime] = useState(0);
     const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+    const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const stopStreamingRef = useRef(false);
     const streamingMessageIdRef = useRef<string | null>(null);
-    const recognitionRef = useRef<any>(null);
-    const recordingTimerRef = useRef<number | null>(null);
-
-    const formatTime = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-    };
 
     useEffect(() => {
         const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
@@ -228,6 +219,12 @@ const Chat: React.FC = () => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [activeConversation?.messages, isResponding]);
+    
+    const handleCopy = (text: string, messageId: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedMessageId(messageId);
+        setTimeout(() => setCopiedMessageId(null), 2000);
+    };
 
     const streamModelResponse = useCallback(async (convoId: string, userMessage: Message, newMessage: { text: string, imageFile?: File }) => {
         setIsResponding(true);
@@ -441,55 +438,6 @@ const Chat: React.FC = () => {
         }
     };
 
-    const handleToggleRecording = () => {
-        if (isRecording) {
-            recognitionRef.current?.stop();
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-            setRecordingTime(0);
-            setIsRecording(false);
-            return;
-        }
-        
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert('متصفحك لا يدعم ميزة تحويل الصوت إلى نص.');
-            return;
-        }
-        
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.lang = 'ar-EG';
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = false;
-
-        recognitionRef.current.onstart = () => {
-            setIsRecording(true);
-            recordingTimerRef.current = window.setInterval(() => {
-                setRecordingTime(prev => prev + 1);
-            }, 1000);
-        };
-        recognitionRef.current.onend = () => {
-            setIsRecording(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-            setRecordingTime(0);
-        };
-        recognitionRef.current.onerror = (event: any) => {
-            console.error('Speech recognition error:', event.error);
-            setIsRecording(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-            setRecordingTime(0);
-        };
-        
-        recognitionRef.current.onresult = (event: any) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                transcript += event.results[i][0].transcript;
-            }
-            setInput(prev => prev ? `${prev} ${transcript}`.trim() : transcript);
-        };
-        
-        recognitionRef.current.start();
-    };
-    
     if (!activeConversation) {
         return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
     }
@@ -502,7 +450,7 @@ const Chat: React.FC = () => {
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
-                             <div key={msg.id} className={`flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn ${
+                             <div key={msg.id} className={`flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn group ${
                                 msg.role === 'user' 
                                 ? 'justify-end' 
                                 : 'justify-start'
@@ -512,7 +460,7 @@ const Chat: React.FC = () => {
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-primary" /> : <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />}
                                     </div>
                                     
-                                    <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-1`}>
+                                    <div className={`relative flex flex-col max-w-lg ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-1`}>
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
                                                 <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
@@ -521,8 +469,8 @@ const Chat: React.FC = () => {
                                         { (msg.parts[0].text || msg.role === 'model') && (
                                             <div className={`p-3 rounded-2xl ${
                                                 msg.role === 'user' 
-                                                ? 'bg-primary text-primary-foreground rounded-br-none' 
-                                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                                ? 'bg-primary text-primary-foreground rounded-bl-none' 
+                                                : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none ${msg.error ? 'border border-red-500/50' : ''}`
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
                                                     {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
@@ -555,6 +503,17 @@ const Chat: React.FC = () => {
                                         )}
                                     </div>
                                 </div>
+                                {msg.role === 'model' && !msg.error && msg.parts[0].text && (
+                                    <div className="self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button 
+                                            onClick={() => handleCopy(msg.parts[0].text, msg.id)}
+                                            className="p-1.5 text-slate-500 dark:text-slate-400 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700"
+                                            aria-label="نسخ الرد"
+                                        >
+                                            {copiedMessageId === msg.id ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {isResponding && activeConversation.messages.length > 0 && activeConversation.messages[activeConversation.messages.length - 1]?.role === 'user' && (
@@ -563,7 +522,7 @@ const Chat: React.FC = () => {
                                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
+                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none">
                                         <div className="flex space-x-1 p-2 justify-center items-center">
                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
@@ -591,45 +550,15 @@ const Chat: React.FC = () => {
                     </div>
                 )}
                  <div className="flex items-end gap-2 sm:gap-3">
-                    <div className="relative">
-                        {isRecording ? (
-                             <button
-                                onClick={handleToggleRecording}
-                                className="flex items-center justify-center p-3 w-[120px] bg-red-500/10 text-red-500 font-mono rounded-full text-lg transition-all"
-                                aria-label="إيقاف التسجيل"
-                            >
-                                <Mic size={18} className="me-2 animate-pulse" />
-                                {formatTime(recordingTime)}
-                            </button>
-                        ) : (
-                            <>
-                                <Button 
-                                    variant="secondary"
-                                    className="p-3 rounded-full" 
-                                    aria-label="إرفاق ملف"
-                                    onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
-                                >
-                                    <Plus size={24} />
-                                </Button>
-                                {showAttachmentMenu && (
-                                     <div className="absolute bottom-14 left-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
-                                        <button 
-                                            onClick={() => { imageInputRef.current?.click(); setShowAttachmentMenu(false); }}
-                                            className="w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
-                                        >
-                                            <ImageIcon size={16} /> إرسال صورة
-                                        </button>
-                                        <button 
-                                            onClick={() => { handleToggleRecording(); setShowAttachmentMenu(false); }}
-                                            className={`w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm`}
-                                        >
-                                            <Mic size={16} /> تسجيل صوت
-                                        </button>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
 
                     <AutoGrowTextarea
                         ref={inputRef}
@@ -646,15 +575,16 @@ const Chat: React.FC = () => {
                         aria-label="اكتب رسالتك هنا"
                     />
 
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
+                    <div className="relative">
+                        <Button 
+                            variant="secondary"
+                            className="p-3 rounded-full" 
+                            aria-label="إرفاق صورة"
+                            onClick={() => imageInputRef.current?.click()}
+                        >
+                            <Plus size={24} />
                         </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
+                    </div>
                     
                     <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
 

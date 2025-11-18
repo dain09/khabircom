@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { interpretDream } from '../../services/geminiService';
@@ -49,9 +50,9 @@ const DreamInterpreter: React.FC = () => {
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="تفسير منطقي 🧠">{result?.logical}</ResultCard>
-                    <ResultCard title="تفسير فكاهي 😜">{result?.sarcastic}</ResultCard>
-                    <ResultCard title="نصيحة غريبة 💡">{result?.advice}</ResultCard>
+                    <ResultCard title="تفسير منطقي 🧠" copyText={result?.logical}>{result?.logical}</ResultCard>
+                    <ResultCard title="تفسير فكاهي 😜" copyText={result?.sarcastic}>{result?.sarcastic}</ResultCard>
+                    <ResultCard title="نصيحة غريبة 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

@@ -69,7 +69,7 @@ const TextConverter: React.FC = () => {
             {isLoading && <Loader />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`النص بأسلوب: ${STYLES.find(s=>s.id === selectedStyle)?.text}`}>
+                <ResultCard title={`النص بأسلوب: ${STYLES.find(s=>s.id === selectedStyle)?.text}`} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

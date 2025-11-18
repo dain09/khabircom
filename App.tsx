@@ -33,6 +33,7 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'name-generator': React.lazy(() => import('./features/NameGenerator/NameGenerator')),
     'habit-analyzer': React.lazy(() => import('./features/HabitAnalyzer/HabitAnalyzer')),
     'ai-motivator': React.lazy(() => import('./features/AiMotivator/AiMotivator')),
+    'code-explainer': React.lazy(() => import('./features/CodeExplainer/CodeExplainer')),
 };
 
 const App: React.FC = () => {

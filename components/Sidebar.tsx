@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef } from 'react';
 import { TOOLS } from '../constants';
 import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Search, Clock, Download, Upload } from 'lucide-react';
@@ -143,15 +144,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     return (
         <>
             <div
-                className={`fixed inset-0 bg-black bg-opacity-60 z-30 md:hidden transition-opacity ${
+                className={`fixed inset-0 bg-black bg-opacity-60 z-30 md:hidden transition-opacity duration-300 ${
                     isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
                 onClick={() => setSidebarOpen(false)}
             ></div>
-            <aside className={`fixed top-0 right-0 h-full bg-slate-100/60 dark:bg-slate-900/60 backdrop-blur-xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
+            <aside className={`fixed top-0 right-0 h-full bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) z-40 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col font-sans antialiased`}>
                 <div className="flex justify-between items-center p-4 border-b border-slate-200/50 dark:border-slate-700/50 flex-shrink-0">
-                    <h1 className="text-xl font-bold text-primary">خبيركم</h1>
-                    <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white" aria-label="إغلاق الشريط الجانبي">
+                    <h1 className="text-xl font-bold text-primary tracking-wide">خبيركم</h1>
+                    <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors" aria-label="إغلاق الشريط الجانبي">
                         <X size={24} />
                     </button>
                 </div>
@@ -159,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                 <div className='p-2 flex-shrink-0'>
                      <button
                         onClick={handleNewChat}
-                        className='w-full flex items-center justify-center gap-2 p-3 my-1 rounded-md text-start transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/90 font-bold hover:scale-105 active:scale-100'
+                        className='w-full flex items-center justify-center gap-2 p-3 my-1 rounded-lg text-start transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/90 font-bold hover:shadow-lg shadow-primary/20 active:scale-[0.98]'
                         aria-label="بدء محادثة جديدة"
                     >
                         <Plus size={18} />
@@ -169,21 +170,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
 
                 <nav className="flex-1 overflow-y-auto p-2 space-y-4">
                     <div>
-                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>المحادثات السابقة</h2>
+                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider'>المحادثات السابقة</h2>
                         {conversations.length > 0 ? (
-                            <ul className='max-h-40 overflow-y-auto'>
+                            <ul className='max-h-40 overflow-y-auto pr-1'>
                                 {conversations.map((convo) => (
                                     <li key={convo.id} className="group">
                                         <div
                                             onClick={() => handleConversationClick(convo.id)}
-                                            className={`relative w-full flex items-center justify-between p-3 my-1 rounded-md text-start cursor-pointer transition-all duration-200 hover:-translate-x-1 ${
+                                            className={`relative w-full flex items-center justify-between p-2.5 my-1 rounded-lg text-start cursor-pointer transition-all duration-200 hover:-translate-x-1 ${
                                                 activeConversationId === convo.id
                                                     ? 'bg-primary/10 text-primary font-bold'
-                                                    : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
+                                                    : 'hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
                                             }`}
                                         >
-                                            {activeConversationId === convo.id && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-primary rounded-e-full"></div>}
-                                            <MessageSquare className="w-5 h-5 me-3 text-slate-500" />
+                                            {activeConversationId === convo.id && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-primary rounded-e-full"></div>}
+                                            <MessageSquare className={`w-4 h-4 me-3 ${activeConversationId === convo.id ? 'text-primary' : 'text-slate-400'}`} />
                                             {editingId === convo.id ? (
                                                 <input 
                                                     type="text"
@@ -191,27 +192,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                     onChange={(e) => setNewName(e.target.value)}
                                                     onBlur={() => handleSaveRename(convo.id)}
                                                     onKeyDown={(e) => e.key === 'Enter' && handleSaveRename(convo.id)}
-                                                    className="flex-1 bg-transparent border-b border-primary focus:outline-none"
+                                                    className="flex-1 bg-transparent border-b border-primary focus:outline-none text-sm"
                                                     autoFocus
                                                     onClick={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
-                                                <span className="flex-1 truncate">{convo.title}</span>
+                                                <span className="flex-1 truncate text-sm">{convo.title}</span>
                                             )}
                                             
-                                            <div className={`flex items-center transition-opacity ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-100 md:opacity-0 group-hover:opacity-100'}`}>
+                                            <div className={`flex items-center transition-opacity duration-200 ${deleteConfirmationId === convo.id ? 'opacity-100' : 'opacity-100 md:opacity-0 group-hover:opacity-100'}`}>
                                                 {deleteConfirmationId === convo.id ? (
                                                     <div className='flex items-center gap-1 animate-slideInUp'>
-                                                        <span className="text-[10px] text-red-500 font-bold mx-1">متأكد؟</span>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleConfirmDelete(convo.id)}} className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full" aria-label="تأكيد الحذف"><Check size={16} /></button>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleCancelDelete()}} className="p-1 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full" aria-label="إلغاء الحذف"><X size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleConfirmDelete(convo.id)}} className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full" aria-label="تأكيد الحذف"><Check size={14} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleCancelDelete()}} className="p-1 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full" aria-label="إلغاء الحذف"><X size={14} /></button>
                                                     </div>
                                                 ) : editingId === convo.id ? (
-                                                    <button onClick={(e) => { e.stopPropagation(); handleSaveRename(convo.id)}} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleSaveRename(convo.id)}} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={14} /></button>
                                                 ) : (
                                                     <>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={16} /></button>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteRequest(convo.id)}} className="p-1 hover:text-red-500" aria-label="حذف المحادثة"><Trash2 size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 text-slate-400 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={14} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteRequest(convo.id)}} className="p-1 text-slate-400 hover:text-red-500" aria-label="حذف المحادثة"><Trash2 size={14} /></button>
                                                     </>
                                                 )}
                                             </div>
@@ -231,18 +231,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                 placeholder="ابحث عن أداة..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full p-2 ps-8 text-sm bg-slate-200/50 dark:bg-dark-card/50 border border-transparent focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-md outline-none transition-colors"
+                                className="w-full p-2.5 ps-9 text-sm bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-lg outline-none transition-all"
                             />
-                            <Search size={16} className="absolute top-1/2 right-5 -translate-y-1/2 text-slate-400" />
+                            <Search size={16} className="absolute top-1/2 right-6 -translate-y-1/2 text-slate-400" />
                         </div>
                         {recentToolsDetails.length > 0 && !searchTerm && (
                             <div>
-                                <h3 className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2"><Clock size={14}/> آخر استخدام</h3>
+                                <h3 className="px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><Clock size={14}/> آخر استخدام</h3>
                                 <ul className='space-y-1'>
                                      {recentToolsDetails.map(tool => (
                                         <li key={`recent-${tool.id}`}>
-                                            <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-dark-card/50 ${activeToolId === tool.id && !activeConversationId ? 'bg-primary/10 text-primary font-bold' : ''}`}>
-                                                <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
+                                            <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-2.5 my-1 rounded-lg text-start transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 ${activeToolId === tool.id && !activeConversationId ? 'bg-primary/10 text-primary font-bold' : ''}`}>
+                                                <tool.icon className={`w-4 h-4 me-3 ${tool.color}`} />
                                                 <span className='text-sm'>{tool.title}</span>
                                             </button>
                                         </li>
@@ -250,28 +250,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                 </ul>
                             </div>
                         )}
-                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
+                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider'>الأدوات</h2>
                         <ul className='space-y-1'>
                             {Object.keys(toolsByCategory).map((category) => (
                                 <li key={category}>
                                     <details className="group" open>
-                                        <summary className="flex items-center justify-between p-3 rounded-md cursor-pointer list-none hover:bg-slate-200/50 dark:hover:bg-dark-card/50">
-                                            <span className="font-semibold text-sm">{category}</span>
-                                            <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
+                                        <summary className="flex items-center justify-between p-2.5 rounded-lg cursor-pointer list-none hover:bg-slate-200/50 dark:hover:bg-slate-800/50">
+                                            <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">{category}</span>
+                                            <ChevronDown className="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180" />
                                         </summary>
-                                        <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
+                                        <ul className='ps-3 space-y-1 mt-1 border-s border-slate-200 dark:border-slate-700'>
                                             {toolsByCategory[category].map((tool) => (
                                                 <li key={tool.id}>
                                                     <button
                                                         onClick={() => handleToolClick(tool.id)}
-                                                        className={`relative w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:translate-x-1 ${
+                                                        className={`relative w-full flex items-center p-2.5 my-0.5 rounded-lg text-start transition-all duration-200 hover:translate-x-1 ${
                                                             activeToolId === tool.id && !activeConversationId
                                                                 ? 'bg-primary/10 text-primary font-bold'
-                                                                : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
+                                                                : 'hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400'
                                                         }`}
                                                     >
-                                                        {activeToolId === tool.id && !activeConversationId && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-primary rounded-e-full"></div>}
-                                                        <tool.icon className={`w-5 h-5 me-3 ${tool.color}`} />
+                                                        {activeToolId === tool.id && !activeConversationId && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-1 bg-primary rounded-e-full"></div>}
+                                                        <tool.icon className={`w-4 h-4 me-3 ${tool.color}`} />
                                                         <span className='text-sm'>{tool.title}</span>
                                                     </button>
                                                 </li>
@@ -284,11 +284,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                     </div>
                 </nav>
 
-                <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
+                <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/50">
                     <div className="grid grid-cols-2 gap-2 mb-3">
                          <button
                             onClick={handleExportData}
-                            className='flex items-center justify-center gap-2 p-2 rounded-md text-xs bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
+                            className='flex items-center justify-center gap-2 p-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
                             aria-label="تصدير البيانات"
                         >
                             <Download size={14} />
@@ -296,7 +296,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                         </button>
                          <button
                             onClick={() => fileImportRef.current?.click()}
-                            className='flex items-center justify-center gap-2 p-2 rounded-md text-xs bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
+                            className='flex items-center justify-center gap-2 p-2 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
                             aria-label="استيراد البيانات"
                         >
                             <Upload size={14} />
@@ -307,14 +307,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
 
                      <button
                         onClick={onOpenApiKeyManager}
-                        className='w-full flex items-center gap-2 p-2 mb-4 rounded-md text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-card/50 transition-colors'
+                        className='w-full flex items-center gap-2 p-2.5 mb-4 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors'
                         aria-label="إدارة مفاتيح API"
                     >
                         <KeyRound size={16} />
                         <span>إدارة مفاتيح API</span>
                     </button>
                     <div className="text-center">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
                             © {new Date().getFullYear()} تم التطوير بواسطة <br />
                             <a 
                                 href="https://github.com/dain09" 

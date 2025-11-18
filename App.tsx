@@ -1,3 +1,4 @@
+
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -54,7 +55,14 @@ const App: React.FC = () => {
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
 
     return (
-        <div className={`flex h-full bg-transparent text-foreground dark:text-dark-foreground font-sans`}>
+        <div className={`relative flex h-full bg-transparent text-foreground dark:text-dark-foreground font-sans antialiased leading-relaxed selection:bg-primary/30`}>
+             {/* 
+                Performance Optimization:
+                Moving the gradient to a fixed standalone div to prevent heavy repaints of the body/root container
+                during the view transition. This keeps the "wipe" effect smooth.
+             */}
+            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-[#1e1e2e] dark:to-slate-900 animate-gradient bg-[length:400%_400%] pointer-events-none" />
+            
             <Sidebar 
                 isSidebarOpen={isSidebarOpen}
                 setSidebarOpen={setSidebarOpen}
@@ -68,7 +76,7 @@ const App: React.FC = () => {
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
-                    <div key={activeToolId} className="animate-slideInUp h-full">
+                    <div key={activeToolId} className="animate-slideInUp h-full p-1">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

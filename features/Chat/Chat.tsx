@@ -73,32 +73,68 @@ const CodeBlock: React.FC<any> = ({ inline, className, children }) => {
 const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const { navigateTo } = useTool();
 
+    // Big card for paragraphs that are ONLY a tool suggestion
     const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
         const tool = TOOLS.find(t => t.id === toolId);
         if (!tool) return null;
         return (<div onClick={() => navigateTo(toolId)} className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm max-w-sm"><div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}><tool.icon size={22} className={`${tool.color}`} /></div><div className="flex-1 min-w-0 text-start"><h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">{tool.title}</h4><p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">اضغط للتجربة الآن</p></div><ArrowRight size={16} className="text-slate-400 rtl:rotate-180" /></div>);
     };
 
+    // Small inline button for tools mentioned within text
+    const InlineToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
+        const tool = TOOLS.find(t => t.id === toolId);
+        if (!tool) return <span className="font-mono text-xs text-red-500">[أداة غير صالحة: {toolId}]</span>;
+        return (
+            <button
+                onClick={() => navigateTo(tool.id)}
+                className="inline-flex items-center gap-1.5 px-2 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 border border-purple-100 dark:border-purple-800/50"
+            >
+                <tool.icon size={12} />
+                <span>{tool.title}</span>
+            </button>
+        );
+    };
+
+    // Parser function to replace [TOOL:id] with the inline button
+    const renderWithTools = (children: React.ReactNode) => {
+        if (!Array.isArray(children)) return children;
+        const toolRegex = /\[TOOL:([\w-]+)\]/g;
+        return children.flatMap((child, index) => {
+            if (typeof child === 'string') {
+                const parts = child.split(toolRegex);
+                return parts.map((part, partIndex) => {
+                    if (partIndex % 2 === 1) { // This is a tool ID
+                        return <InlineToolButton key={`${index}-${partIndex}`} toolId={part} />;
+                    }
+                    return part;
+                });
+            }
+            return child;
+        });
+    };
+
     return (
         <div className={`prose prose-base max-w-none ${message.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} font-sans break-words`}>
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                p: ({ children }) => {
-                    if (Array.isArray(children) && typeof children[0] === 'string' && children[0].startsWith('[TOOL:')) {
-                        const toolId = children[0].match(/\[TOOL:(.*?)\]/)?.[1];
-                        return toolId ? <ToolSuggestionCard toolId={toolId} /> : <p>{children}</p>;
+                p: ({ node, children }) => {
+                    const textContent = (node?.children[0]?.type === 'text' && node.children.length === 1) ? node.children[0].value.trim() : null;
+                    const match = textContent?.match(/^\[TOOL:([\w-]+)\]$/);
+                    if (match) {
+                        return <ToolSuggestionCard toolId={match[1]} />;
                     }
-                    return <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base break-words ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{children}</p>
+                    return <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base break-words ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{renderWithTools(children)}</p>;
                 },
+                li: ({ node, children }) => <li className="my-1 leading-relaxed">{renderWithTools(children)}</li>,
                 a: ({ node, ...props }) => <a {...props} className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50" target="_blank" rel="noopener noreferrer"><LinkIcon size={10} /><span className="truncate max-w-[200px]">{props.children}</span><ExternalLink size={10} className="opacity-50" /></a>,
                 ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-2 marker:font-bold" />,
                 ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-2" />,
-                li: ({ node, ...props }) => <li {...props} className="my-1 leading-relaxed" />,
                 code: CodeBlock,
                 strong: ({ node, ...props }) => <strong {...props} className="font-extrabold" />,
             }}>{message.parts[0].text}</ReactMarkdown>
         </div>
     );
 };
+
 
 // --- Main Chat Component ---
 export const Chat: React.FC = () => {

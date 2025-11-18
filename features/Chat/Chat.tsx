@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -80,6 +79,7 @@ const Chat: React.FC = () => {
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
     const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -88,7 +88,13 @@ const Chat: React.FC = () => {
     const stopStreamingRef = useRef(false);
     const streamingMessageIdRef = useRef<string | null>(null);
     const recognitionRef = useRef<any>(null);
+    const recordingTimerRef = useRef<number | null>(null);
 
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    };
 
     useEffect(() => {
         const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
@@ -258,11 +264,8 @@ const Chat: React.FC = () => {
 
         if (userMessage && userMessage.role === 'user') {
             updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
-            // Re-create the file object from data URL if it exists
             let imageFile: File | undefined = undefined;
             if (userMessage.imageUrl) {
-                // This is a simplification; for a real app, you might need a more robust way
-                // to reconstruct the file or store it temporarily.
                 console.warn("Retrying with images from data URL might have limitations.");
             }
             streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text });
@@ -305,6 +308,8 @@ const Chat: React.FC = () => {
     const handleToggleRecording = () => {
         if (isRecording) {
             recognitionRef.current?.stop();
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+            setRecordingTime(0);
             setIsRecording(false);
             return;
         }
@@ -320,9 +325,23 @@ const Chat: React.FC = () => {
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = false;
 
-        recognitionRef.current.onstart = () => setIsRecording(true);
-        recognitionRef.current.onend = () => setIsRecording(false);
-        recognitionRef.current.onerror = (event: any) => console.error('Speech recognition error:', event.error);
+        recognitionRef.current.onstart = () => {
+            setIsRecording(true);
+            recordingTimerRef.current = window.setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+            }, 1000);
+        };
+        recognitionRef.current.onend = () => {
+            setIsRecording(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+            setRecordingTime(0);
+        };
+        recognitionRef.current.onerror = (event: any) => {
+            console.error('Speech recognition error:', event.error);
+            setIsRecording(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+            setRecordingTime(0);
+        };
         
         recognitionRef.current.onresult = (event: any) => {
             let transcript = '';
@@ -340,7 +359,6 @@ const Chat: React.FC = () => {
         const parts = text.split(toolRegex);
 
         return parts.map((part, index) => {
-            // Even indices are regular text, odd indices are tool IDs
             if (index % 2 === 1) {
                 const toolId = part.trim();
                 const tool = TOOLS.find(t => t.id === toolId);
@@ -357,7 +375,7 @@ const Chat: React.FC = () => {
                         </button>
                     );
                 }
-                return `[TOOL:${part}]`; // Fallback if tool ID is not found
+                return `[TOOL:${part}]`;
             }
             return <span key={index}>{part}</span>;
         });
@@ -375,55 +393,63 @@ const Chat: React.FC = () => {
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
-                            <div key={msg.id} className={`flex items-start gap-2 sm:gap-3 animate-bubbleIn ${msg.role === 'user' ? 'justify-end flex-row-reverse' : 'justify-start'}`}>
-                                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary/20'}`}>
-                                    {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary" />}
-                                </div>
-                                
-                                <div className={`flex flex-col max-w-lg items-start gap-1`}>
-                                    {msg.role === 'user' && msg.imageUrl && (
-                                        <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                            <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
-                                        </div>
-                                    )}
-                                    <div className={`p-3 rounded-2xl ${
-                                        msg.role === 'user' 
-                                        ? 'bg-primary text-primary-foreground rounded-bl-none' 
-                                        : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-br-none ${msg.error ? 'border border-red-500/50' : ''}`
-                                    }`}>
-                                        <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
-                                            {msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text || ' ') : msg.parts[0].text}
-                                        </div>
+                             <div key={msg.id} className={`flex w-full items-start gap-2 sm:gap-3 animate-bubbleIn ${
+                                msg.role === 'user' 
+                                ? 'justify-start' 
+                                : 'justify-end'
+                            }`}>
+                                <div className={`flex items-start gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
+                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary/20'}`}>
+                                        {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className="w-5 h-5 text-primary" />}
                                     </div>
-                                    {msg.error && (
-                                        <div className="mt-1.5 flex items-center gap-2">
-                                            <span className="text-xs text-red-500">فشل الرد</span>
-                                            <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
-                                                <RefreshCw size={14} />
-                                            </button>
+                                    
+                                    <div className={`flex flex-col max-w-lg ${msg.role === 'user' ? 'items-start' : 'items-end'} gap-1`}>
+                                        {msg.role === 'user' && msg.imageUrl && (
+                                            <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                                <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
+                                            </div>
+                                        )}
+                                        <div className={`p-3 rounded-2xl ${
+                                            msg.role === 'user' 
+                                            ? 'bg-primary text-primary-foreground rounded-tr-none' 
+                                            : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none ${msg.error ? 'border border-red-500/50' : ''}`
+                                        }`}>
+                                            <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+                                                {msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text || ' ') : msg.parts[0].text}
+                                            </div>
                                         </div>
-                                    )}
-                                    {!msg.error && msg.id === stoppedMessageId && !isResponding && (
-                                        <div className="mt-1.5 flex items-center gap-2">
-                                            <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
-                                            <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
-                                                <Play size={14} />
-                                            </button>
-                                        </div>
-                                    )}
+                                        {msg.error && (
+                                            <div className="mt-1.5 flex items-center gap-2">
+                                                <span className="text-xs text-red-500">فشل الرد</span>
+                                                <button onClick={() => handleRetry(msg)} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="إعادة المحاولة">
+                                                    <RefreshCw size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                        {!msg.error && msg.id === stoppedMessageId && !isResponding && (
+                                            <div className="mt-1.5 flex items-center gap-2">
+                                                <span className="text-xs text-yellow-600 dark:text-yellow-400">توقف</span>
+                                                <button onClick={handleContinue} className="p-1 text-primary hover:bg-primary/10 rounded-full" aria-label="تكملة">
+                                                    <Play size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
                         {isResponding && activeConversation.messages[activeConversation.messages.length - 1]?.role !== 'model' && (
-                             <div className="flex items-end gap-3 animate-bubbleIn justify-start">
-                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <Bot className="w-5 h-5 text-primary" />
-                                </div>
-                                <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-br-none">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                             <div className="flex items-end gap-3 animate-bubbleIn justify-end">
+                                <div className={`flex items-start gap-2 sm:gap-3 flex-row-reverse`}>
+                                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                        <Bot className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 rounded-tl-none">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -445,34 +471,16 @@ const Chat: React.FC = () => {
                         </button>
                     </div>
                 )}
-                <div className="flex items-end gap-2 sm:gap-3">
-                     <div className="relative">
-                        <Button 
-                            variant="secondary"
-                            className="p-3 rounded-full" 
-                            aria-label="إرفاق ملف"
-                            onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
-                        >
-                            <Plus size={24} />
+                 <div className="flex items-end gap-2 sm:gap-3">
+                    {isResponding ? (
+                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                            <StopCircle size={24} />
                         </Button>
-                        {showAttachmentMenu && (
-                            <div className="absolute bottom-14 right-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
-                                <button 
-                                    onClick={() => { imageInputRef.current?.click(); setShowAttachmentMenu(false); }}
-                                    className="w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
-                                >
-                                    <ImageIcon size={16} /> إرسال صورة
-                                </button>
-                                <button 
-                                    onClick={() => { handleToggleRecording(); setShowAttachmentMenu(false); }}
-                                    className={`w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm ${isRecording ? 'text-red-500' : ''}`}
-                                >
-                                    <Mic size={16} /> {isRecording ? 'إيقاف التسجيل' : 'تسجيل صوت'}
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                    ) : (
+                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                            <Send size={24} />
+                        </Button>
+                    )}
 
                     <AutoGrowTextarea
                         ref={inputRef}
@@ -488,15 +496,49 @@ const Chat: React.FC = () => {
                         className="flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect"
                         aria-label="اكتب رسالتك هنا"
                     />
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSend} disabled={(!input.trim() && !imageFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
+
+                    <div className="relative">
+                        {isRecording ? (
+                             <button
+                                onClick={handleToggleRecording}
+                                className="flex items-center justify-center p-3 w-[120px] bg-red-500/10 text-red-500 font-mono rounded-full text-lg transition-all"
+                                aria-label="إيقاف التسجيل"
+                            >
+                                <Mic size={18} className="me-2 animate-pulse" />
+                                {formatTime(recordingTime)}
+                            </button>
+                        ) : (
+                            <>
+                                <Button 
+                                    variant="secondary"
+                                    className="p-3 rounded-full" 
+                                    aria-label="إرفاق ملف"
+                                    onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
+                                >
+                                    <Plus size={24} />
+                                </Button>
+                                {showAttachmentMenu && (
+                                     <div className="absolute bottom-14 right-0 bg-background dark:bg-dark-card shadow-lg rounded-lg border dark:border-slate-700 p-2 space-y-1 w-40">
+                                        <button 
+                                            onClick={() => { imageInputRef.current?.click(); setShowAttachmentMenu(false); }}
+                                            className="w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
+                                        >
+                                            <ImageIcon size={16} /> إرسال صورة
+                                        </button>
+                                        <button 
+                                            onClick={() => { handleToggleRecording(); setShowAttachmentMenu(false); }}
+                                            className={`w-full flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-sm`}
+                                        >
+                                            <Mic size={16} /> تسجيل صوت
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                    
+                    <input type="file" ref={imageInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+
                 </div>
             </div>
         </div>

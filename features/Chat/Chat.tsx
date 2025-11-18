@@ -522,10 +522,10 @@ const Chat: React.FC = () => {
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
                                                     {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
-                                                        <div className="flex space-x-1 p-2 justify-center items-center">
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                                        <div className="flex space-x-1.5 justify-center items-center px-2">
+                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
+                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
                                                         <MessageContent content={msg.parts[0].text} />
@@ -572,10 +572,10 @@ const Chat: React.FC = () => {
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
                                     <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
-                                        <div className="flex space-x-1 p-2 justify-center items-center">
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
+                                        <div className="flex space-x-1.5 justify-center items-center px-2">
+                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
+                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
+                                            <span className="w-2.5 h-2.5 bg-primary/80 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
                                         </div>
                                     </div>
                                 </div>

@@ -74,33 +74,6 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
     // Heuristic to decide if content is long enough to be collapsed
     const isLong = content.length > 500 || content.split('\n').length > 10;
     const displayContent = isLong && !isExpanded ? content.substring(0, 400) + '...' : content;
-
-    const renderMessageWithToolLinks = (text: string) => {
-        const toolRegex = /\[TOOL:(.*?)\]/g;
-        const parts = text.split(toolRegex);
-
-        return parts.map((part, index) => {
-            if (index % 2 === 1) { // This is a tool ID
-                const toolId = part.trim();
-                const tool = TOOLS.find(t => t.id === toolId);
-                if (tool) {
-                    const Icon = tool.icon;
-                    return (
-                        <button
-                            key={`${tool.id}-${index}`}
-                            onClick={() => setActiveToolId(tool.id)}
-                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-sm"
-                        >
-                            <Icon size={18} className={tool.color} />
-                            <span>{tool.title}</span>
-                        </button>
-                    );
-                }
-                return `[TOOL:${part}]`;
-            }
-            return part; // This is a regular text part
-        });
-    };
     
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
         const [isCopied, setIsCopied] = useState(false);
@@ -137,18 +110,57 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
         );
     };
 
+    const ParagraphWithToolLinks = ({ node, ...props }: any) => {
+        const children = React.Children.toArray(props.children);
+        const newChildren: React.ReactNode[] = [];
+        const toolRegex = /\[TOOL:(.*?)\]/g;
+
+        children.forEach((child, childIndex) => {
+            if (typeof child === 'string') {
+                const parts = child.split(toolRegex);
+                parts.forEach((part, index) => {
+                    if (index % 2 === 1) { // This is a tool ID
+                        const toolId = part.trim();
+                        const tool = TOOLS.find(t => t.id === toolId);
+                        if (tool) {
+                            const Icon = tool.icon;
+                            newChildren.push(
+                                <button
+                                    key={`${tool.id}-${childIndex}-${index}`}
+                                    onClick={() => setActiveToolId(tool.id)}
+                                    className="inline-flex items-center gap-2 mx-1 my-1 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-sm"
+                                >
+                                    <Icon size={18} className={tool.color} />
+                                    <span>{tool.title}</span>
+                                </button>
+                            );
+                        } else {
+                            newChildren.push(`[TOOL:${part}]`);
+                        }
+                    } else if (part) { 
+                        newChildren.push(part);
+                    }
+                });
+            } else {
+                newChildren.push(child);
+            }
+        });
+        
+        return <p {...props} className="mb-2 last:mb-0">{newChildren}</p>;
+    };
+
     return (
          <div className="prose prose-sm dark:prose-invert max-w-none">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                    p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+                    p: ParagraphWithToolLinks,
                     ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-inside" />,
                     ul: ({ node, ...props }) => <ul {...props} className="list-disc list-inside" />,
                     code: CodeBlock,
                 }}
             >
-                {renderMessageWithToolLinks(displayContent).join('')}
+                {displayContent}
             </ReactMarkdown>
             {isLong && !isExpanded && (
                 <button

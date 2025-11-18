@@ -66,6 +66,19 @@ const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): 
     throw new Error("كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. جرب تضيف مفتاح جديد من 'إدارة مفاتيح API' أو حاول لاحقًا.");
 };
 
+export const testApiKey = async (apiKey: string): Promise<boolean> => {
+    if (!apiKey) return false;
+    console.log(`Testing API key: ${apiKey.substring(0, 4)}...`);
+    try {
+        const testAi = new GoogleGenAI({ apiKey });
+        await testAi.models.generateContent({ model: 'gemini-flash-latest', contents: 'test' });
+        console.log("API key test successful.");
+        return true;
+    } catch (error) {
+        console.error("API key test failed:", error);
+        return false;
+    }
+};
 
 // Generic function to handle API calls using the rotation wrapper
 const callGemini = async (

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Mic, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
 import { useChat } from '../../hooks/useChat';
@@ -9,6 +9,11 @@ import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import { useGemini } from '../../hooks/useGemini';
 import { useTool } from '../../hooks/useTool';
 import { TOOLS } from '../../constants';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 
 const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
     const staticSuggestions = [
@@ -61,6 +66,111 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
     );
 };
 
+
+const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+    const { setActiveToolId } = useTool();
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Heuristic to decide if content is long enough to be collapsed
+    const isLong = content.length > 500 || content.split('\n').length > 10;
+    const displayContent = isLong && !isExpanded ? content.substring(0, 400) + '...' : content;
+
+    const renderMessageWithToolLinks = (text: string) => {
+        const toolRegex = /\[TOOL:(.*?)\]/g;
+        const parts = text.split(toolRegex);
+
+        return parts.map((part, index) => {
+            if (index % 2 === 1) { // This is a tool ID
+                const toolId = part.trim();
+                const tool = TOOLS.find(t => t.id === toolId);
+                if (tool) {
+                    const Icon = tool.icon;
+                    return (
+                        <button
+                            key={`${tool.id}-${index}`}
+                            onClick={() => setActiveToolId(tool.id)}
+                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-sm"
+                        >
+                            <Icon size={18} className={tool.color} />
+                            <span>{tool.title}</span>
+                        </button>
+                    );
+                }
+                return `[TOOL:${part}]`;
+            }
+            return part; // This is a regular text part
+        });
+    };
+    
+    const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
+        const [isCopied, setIsCopied] = useState(false);
+        const match = /language-(\w+)/.exec(className || '');
+        const codeText = String(children).replace(/\n$/, '');
+
+        const handleCopy = () => {
+            navigator.clipboard.writeText(codeText);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        };
+
+        return !inline ? (
+            <div className="relative my-2 rounded-md overflow-hidden bg-[#2d2d2d]">
+                <button 
+                    onClick={handleCopy}
+                    className="absolute top-2 right-2 p-1.5 text-xs text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors flex items-center gap-1"
+                >
+                    {isCopied ? <><Check size={14} className="text-green-400"/> تم النسخ</> : <><Copy size={14} /> نسخ</>}
+                </button>
+                <SyntaxHighlighter
+                    style={okaidia}
+                    language={match?.[1] || 'text'}
+                    PreTag="div"
+                    {...props}
+                >
+                    {codeText}
+                </SyntaxHighlighter>
+            </div>
+        ) : (
+            <code className="bg-slate-300 dark:bg-slate-600 rounded-sm px-1.5 py-0.5 text-sm font-mono" {...props}>
+                {children}
+            </code>
+        );
+    };
+
+    return (
+         <div className="prose prose-sm dark:prose-invert max-w-none">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    p: ({ node, ...props }) => <p {...props} className="mb-2 last:mb-0" />,
+                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-inside" />,
+                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-inside" />,
+                    code: CodeBlock,
+                }}
+            >
+                {renderMessageWithToolLinks(displayContent).join('')}
+            </ReactMarkdown>
+            {isLong && !isExpanded && (
+                <button
+                    onClick={() => setIsExpanded(true)}
+                    className="text-primary font-bold text-sm mt-2"
+                >
+                    اعرض المزيد...
+                </button>
+            )}
+            {isLong && isExpanded && (
+                 <button
+                    onClick={() => setIsExpanded(false)}
+                    className="text-primary font-bold text-sm mt-2"
+                >
+                    اعرض أقل...
+                </button>
+            )}
+        </div>
+    );
+};
+
+
 const Chat: React.FC = () => {
     const { 
         activeConversation, 
@@ -70,7 +180,6 @@ const Chat: React.FC = () => {
         activeConversationId,
         conversations
     } = useChat();
-    const { setActiveToolId } = useTool();
     
     const [input, setInput] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -113,7 +222,6 @@ const Chat: React.FC = () => {
         const modelMessageId = uuidv4();
         streamingMessageIdRef.current = modelMessageId;
 
-        // Add a placeholder for the model's response
         addMessageToConversation(convoId, {
             id: modelMessageId,
             role: 'model',
@@ -222,7 +330,6 @@ const Chat: React.FC = () => {
         let fullText = existingText;
 
         try {
-            // Send the entire history including the partial message for context
             const historyForApi = conversation.messages;
             const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." });
 
@@ -265,10 +372,6 @@ const Chat: React.FC = () => {
 
         if (userMessage && userMessage.role === 'user') {
             updateMessageInConversation(activeConversationId, failedMessage.id, { error: false, parts: [{ text: '' }] });
-            let imageFile: File | undefined = undefined;
-            if (userMessage.imageUrl) {
-                console.warn("Retrying with images from data URL might have limitations.");
-            }
             streamModelResponse(activeConversationId, userMessage, { text: userMessage.parts[0].text });
         } else {
             console.error("Could not find user message to retry from.");
@@ -374,33 +477,6 @@ const Chat: React.FC = () => {
         recognitionRef.current.start();
     };
     
-    const renderMessageWithToolLinks = (text: string) => {
-        const toolRegex = /\[TOOL:(.*?)\]/g;
-        const parts = text.split(toolRegex);
-
-        return parts.map((part, index) => {
-            if (index % 2 === 1) {
-                const toolId = part.trim();
-                const tool = TOOLS.find(t => t.id === toolId);
-                if (tool) {
-                    const Icon = tool.icon;
-                    return (
-                        <button
-                            key={`${tool.id}-${index}`}
-                            onClick={() => setActiveToolId(tool.id)}
-                            className="inline-flex items-center gap-2 my-2 p-2 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20 hover:bg-primary/20 transition-all text-sm shadow-sm"
-                        >
-                            <Icon size={18} className={tool.color} />
-                            <span>{tool.title}</span>
-                        </button>
-                    );
-                }
-                return `[TOOL:${part}]`;
-            }
-            return <span key={index}>{part}</span>;
-        });
-    };
-
     if (!activeConversation) {
         return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
     }
@@ -435,14 +511,16 @@ const Chat: React.FC = () => {
                                                 ? 'bg-primary text-primary-foreground rounded-tr-none' 
                                                 : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-tl-none ${msg.error ? 'border border-red-500/50' : ''}`
                                             }`}>
-                                                <div className="text-sm whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+                                                <div className="text-sm whitespace-pre-wrap">
                                                     {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex space-x-1 p-2 justify-center items-center">
                                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0s'}}></span>
                                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.2s'}}></span>
                                                             <span className="w-2 h-2 bg-primary/70 rounded-full animate-pulsing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
-                                                    ) : msg.role === 'model' ? renderMessageWithToolLinks(msg.parts[0].text) : msg.parts[0].text}
+                                                    ) : (
+                                                        <MessageContent content={msg.parts[0].text} />
+                                                    )}
                                                 </div>
                                             </div>
                                         )}

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { generateNames } from '../../services/api/text.service';
@@ -15,10 +16,12 @@ const CATEGORIES = [
 const NameGenerator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'name-generator')!;
     const [category, setCategory] = useState('');
+    const [submittedCategory, setSubmittedCategory] = useState('');
     const { data: result, isLoading, error, execute } = useGemini<string[], string>(generateNames);
 
     const handleSubmit = () => {
         if (!category.trim()) return;
+        setSubmittedCategory(category);
         execute(category);
     };
 
@@ -51,7 +54,7 @@ const NameGenerator: React.FC = () => {
             {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`أسماء مقترحة لـ "${category}"`} copyText={result.join('\n')}>
+                <ResultCard title={`أسماء مقترحة لـ "${submittedCategory}"`} copyText={result.join('\n')}>
                     <ul className="list-disc pe-5 space-y-2">
                         {result.map((name, index) => <li key={index}>{name}</li>)}
                     </ul>

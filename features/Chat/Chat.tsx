@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -33,7 +34,7 @@ const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
     return (
         <div 
             onClick={() => setActiveToolId(toolId)}
-            className="group flex items-center gap-3 p-3 my-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 w-full sm:w-fit sm:min-w-[280px] active:scale-95"
+            className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 w-full sm:w-fit sm:min-w-[280px] active:scale-95"
         >
             <div className={`p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
                 <Icon size={20} className={`${tool.color}`} />
@@ -145,8 +146,8 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         };
 
         return !inline ? (
-            <div className="relative my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left">
-                <div className="flex items-center justify-between px-3 py-1.5 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
+            <div className="relative my-5 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left">
+                <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
                         <Terminal size={14} className="text-slate-400"/>
                         <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{match?.[1] || 'code'}</span>
@@ -166,14 +167,14 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                     style={vscDarkPlus}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem' }}
+                    customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem', lineHeight: '1.5' }}
                     {...props}
                 >
                     {codeText}
                 </SyntaxHighlighter>
             </div>
         ) : (
-            <code className="bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50 rounded px-1.5 py-0.5 text-xs font-mono dir-ltr mx-0.5" {...props}>
+            <code className="bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50 rounded px-1.5 py-0.5 text-sm font-mono dir-ltr mx-0.5" {...props}>
                 {children}
             </code>
         );
@@ -210,19 +211,20 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
             }
         });
         
-        return <p {...props} className={`mb-3 last:mb-0 leading-relaxed ${hasTools ? '' : ''}`}>{newChildren}</p>;
+        // Adjusted styling for paragraphs: relaxed leading, bottom margin
+        return <p {...props} className={`mb-4 last:mb-0 leading-loose text-base ${hasTools ? '' : ''}`}>{newChildren}</p>;
     };
 
     return (
-         <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3">
+         <div className="prose prose-base dark:prose-invert max-w-none prose-p:leading-loose prose-li:leading-loose prose-li:my-1 prose-headings:my-4 prose-headings:text-primary">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                     p: CustomParagraph,
-                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-inside mb-2 space-y-1 marker:text-primary" />,
-                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-inside mb-2 space-y-1 marker:text-primary" />,
+                    ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-inside mb-4 space-y-2 marker:text-primary font-medium" />,
+                    ul: ({ node, ...props }) => <ul {...props} className="list-disc list-inside mb-4 space-y-2 marker:text-primary" />,
                     code: CodeBlock,
-                    a: ({ node, ...props }) => <a {...props} className="text-primary hover:underline font-medium" target="_blank" rel="noopener noreferrer" />
+                    a: ({ node, ...props }) => <a {...props} className="text-primary hover:underline font-bold" target="_blank" rel="noopener noreferrer" />
                 }}
             >
                 {processedContent}
@@ -330,12 +332,17 @@ const Chat: React.FC = () => {
         streamingMessageIdRef.current = modelMessageId;
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
+        // Capture current bot name state for persistence
+        const isFahimkom = persona.humor >= 8 && persona.verbosity <= 3;
+        const currentBotName = isFahimkom ? 'فهيمكم' : 'خبيركم';
+
         addMessageToConversation(convoId, {
             id: modelMessageId,
             role: 'model',
             parts: [{ text: '' }],
             timestamp: new Date().toISOString(),
             isStreaming: true,
+            senderName: currentBotName,
         });
 
         let fullText = '';
@@ -684,7 +691,7 @@ const Chat: React.FC = () => {
 
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                                         <span className={`text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-0.5 px-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
-                                            {msg.role === 'user' ? 'أنت' : botName}
+                                            {msg.role === 'user' ? 'أنت' : (msg.senderName || botName)}
                                         </span>
 
                                         {msg.role === 'user' && msg.imageUrl && (
@@ -700,7 +707,7 @@ const Chat: React.FC = () => {
                                                 ? 'bg-gradient-to-br from-primary to-primary-dark text-white rounded-br-none' 
                                                 : `bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border-red-500/50 bg-red-50/50 dark:bg-red-900/10' : ''}`
                                             }`}>
-                                                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                                                <div className="text-sm sm:text-base whitespace-pre-wrap leading-loose">
                                                     {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
                                                             <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
@@ -769,7 +776,7 @@ const Chat: React.FC = () => {
                                     </div>
                                     <div className="flex flex-col gap-1 w-full items-end">
                                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 ml-1">
-                                            {botName}
+                                            {botName} 
                                         </span>
                                         <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-bl-none shadow-sm">
                                              <div className="flex gap-1.5 justify-center items-center">

@@ -18,6 +18,7 @@ export interface Message {
     error?: boolean;
     imageUrl?: string; // For UI rendering
     isStreaming?: boolean; // To control UI during streaming
+    senderName?: string; // Persist sender identity (Khabirkom/Fahimkom)
 }
 
 export interface Conversation {

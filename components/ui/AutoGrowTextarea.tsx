@@ -2,13 +2,10 @@ import React, { useRef, useLayoutEffect, forwardRef, useImperativeHandle } from 
 
 type AutoGrowTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-// Fix: Wrap the component with `forwardRef` to allow parent components to pass a ref.
 export const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, AutoGrowTextareaProps>(
     (props, ref) => {
         const internalTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-        // Expose the internal ref to the parent component's ref using useImperativeHandle.
-        // This allows parent components (like Chat.tsx) to call methods like .focus() on the textarea.
         useImperativeHandle(ref, () => internalTextareaRef.current!, []);
 
         // Adjust height on value change
@@ -33,5 +30,4 @@ export const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, AutoGrowTextarea
     }
 );
 
-// Add a display name for easier debugging in React DevTools.
 AutoGrowTextarea.displayName = 'AutoGrowTextarea';

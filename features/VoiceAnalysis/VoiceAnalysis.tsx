@@ -8,7 +8,6 @@ import { Mic } from 'lucide-react';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
-// Fix: Import AnalysisResult from shared types file.
 import { AnalysisResult } from '../../types';
 
 const VoiceAnalysis: React.FC = () => {

@@ -18,38 +18,108 @@ import { usePersona } from '../../contexts/PersonaContext';
 import { useToast } from '../../hooks/useToast';
 import { Skeleton } from '../../components/ui/Skeleton';
 
-// --- Welcome Screen ---
-const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
-    const suggestions = [
-        "اشرحلي نظرية النسبية كأني طفل",
-        "اكتبلي قصة قصيرة عن روبوت عنده مشاعر",
-        "إيه هي أفضل 5 أماكن للخروج في القاهرة؟",
-        "اقترح اسم مبتكر لمشروع كافيه",
-    ];
+// --- Dashboard Sub-Components ---
+
+const QuickToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
+    const { navigateTo } = useTool();
+    const tool = TOOLS.find(t => t.id === toolId);
+    if (!tool) return null;
+    const Icon = tool.icon;
+    
+    return (
+        <button 
+            onClick={() => navigateTo(toolId)}
+            className="flex flex-col items-center justify-center gap-3 p-4 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1 group w-full backdrop-blur-sm"
+        >
+            <div className={`p-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 group-hover:scale-110 transition-transform duration-300`}>
+                <Icon size={24} className={`${tool.color}`} />
+            </div>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate w-full text-center">
+                {tool.title}
+            </span>
+        </button>
+    );
+};
+
+type BriefingData = { greeting: string; suggestions: string[] };
+
+const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
+    const { memory } = useMemory();
+    const { persona } = usePersona();
+
+    const isFahimkom = useMemo(() => persona.humor > 7 && persona.verbosity < 5, [persona]);
+    const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
+
+    const context = useMemo(() => {
+        const hour = new Date().getHours();
+        return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
+    }, []);
+
+    const { data: briefing, isLoading: isBriefingLoading, execute: fetchBriefing } = useGemini<BriefingData, void>(
+        () => getMorningBriefing(memory, persona, context, botName)
+    );
+    
+    useEffect(() => {
+        fetchBriefing();
+    }, [memory, persona, botName, fetchBriefing]);
+
+    const suggestions = briefing?.suggestions || ["اكتب نكتة", "لخص مفهوم الثقب الأسود", "اقترح فكرة مشروع", "إيه رأيك في الذكاء الاصطناعي؟"];
+    const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
     return (
-        <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fadeIn">
-            <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <span className="text-white font-black text-3xl">خ</span>
-            </div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">مرحباً بك في خبيركم</h1>
-            <p className="text-slate-500 dark:text-slate-400 mb-8">كيف يمكنني مساعدتك اليوم؟</p>
-            <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {suggestions.map((s) => (
-                    <button 
-                        key={s} 
-                        onClick={() => onSuggestionClick(s)}
-                        className="p-4 bg-white/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-start hover:bg-white dark:hover:bg-slate-700 transition-all hover:border-primary/50 text-sm font-medium backdrop-blur-sm shadow-sm hover:shadow-md"
-                    >
-                        {s}
-                    </button>
-                ))}
+        <div className="flex flex-col items-center justify-center min-h-full w-full p-4 sm:p-8">
+            <div className="flex flex-col items-center w-full max-w-3xl mx-auto space-y-8 sm:space-y-12">
+                
+                {/* Header Section */}
+                <div className="flex flex-col items-center text-center space-y-4 animate-slideInUpFade">
+                    <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center shadow-2xl ${isFahimkom ? 'bg-orange-100 dark:bg-orange-900/20' : 'bg-blue-100 dark:bg-blue-900/20'}`}>
+                         <div className={`absolute inset-0 rounded-2xl blur-xl opacity-50 ${isFahimkom ? 'bg-orange-500' : 'bg-blue-500'}`}></div>
+                        {isFahimkom ? <Zap className="w-10 h-10 sm:w-12 sm:h-12 text-orange-500 relative z-10" /> : <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary relative z-10" />}
+                    </div>
+                    
+                    <div className="space-y-2">
+                        {isBriefingLoading ? (
+                            <Skeleton className="h-8 w-48 sm:h-10 sm:w-64 mx-auto rounded-lg" />
+                        ) : (
+                            <h2 className="text-2xl sm:text-4xl font-black text-foreground dark:text-white tracking-tight">
+                                {briefing?.greeting || `${botName} جاهز للمساعدة`}
+                            </h2>
+                        )}
+                        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                             {isFahimkom ? "ماتشيلش هم، أنا هنا عشانك." : "كيف يمكنني مساعدتك اليوم؟"}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Suggestions Grid */}
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 animate-slideInUpFade" style={{ animationDelay: '100ms' }}>
+                    {isBriefingLoading ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />) : suggestions.map((s, i) => (
+                        <button 
+                            key={s} 
+                            onClick={() => onSuggestionClick(s)} 
+                            className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-start text-sm font-medium text-slate-700 dark:text-slate-200 hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+                        >
+                            <span className="line-clamp-1">{s}</span>
+                            <ArrowRight size={16} className="text-slate-300 group-hover:text-primary transition-colors rtl:rotate-180 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0" />
+                        </button>
+                    ))}
+                </div>
+
+                {/* Quick Tools */}
+                <div className="w-full animate-slideInUpFade" style={{ animationDelay: '200ms' }}>
+                    <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-4 uppercase tracking-widest px-1">أدوات مقترحة</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {quickTools.map(id => <QuickToolButton key={id} toolId={id} />)}
+                    </div>
+                </div>
+
             </div>
         </div>
     );
 };
 
 // --- Chat Sub-Components ---
+
 const CodeBlock: React.FC<any> = ({ inline, className, children }) => {
     const [isCopied, setIsCopied] = useState(false);
     const match = /language-(\w+)/.exec(className || '');
@@ -73,61 +143,26 @@ const CodeBlock: React.FC<any> = ({ inline, className, children }) => {
 const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const { navigateTo } = useTool();
 
-    // Big card for paragraphs that are ONLY a tool suggestion
     const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
         const tool = TOOLS.find(t => t.id === toolId);
         if (!tool) return null;
         return (<div onClick={() => navigateTo(toolId)} className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm max-w-sm"><div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}><tool.icon size={22} className={`${tool.color}`} /></div><div className="flex-1 min-w-0 text-start"><h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">{tool.title}</h4><p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">اضغط للتجربة الآن</p></div><ArrowRight size={16} className="text-slate-400 rtl:rotate-180" /></div>);
     };
 
-    // Small inline button for tools mentioned within text
-    const InlineToolButton: React.FC<{ toolId: string }> = ({ toolId }) => {
-        const tool = TOOLS.find(t => t.id === toolId);
-        if (!tool) return <span className="font-mono text-xs text-red-500">[أداة غير صالحة: {toolId}]</span>;
-        return (
-            <button
-                onClick={() => navigateTo(tool.id)}
-                className="inline-flex items-center gap-1.5 px-2 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 border border-purple-100 dark:border-purple-800/50"
-            >
-                <tool.icon size={12} />
-                <span>{tool.title}</span>
-            </button>
-        );
-    };
-
-    // Parser function to replace [TOOL:id] with the inline button
-    const renderWithTools = (children: React.ReactNode) => {
-        if (!Array.isArray(children)) return children;
-        const toolRegex = /\[TOOL:([\w-]+)\]/g;
-        return children.flatMap((child, index) => {
-            if (typeof child === 'string') {
-                const parts = child.split(toolRegex);
-                return parts.map((part, partIndex) => {
-                    if (partIndex % 2 === 1) { // This is a tool ID
-                        return <InlineToolButton key={`${index}-${partIndex}`} toolId={part} />;
-                    }
-                    return part;
-                });
-            }
-            return child;
-        });
-    };
-
     return (
         <div className={`prose prose-base max-w-none ${message.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} font-sans break-words`}>
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                p: ({ node, children }) => {
-                    const textContent = (node?.children[0]?.type === 'text' && node.children.length === 1) ? node.children[0].value.trim() : null;
-                    const match = textContent?.match(/^\[TOOL:([\w-]+)\]$/);
-                    if (match) {
-                        return <ToolSuggestionCard toolId={match[1]} />;
+                p: ({ children }) => {
+                    if (Array.isArray(children) && typeof children[0] === 'string' && children[0].startsWith('[TOOL:')) {
+                        const toolId = children[0].match(/\[TOOL:(.*?)\]/)?.[1];
+                        return toolId ? <ToolSuggestionCard toolId={toolId} /> : <p>{children}</p>;
                     }
-                    return <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base break-words ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{renderWithTools(children)}</p>;
+                    return <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{children}</p>
                 },
-                li: ({ node, children }) => <li className="my-1 leading-relaxed">{renderWithTools(children)}</li>,
                 a: ({ node, ...props }) => <a {...props} className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50" target="_blank" rel="noopener noreferrer"><LinkIcon size={10} /><span className="truncate max-w-[200px]">{props.children}</span><ExternalLink size={10} className="opacity-50" /></a>,
                 ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-2 marker:font-bold" />,
                 ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-2" />,
+                li: ({ node, ...props }) => <li {...props} className="my-1 leading-relaxed" />,
                 code: CodeBlock,
                 strong: ({ node, ...props }) => <strong {...props} className="font-extrabold" />,
             }}>{message.parts[0].text}</ReactMarkdown>
@@ -135,8 +170,8 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     );
 };
 
-
 // --- Main Chat Component ---
+
 export const Chat: React.FC = () => {
     const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations, renameConversation, editUserMessageAndBranch } = useChat();
     const { memory, updateMemory, deleteMemoryItem } = useMemory();
@@ -162,10 +197,11 @@ export const Chat: React.FC = () => {
     const isFahimkom = useMemo(() => persona.humor > 7 && persona.verbosity < 5, [persona.humor, persona.verbosity]);
     const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
-    // Auto-Scroll to bottom
+    // Improved Auto-Scroll
     useLayoutEffect(() => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
+            const { scrollHeight, clientHeight } = scrollContainerRef.current;
+             scrollContainerRef.current.scrollTo({ top: scrollHeight - clientHeight, behavior: 'smooth' });
         }
     }, [activeConversation?.messages, isResponding]);
 
@@ -255,7 +291,7 @@ export const Chat: React.FC = () => {
         addMessageToConversation(convoId, userMessage);
         
         const activeConvo = conversations.find(c => c.id === convoId);
-        if (activeConvo?.messages.length === 1 && activeConvo.title === 'محادثة جديدة') {
+        if (activeConvo?.messages.length === 0) {
             generateConversationTitle([userMessage]).then(t => t && renameConversation(convoId!, t));
         }
 
@@ -304,9 +340,17 @@ export const Chat: React.FC = () => {
         };
 
         recognition.start();
+
     }, [isListening, addToast]);
 
-    useEffect(() => { return () => { if (recognitionRef.current) { recognitionRef.current.stop(); recognitionRef.current = null; } }; }, []);
+    useEffect(() => {
+        return () => {
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+                recognitionRef.current = null;
+            }
+        };
+    }, []);
     
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -314,11 +358,13 @@ export const Chat: React.FC = () => {
         if (e.target) e.target.value = '';
     };
 
+    
     const handleRegenerate = (modelMessageId: string) => {
         if (!activeConversation) return;
         const msgIndex = activeConversation.messages.findIndex(m => m.id === modelMessageId);
         if (msgIndex < 1) return;
         const userMessage = activeConversation.messages[msgIndex - 1];
+        
         editUserMessageAndBranch(activeConversation.id, userMessage.id, userMessage.parts[0].text);
         setTimeout(() => streamModelResponse(activeConversation.id, userMessage), 0);
     };
@@ -327,24 +373,25 @@ export const Chat: React.FC = () => {
         if (!editingMessage || !activeConversation) return;
         editUserMessageAndBranch(activeConversation.id, editingMessage.id, editingMessage.text);
         const updatedUserMessage = { ...activeConversation.messages.find(m => m.id === editingMessage.id)!, parts: [{ text: editingMessage.text }]};
+        
         setEditingMessage(null);
         setTimeout(() => streamModelResponse(activeConversation.id, updatedUserMessage), 0);
     };
 
-    if (!activeConversation) return <WelcomeScreen onSuggestionClick={(prompt) => submitMessage(prompt)} />;
+    if (!activeConversation) return <DashboardScreen onSuggestionClick={(prompt) => submitMessage(prompt)} />;
 
     return (
         <div className="flex flex-col h-full w-full relative bg-transparent">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4 pb-28 sm:pb-32 scroll-smooth">
-                {activeConversation.messages.length === 0 ? <WelcomeScreen onSuggestionClick={(prompt) => submitMessage(prompt)} /> : (
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24 sm:pb-32 scroll-smooth">
+                {activeConversation.messages.length === 0 ? <DashboardScreen onSuggestionClick={(prompt) => submitMessage(prompt)} /> : (
                     <div className="space-y-6 max-w-3xl mx-auto">
-                        {activeConversation.messages.map((msg) => (
-                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                        {activeConversation.messages.map((msg, index) => (
+                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
                                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-110 ${msg.role === 'user' ? 'bg-white dark:bg-slate-700' : 'bg-white dark:bg-slate-700'}`}>
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className={`w-5 h-5 ${msg.senderName === 'فهيمكم' ? 'text-orange-500' : 'text-primary'}`} />}
                                     </div>
-                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                                         <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{msg.role === 'model' ? msg.senderName : 'أنت'}</p>
                                         {editingMessage?.id === msg.id ? (
                                             <div className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-primary rounded-2xl shadow-lg">
@@ -358,8 +405,8 @@ export const Chat: React.FC = () => {
                                                 {(msg.parts[0].text || msg.isStreaming) && (
                                                     <div className={`relative p-3.5 sm:p-5 rounded-2xl shadow-sm text-base leading-relaxed transition-all duration-300 ${
                                                         msg.role === 'user' 
-                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-bl-none'
-                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-br-none border border-slate-100 dark:border-slate-700/60 w-full'
+                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-br-none' // Changed: User is Right, so Bottom-Right is sharp
+                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/60 w-full' // Changed: Bot is Left, so Bottom-Left is sharp
                                                     } ${msg.error ? 'border-red-500/50 border-2' : ''}`}>
                                                         {msg.isStreaming && !msg.parts[0].text ? (
                                                             <div className="flex gap-1.5 h-6 items-center px-2"><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}/></div>
@@ -370,10 +417,10 @@ export const Chat: React.FC = () => {
                                                 )}
                                             </>
                                         )}
-                                        {msg.error && <button onClick={() => handleRegenerate(msg.id)} className="text-red-500 flex items-center gap-1 text-xs px-2 py-1 mt-1 rounded-full bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition-colors"><RefreshCw size={12}/> فشل، حاول تاني</button>}
+                                        {msg.error && <button onClick={() => handleRegenerate(msg.id)} className="text-red-500 flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition-colors"><RefreshCw size={12}/> فشل، حاول تاني</button>}
                                     </div>
                                     <div className="relative self-center flex-shrink-0">
-                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-30 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
+                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
                                         {menuOpenFor === msg.id && (
                                             <div className="absolute bottom-full ltr:right-0 rtl:left-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-100 dark:border-slate-700 p-1.5 z-20 animate-zoomIn origin-bottom" onMouseLeave={() => setMenuOpenFor(null)}>
                                                 <button onClick={() => { navigator.clipboard.writeText(msg.parts[0].text); addToast('تم النسخ!'); setMenuOpenFor(null); }} className="w-full flex items-center gap-3 p-2 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"><Copy size={14}/> نسخ النص</button>
@@ -391,7 +438,7 @@ export const Chat: React.FC = () => {
             </div>
 
             {/* Floating Input Area */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
                 <div className="max-w-3xl mx-auto">
                      {attachedFile && (
                         <div className="relative w-fit max-w-full mb-3 p-2 pr-10 pl-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">
@@ -406,15 +453,25 @@ export const Chat: React.FC = () => {
                         </div>
                     )}
 
-                    <div className="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl p-2.5 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 glow-effect">
-                        <button 
-                            onClick={() => fileInputRef.current?.click()} 
-                            className="p-3 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary transition-colors flex-shrink-0"
-                            title="إرفاق ملف أو صورة"
-                        >
-                            <Plus size={20} />
-                        </button>
-                        <div className="w-px h-5 bg-slate-200 dark:bg-slate-600 self-center"></div>
+                    <div className="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-[28px] p-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 glow-effect">
+                        {/* Send / Mic Button - Moved to Start (Right in RTL) */}
+                         {input.trim() || attachedFile ? (
+                             <Button 
+                                onClick={handleSend} 
+                                className="p-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex-shrink-0 mb-1"
+                                aria-label="إرسال"
+                            >
+                                <ArrowRight size={20} className="rtl:rotate-180" strokeWidth={3} />
+                            </Button>
+                         ) : (
+                             <button 
+                                onClick={isListening ? () => { recognitionRef.current?.stop(); setIsListening(false); } : handleListen} 
+                                className={`p-3 rounded-full transition-all duration-300 flex-shrink-0 mb-1 ${isListening ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white'}`}
+                                title="تسجيل صوتي"
+                            >
+                                {isListening ? <StopCircle size={22} /> : <Mic size={22} />}
+                            </button>
+                         )}
                         
                         <AutoGrowTextarea 
                             ref={inputRef} 
@@ -422,29 +479,20 @@ export const Chat: React.FC = () => {
                             onChange={e => setInput(e.target.value)} 
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} 
                             placeholder="اكتب رسالتك هنا..." 
-                            className="flex-1 max-h-40 py-2.5 px-2 bg-transparent border-none focus:ring-0 outline-none resize-none text-[15px] placeholder:text-slate-400 textarea-scrollbar"
+                            className="flex-1 max-h-40 py-3 px-2 bg-transparent border-none focus:ring-0 outline-none resize-none text-[15px] placeholder:text-slate-400 textarea-scrollbar"
                         />
 
-                         {input.trim() || attachedFile ? (
-                             <Button 
-                                onClick={handleSend} 
-                                className="p-3 rounded-xl bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex-shrink-0"
-                                aria-label="إرسال"
-                            >
-                                <Send size={18} />
-                            </Button>
-                         ) : (
-                             <button 
-                                onClick={isListening ? () => { recognitionRef.current?.stop(); setIsListening(false); } : handleListen} 
-                                className={`p-3 rounded-full transition-all duration-300 flex-shrink-0 ${isListening ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white'}`}
-                                title="تسجيل صوتي"
-                            >
-                                {isListening ? <StopCircle size={20} /> : <Mic size={20} />}
-                            </button>
-                         )}
+                        {/* Attachment Button - Moved to End (Left in RTL) */}
+                         <button 
+                            onClick={() => fileInputRef.current?.click()} 
+                            className="p-3 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary transition-colors flex-shrink-0"
+                            title="إرفاق ملف أو صورة"
+                        >
+                            <Plus size={22} />
+                        </button>
                     </div>
                     
-                    <div className="text-center mt-2 px-4">
+                    <div className="text-center mt-2">
                          <p className="text-[10px] text-slate-400 dark:text-slate-600">
                             خبيركم ممكن يغلط. راجع المعلومات المهمة.
                         </p>

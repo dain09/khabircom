@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -42,7 +43,7 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
 };
 
 const App: React.FC = () => {
-    const { activeToolId } = useTool();
+    const { activeToolId, activePath } = useTool();
     const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
     const [isApiKeyManagerOpen, setApiKeyManagerOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
@@ -59,8 +60,8 @@ const App: React.FC = () => {
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
 
     const blobColors = theme === 'dark' 
-        ? ["bg-blue-600/20", "bg-purple-600/20", "bg-indigo-600/20"]
-        : ["bg-blue-400/30", "bg-purple-400/30", "bg-indigo-400/30"];
+        ? ["bg-blue-600/10", "bg-purple-600/10", "bg-indigo-600/10"]
+        : ["bg-blue-400/20", "bg-purple-400/20", "bg-indigo-400/20"];
 
     return (
         <div className={`relative flex h-[100dvh] text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
@@ -68,9 +69,9 @@ const App: React.FC = () => {
             <div className="fixed inset-0 -z-20 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-500" />
             
             <div className="fixed inset-0 overflow-hidden pointer-events-none select-none -z-10">
-                <div className={`absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[0]}`}></div>
-                <div className={`absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[1]}`} style={{ animationDelay: '2s', animationDirection: 'reverse' }}></div>
-                <div className={`absolute -bottom-20 left-[20%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-aurora ${blobColors[2]}`} style={{ animationDelay: '4s' }}></div>
+                <div className={`absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-70 animate-aurora ${blobColors[0]}`}></div>
+                <div className={`absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-70 animate-aurora ${blobColors[1]}`} style={{ animationDelay: '2s', animationDirection: 'reverse' }}></div>
+                <div className={`absolute -bottom-20 left-[20%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-70 animate-aurora ${blobColors[2]}`} style={{ animationDelay: '4s' }}></div>
             </div>
             
             <Sidebar 
@@ -86,8 +87,8 @@ const App: React.FC = () => {
                     theme={theme}
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
-                <main className="flex-1 relative h-full overflow-hidden">
-                    <div key={activeToolId} className="h-full w-full">
+                <main className="flex-1 relative min-h-0">
+                    <div key={activePath} className="h-full w-full">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>

@@ -31,7 +31,6 @@ export interface Conversation {
     toolId: string;
 }
 
-// Fix: Add AnalysisResult interface for use in voice analysis feature.
 export interface AnalysisResult {
     mood: string;
     energy: string;

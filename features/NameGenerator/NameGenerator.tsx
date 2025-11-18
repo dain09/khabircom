@@ -1,14 +1,12 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generateNames } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generateNames } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 const CATEGORIES = [
     'تطبيق موبايل', 'صفحة فيسبوك كوميدية', 'قناة يوتيوب طبخ', 'لعبة استراتيجية', 'بودكاست'
@@ -50,7 +48,7 @@ const NameGenerator: React.FC = () => {
                     </div>
                 </div>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <ResultCard title={`أسماء مقترحة لـ "${category}"`} copyText={result.join('\n')}>

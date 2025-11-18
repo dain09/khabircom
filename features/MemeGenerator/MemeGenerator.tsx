@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generateMemeSuggestions } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generateMemeSuggestions } from '../../services/api/image.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ImageUpload } from '../../components/ui/ImageUpload';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 const MemeGenerator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'meme-generator')!;
@@ -53,7 +52,14 @@ const MemeGenerator: React.FC = () => {
                     </Button>
                 )}
                 
-                {isLoading && <Loader />}
+                {isLoading && (
+                    <div className="mt-6 space-y-4">
+                        <Skeleton className="w-full max-w-md h-64 mx-auto" />
+                        <div className="flex flex-wrap gap-2">
+                            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-9 w-24 rounded-lg" />)}
+                        </div>
+                    </div>
+                )}
                 {error && <ErrorDisplay message={error} />}
 
                 {imagePreview && suggestions && (

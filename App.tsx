@@ -1,4 +1,3 @@
-
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -9,6 +8,7 @@ import { Loader } from './components/ui/Loader';
 import { initializeApiKeys } from './services/apiKeyManager';
 import { useTool } from './hooks/useTool';
 import { ApiKeyManager } from './components/ApiKeyManager';
+import { ToastContainer } from './components/ToastContainer';
 
 // Dynamic import for all feature components
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
@@ -76,6 +76,7 @@ const App: React.FC = () => {
                 </main>
             </div>
             <ApiKeyManager isOpen={isApiKeyManagerOpen} onClose={() => setApiKeyManagerOpen(false)} />
+            <ToastContainer />
         </div>
     );
 };

@@ -1,8 +1,6 @@
-
-
 import React, { useState, useRef } from 'react';
 import { Button } from '../../components/ui/Button';
-import { analyzeVoice } from '../../services/geminiService';
+import { analyzeVoice } from '../../services/api/text.service';
 import { Loader } from '../../components/ui/Loader';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';

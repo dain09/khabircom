@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { analyzeHabits } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { analyzeHabits } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 interface TalentResult {
     talent_name: string;
@@ -47,7 +46,7 @@ const HabitAnalyzer: React.FC = () => {
                     اكتشف موهبتي
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton count={2} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">

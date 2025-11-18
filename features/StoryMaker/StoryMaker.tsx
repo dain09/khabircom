@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generateStory } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generateStory } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 interface StoryResult {
     funny_story: string;
@@ -45,7 +45,7 @@ const StoryMaker: React.FC = () => {
                     كمل السيناريو
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">

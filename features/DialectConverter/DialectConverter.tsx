@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
-import { convertDialect } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { convertDialect } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AlertTriangle, Check } from 'lucide-react';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 const DIALECTS = [
     'مصري', 'صعيدي', 'اسكندراني', 'شامي (سوري/لبناني)', 'خليجي (سعودي/إماراتي)', 'سوداني',
@@ -91,7 +91,7 @@ const DialectConverter: React.FC = () => {
                     ترجم
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <ResultCard 

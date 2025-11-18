@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { roastImage } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { roastImage } from '../../services/api/image.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ImageUpload } from '../../components/ui/ImageUpload';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 interface RoastResult {
     roast: string;
@@ -40,7 +39,7 @@ const ImageRoast: React.FC = () => {
                     حلل الصورة
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton count={3} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">

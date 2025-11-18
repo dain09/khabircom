@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { generateChatResponseStream, generateWelcomeSuggestions } from '../../services/geminiService';
+import { generateChatResponseStream, getMorningBriefing } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,48 +14,53 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
-// Fix: Import usePersona to get persona settings.
 import { usePersona } from '../../hooks/usePersona';
+import { useToast } from '../../hooks/useToast';
+import { Skeleton } from '../../components/ui/Skeleton';
 
-const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
-    const { recentTools } = useTool();
+type BriefingData = { greeting: string; suggestions: string[] };
+
+const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> = ({ onSuggestionClick }) => {
+    const { memory } = useMemory();
+    const { persona } = usePersona();
 
     const context = useMemo(() => {
         const hour = new Date().getHours();
-        const timeOfDay = hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
-        const lastToolId = recentTools[0];
-        const lastTool = TOOLS.find(t => t.id === lastToolId);
-        return { timeOfDay, lastToolTitle: lastTool?.title };
-    }, [recentTools]);
+        return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
+    }, []);
 
-    const { data, isLoading, error, execute } = useGemini<{ suggestions: string[] }, typeof context>(
-        () => generateWelcomeSuggestions(context)
+    const { data: briefing, isLoading: isBriefingLoading, error: briefingError, execute: fetchBriefing } = useGemini<BriefingData, void>(
+        () => getMorningBriefing(memory, persona, context)
     );
-
+    
     useEffect(() => {
-        execute(context);
+        fetchBriefing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [context]);
+    }, [memory, persona]);
 
-    const suggestions = data?.suggestions || [
+    const suggestions = briefing?.suggestions || [
         "اكتبلي نكتة عن المبرمجين",
         "لخصلي مفهوم الثقب الأسود",
-        "اقترح فكرة مشروع جديدة"
+        "اقترح فكرة مشروع جديدة",
+        "إيه رأيك في الذكاء الاصطناعي؟"
     ];
 
     return (
-        <div className="flex flex-col h-full items-center justify-center text-center p-4">
+        <div className="flex flex-col h-full items-center justify-center p-4 text-center">
             <div className="w-20 h-20 mb-4 bg-primary/20 rounded-full flex items-center justify-center animate-bubbleIn">
                 <Bot size={48} className="text-primary" />
             </div>
-            <h2 className="text-3xl font-bold mb-2 animate-slideInUp" style={{ animationDelay: '100ms' }}>خبيركم تحت أمرك</h2>
+            {isBriefingLoading 
+                ? <Skeleton className="h-9 w-56 mb-2" />
+                : <h2 className="text-3xl font-bold mb-2 animate-slideInUp">{briefing?.greeting || "خبيركم تحت أمرك"}</h2>
+            }
             <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp" style={{ animationDelay: '200ms' }}>
-                اسأل أي سؤال، اطلب أي طلب، أو اختار اقتراح من دول عشان نبدأ الكلام.
+                اختار اقتراح من دول عشان نبدأ الكلام.
             </p>
             <div className="flex flex-wrap justify-center gap-3 animate-slideInUp" style={{ animationDelay: '300ms' }}>
-                 {isLoading && !data ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="p-2 px-4 h-9 w-40 bg-slate-200/60 dark:bg-dark-card/60 rounded-full animate-pulse"></div>
+                 {isBriefingLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-9 w-40 rounded-full" />
                     ))
                 ) : (
                     suggestions.map((s, i) => (
@@ -71,7 +75,7 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
                     ))
                 )}
             </div>
-             {error && !data && <p className="text-xs text-red-500 mt-4">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
+            {briefingError && <p className="text-xs text-red-500 mt-4">فشل تحميل الاقتراحات. بنستخدم اقتراحات ثابتة دلوقتي.</p>}
         </div>
     );
 };
@@ -181,8 +185,8 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
 const Chat: React.FC = () => {
     const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations } = useChat();
     const { memory, updateMemory } = useMemory();
-    // Fix: Get persona settings to pass to the API.
     const { persona } = usePersona();
+    const { addToast } = useToast();
     
     const [input, setInput] = useState('');
     const [attachedFile, setAttachedFile] = useState<File | null>(null);
@@ -191,6 +195,7 @@ const Chat: React.FC = () => {
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isListening, setIsListening] = useState(false);
     const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+    const [isMenuOpen, setMenuOpen] = useState(false);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -237,7 +242,6 @@ const Chat: React.FC = () => {
                 .filter(m => m.id !== userMessage.id && m.id !== modelMessageId && !m.error)
                 || [];
 
-            // Fix: Pass the 'persona' object as the fourth argument to the service function.
             const stream = await generateChatResponseStream(historyForApi, newMessage, memory, persona);
 
             for await (const chunk of stream) {
@@ -255,8 +259,8 @@ const Chat: React.FC = () => {
                         try {
                             const jsonPayload = JSON.parse(match[1]);
                             if (jsonPayload.key && jsonPayload.value) {
-                                console.log(`Saving memory: ${jsonPayload.key} -> ${jsonPayload.value}`);
                                 updateMemory(jsonPayload.key, jsonPayload.value);
+                                addToast(`💡 تم حفظ '${jsonPayload.key}' في الذاكرة!`, { icon: <BrainCircuit size={18} /> });
                             }
                         } catch (e) {
                             console.error("Failed to parse memory command:", e);
@@ -288,8 +292,7 @@ const Chat: React.FC = () => {
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
-    // Fix: Add 'persona' to the dependency array.
-    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona]);
+    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona, addToast]);
 
     const handleSend = useCallback(async () => {
         if ((!input.trim() && !attachedFile) || isResponding) return;
@@ -305,8 +308,8 @@ const Chat: React.FC = () => {
         const isPdf = attachedFile?.type === 'application/pdf';
         
         let textToSend = input;
-        if (isPdf) {
-            textToSend = `[ملف مرفق: ${attachedFile.name}]\n${input}`;
+        if (isPdf || isImage) {
+            textToSend = `[ملف مرفق: ${attachedFile?.name}]\n${input}`;
         }
         
         const userMessage: Message = { 
@@ -361,7 +364,6 @@ const Chat: React.FC = () => {
         try {
             updateMessageInConversation(convoId, messageToContinueId, { isStreaming: true });
             const historyForApi = conversation.messages;
-            // Fix: Pass the 'persona' object as the fourth argument to the service function.
             const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." }, memory, persona);
 
             for await (const chunk of stream) {
@@ -378,6 +380,7 @@ const Chat: React.FC = () => {
                             const jsonPayload = JSON.parse(match[1]);
                             if (jsonPayload.key && jsonPayload.value) {
                                 updateMemory(jsonPayload.key, jsonPayload.value);
+                                addToast(`💡 تم حفظ '${jsonPayload.key}' في الذاكرة!`, { icon: <BrainCircuit size={18} /> });
                             }
                         } catch (e) {
                             console.error("Failed to parse memory command:", e);
@@ -409,8 +412,7 @@ const Chat: React.FC = () => {
             inputRef.current?.focus();
         }
 
-    // Fix: Add 'persona' to the dependency array.
-    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory, persona]);
+    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory, persona, addToast]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;
@@ -449,6 +451,7 @@ const Chat: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setMenuOpen(false); // Close menu after selection
             setAttachedFile(file);
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -519,14 +522,14 @@ const Chat: React.FC = () => {
     }, [isListening]);
 
     if (!activeConversation) {
-        return <WelcomeScreen onSuggestionClick={handleSuggestionClick} />;
+        return <DashboardScreen onSuggestionClick={handleSuggestionClick} />;
     }
 
     return (
         <div className="flex flex-col h-full max-w-4xl mx-auto bg-transparent sm:bg-background/70 sm:dark:bg-dark-card/70 backdrop-blur-lg sm:border border-white/20 dark:border-slate-700/30 sm:rounded-xl sm:shadow-xl transition-all duration-300">
             <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2 sm:p-6">
                  {activeConversation.messages.length === 0 ? (
-                    <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
+                    <DashboardScreen onSuggestionClick={handleSuggestionClick} />
                 ) : (
                     <div className="space-y-6">
                         {activeConversation.messages.map((msg) => (
@@ -644,16 +647,18 @@ const Chat: React.FC = () => {
                         </button>
                     </div>
                 )}
-                 <div className="flex items-end gap-2 sm:gap-3">
-                    {isResponding ? (
-                        <Button onClick={handleStop} className="order-1 p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
-                            <StopCircle size={24} />
-                        </Button>
-                    ) : (
-                         <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="order-1 p-3 rounded-full" aria-label="إرسال الرسالة">
-                            <Send size={24} />
-                        </Button>
-                    )}
+                 <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="order-1 self-end">
+                        {isResponding ? (
+                            <Button onClick={handleStop} className="p-3 bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white rounded-full" aria-label="إيقاف التوليد">
+                                <StopCircle size={24} />
+                            </Button>
+                        ) : (
+                            <Button onClick={handleSend} disabled={(!input.trim() && !attachedFile)} className="p-3 rounded-full" aria-label="إرسال الرسالة">
+                                <Send size={24} />
+                            </Button>
+                        )}
+                    </div>
                     <AutoGrowTextarea
                         ref={inputRef}
                         value={input}
@@ -664,27 +669,40 @@ const Chat: React.FC = () => {
                                 handleSend();
                             }
                         }}
-                        placeholder="اسأل أي حاجة..."
+                        placeholder="اسأل أي حاجة أو الصق صورة... (Shift+Enter لسطر جديد)"
                         className="order-2 flex-1 p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-300 shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-40 glow-effect textarea-scrollbar"
                         aria-label="اكتب رسالتك هنا"
                     />
-                    <div className='order-3 flex items-center gap-1'>
+                    <div className='relative order-3 self-end'>
                         <Button
                             variant="secondary"
                             className="p-3 rounded-full"
-                            aria-label="إرفاق ملف"
-                            onClick={() => fileInputRef.current?.click()}
+                            aria-label="خيارات إضافية"
+                            onClick={() => setMenuOpen(prev => !prev)}
                         >
-                            <Paperclip size={24} />
+                            <Plus size={24} />
                         </Button>
-                         <Button
-                            variant="secondary"
-                            className={`p-3 rounded-full ${isListening ? 'bg-red-500/20 text-red-500 animate-pulse' : ''}`}
-                            aria-label="إدخال صوتي"
-                            onClick={handleListen}
-                        >
-                            <Mic size={24} />
-                        </Button>
+                        {isMenuOpen && (
+                            <div 
+                                className="absolute bottom-full right-0 mb-2 w-48 bg-background dark:bg-dark-card shadow-lg rounded-lg border border-slate-200/50 dark:border-slate-700/50 p-2 z-10 animate-slideInUp"
+                                onMouseLeave={() => setMenuOpen(false)}
+                            >
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full flex items-center gap-3 p-2 text-sm rounded-md hover:bg-slate-200/50 dark:hover:bg-dark-card/80"
+                                >
+                                    <Paperclip size={18} />
+                                    <span>إرفاق ملف</span>
+                                </button>
+                                <button
+                                    disabled
+                                    className="w-full flex items-center gap-3 p-2 text-sm rounded-md hover:bg-slate-200/50 dark:hover:bg-dark-card/80 opacity-50 cursor-not-allowed"
+                                >
+                                    <Mic size={18} />
+                                    <span>تسجيل صوتي</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
                 </div>

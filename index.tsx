@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -7,6 +6,7 @@ import { ChatProvider } from './contexts/ChatContext';
 import { ToolProvider } from './contexts/ToolContext';
 import { MemoryProvider } from './contexts/MemoryContext';
 import { PersonaProvider } from './contexts/PersonaContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -21,7 +21,9 @@ root.render(
         <ToolProvider>
           <MemoryProvider>
             <PersonaProvider>
-              <App />
+              <ToastProvider>
+                <App />
+              </ToastProvider>
             </PersonaProvider>
           </MemoryProvider>
         </ToolProvider>

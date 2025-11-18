@@ -1,9 +1,7 @@
-
-
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { generateChatResponseStream, getMorningBriefing } from '../../services/geminiService';
+import { generateChatResponseStream, getMorningBriefing } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
 import { Message } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,6 +15,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
 import { usePersona } from '../../contexts/PersonaContext';
+import { useToast } from '../../hooks/useToast';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 type BriefingData = { greeting: string; suggestions: string[] };
 
@@ -51,7 +51,7 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
                 <Bot size={48} className="text-primary" />
             </div>
             {isBriefingLoading 
-                ? <div className="h-9 w-56 bg-slate-300/50 dark:bg-slate-700/50 rounded animate-pulse mb-2"></div> 
+                ? <Skeleton className="h-9 w-56 mb-2" />
                 : <h2 className="text-3xl font-bold mb-2 animate-slideInUp">{briefing?.greeting || "خبيركم تحت أمرك"}</h2>
             }
             <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp" style={{ animationDelay: '200ms' }}>
@@ -60,7 +60,7 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
             <div className="flex flex-wrap justify-center gap-3 animate-slideInUp" style={{ animationDelay: '300ms' }}>
                  {isBriefingLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="p-2 px-4 h-9 w-40 bg-slate-200/60 dark:bg-dark-card/60 rounded-full animate-pulse"></div>
+                        <Skeleton key={i} className="h-9 w-40 rounded-full" />
                     ))
                 ) : (
                     suggestions.map((s, i) => (
@@ -186,6 +186,7 @@ const Chat: React.FC = () => {
     const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations } = useChat();
     const { memory, updateMemory } = useMemory();
     const { persona } = usePersona();
+    const { addToast } = useToast();
     
     const [input, setInput] = useState('');
     const [attachedFile, setAttachedFile] = useState<File | null>(null);
@@ -258,8 +259,8 @@ const Chat: React.FC = () => {
                         try {
                             const jsonPayload = JSON.parse(match[1]);
                             if (jsonPayload.key && jsonPayload.value) {
-                                console.log(`Saving memory: ${jsonPayload.key} -> ${jsonPayload.value}`);
                                 updateMemory(jsonPayload.key, jsonPayload.value);
+                                addToast(`💡 تم حفظ '${jsonPayload.key}' في الذاكرة!`, { icon: <BrainCircuit size={18} /> });
                             }
                         } catch (e) {
                             console.error("Failed to parse memory command:", e);
@@ -291,7 +292,7 @@ const Chat: React.FC = () => {
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
         }
-    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona]);
+    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, updateMemory, persona, addToast]);
 
     const handleSend = useCallback(async () => {
         if ((!input.trim() && !attachedFile) || isResponding) return;
@@ -379,6 +380,7 @@ const Chat: React.FC = () => {
                             const jsonPayload = JSON.parse(match[1]);
                             if (jsonPayload.key && jsonPayload.value) {
                                 updateMemory(jsonPayload.key, jsonPayload.value);
+                                addToast(`💡 تم حفظ '${jsonPayload.key}' في الذاكرة!`, { icon: <BrainCircuit size={18} /> });
                             }
                         } catch (e) {
                             console.error("Failed to parse memory command:", e);
@@ -410,7 +412,7 @@ const Chat: React.FC = () => {
             inputRef.current?.focus();
         }
 
-    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory, persona]);
+    }, [activeConversationId, stoppedMessageId, conversations, updateMessageInConversation, memory, updateMemory, persona, addToast]);
 
     const handleRetry = useCallback((failedMessage: Message) => {
         if (!activeConversationId) return;

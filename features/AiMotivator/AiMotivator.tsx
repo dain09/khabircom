@@ -1,15 +1,13 @@
-
-
 import React, { useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
-import { getGrumpyMotivation } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { getGrumpyMotivation } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { RefreshCw } from 'lucide-react';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 const AiMotivator: React.FC = () => {
     const toolInfo = TOOLS.find(t => t.id === 'ai-motivator')!;
@@ -31,7 +29,7 @@ const AiMotivator: React.FC = () => {
             introText="محتاج دفعة بس مش من النوع التقليدي؟ الخبير هيديلك تحفيز على طريقته الخاصة... جهز نفسك."
         >
             <div className="text-center p-4 flex flex-col justify-center items-center h-full">
-                {isLoading && <Loader />}
+                {isLoading && <ResultCardSkeleton />}
                 {error && <ErrorDisplay message={error} />}
                 {motivation && (
                     <ResultCard title="جرعة تحفيز على السريع" copyText={motivation}>

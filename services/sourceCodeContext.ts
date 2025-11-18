@@ -1,122 +1,67 @@
-
 export const SOURCE_CODE_CONTEXT = `
+// OVERVIEW: This is a React application built with TypeScript and Vite. It's a multi-tool platform powered by the Gemini API, featuring a central chat interface and various specialized tools. It supports PWA installation, skeleton loading, and toast notifications.
+
+// --- CORE STRUCTURE ---
+
 // FILE: index.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { ChatProvider } from './contexts/ChatContext';
-import { ToolProvider } from './contexts/ToolContext';
-import { MemoryProvider } from './contexts/MemoryContext';
-import { PersonaProvider } from './contexts/PersonaContext';
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <ThemeProvider>
-      <ChatProvider>
-        <ToolProvider>
-          <MemoryProvider>
-            <PersonaProvider>
-              <App />
-            </PersonaProvider>
-          </MemoryProvider>
-        </ToolProvider>
-      </ChatProvider>
-    </ThemeProvider>
-  </React.StrictMode>
-);
+// Renders the App component within context providers, including Theme, Chat, Tool, Memory, Persona, and the new ToastProvider.
 
 // FILE: App.tsx
-import React, { useMemo, Suspense, useEffect, useState } from 'react';
-// ...
-const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
-    'chat': React.lazy(() => import('./features/Chat/Chat')),
-    'text-roast': React.lazy(() => import('./features/TextRoast/TextRoast')),
-    // ... all other tools
-    'image-editor': React.lazy(() => import('./features/ImageEditor/ImageEditor')),
-    'khabirkom-settings': React.lazy(() => import('./features/Settings/Settings')),
-};
-// ... App component logic
+// The root component that manages layout and renders the active tool. It now includes the ToastContainer for global notifications.
 
-// FILE: types.ts
-import { LucideIcon } from 'lucide-react';
-export interface Tool { /* ... */ }
-export interface Message { /* ... */ }
-export interface Conversation { /* ... */ }
-export interface PersonaSettings {
-    humor: number;
-    verbosity: number;
-    interests: string[];
-}
-// ...
+// --- ARCHITECTURE & SERVICES (REFACTORED) ---
 
-// FILE: constants.ts
-// ...
-export const TOOLS: Tool[] = [
-    // ... all tools
-    { id: 'khabirkom-settings', title: 'ظبّط خبيركم', description: 'تحكم في شخصية الخبير وردوده', icon: SlidersHorizontal, color: 'text-cyan-500', category: 'المعرفة والمساعدة' },
-];
+// FILE: services/geminiService.ts (Now gemini.core.ts conceptually)
+// DESCRIPTION: Contains only the core logic for interacting with the Google Gemini API.
+// Manages API client creation, and exports the withApiKeyRotation wrapper function for handling rate limits across multiple keys.
 
-// FILE: contexts/PersonaContext.tsx (NEW)
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { PersonaSettings } from '../types';
-export const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
-const PERSONA_STORAGE_KEY = 'khabirkom-persona-settings';
-export const PersonaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // ... Logic to manage persona settings state and sync with localStorage
-};
-export const usePersona = () => { /* ... */ };
+// FILE: services/api/chat.service.ts (NEW)
+// DESCRIPTION: All services related to the chat feature.
+// - getChatPersonaInstruction: Dynamically builds the system prompt using memory and persona settings.
+// - generateChatResponseStream: Handles the main streaming chat logic.
+// - getMorningBriefing: Generates the content for the proactive dashboard.
 
+// FILE: services/api/image.service.ts (NEW)
+// DESCRIPTION: All services for tools that process or generate images.
+// - roastImage, generateMemeSuggestions, generateImage, editImage.
 
-// FILE: features/Settings/Settings.tsx (NEW)
-import React, { useState } from 'react';
-import { usePersona } from '../../hooks/usePersona';
-// ... UI with sliders and inputs to control persona settings from PersonaContext
+// FILE: services/api/text.service.ts (NEW)
+// DESCRIPTION: All services for tools that process or generate text.
+// - roastText, summarizeNews, convertDialect, interpretDream, etc.
 
-// FILE: services/geminiService.ts
-// ... imports including PersonaSettings
-const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
-  // ... Base prompt
-  const personaContext = "\\n\\n--- إعدادات الشخصية ---\\n" +
-                         \`اضبط شخصيتك بناءً على هذه الإعدادات:
-- مستوى الهزار والكوميديا: \${persona.humor}/10 (1=جد, 10=تحفيل).
-- مستوى التفصيل في الرد: \${persona.verbosity}/10 (1=مختصر, 10=رغاي).
-- اهتمامات المستخدم: \${persona.interests.join(', ')}. ركز على هذه المواضيع.\`
-  // ... Combines base prompt, memory, and new persona context.
-  // Also includes new instructions for "Tool Chaining".
-};
+// FILE: services/apiKeyManager.ts
+// Manages storing, retrieving, adding, deleting, and rotating Gemini API keys in localStorage.
 
-export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
-  // ... calls getChatPersonaInstruction with all arguments.
-};
+// --- STATE MANAGEMENT (CONTEXTS) ---
 
-export const getMorningBriefing = async (memory: Record<string, string>, persona: PersonaSettings, timeOfDay: string): Promise</* ... */> => {
-  // New function to generate proactive dashboard content (greeting, news, meme prompt, challenge)
-  // based on user's memory and persona interests.
-};
-// ... other service functions
+// FILE: contexts/ChatContext.tsx, ToolContext.tsx, ThemeContext.tsx, MemoryContext.tsx, PersonaContext.tsx
+// These contexts manage their respective global states (conversations, active tool, theme, user memory, AI persona).
+
+// FILE: contexts/ToastContext.tsx (NEW)
+// Manages a global state for toast notifications, allowing any component to trigger a toast.
+
+// --- UI & UX ENHANCEMENTS ---
+
+// FILE: components/Sidebar.tsx
+// The search input for tools is now debounced using the new useDebounce hook to improve performance.
 
 // FILE: features/Chat/Chat.tsx
-// ... imports including usePersona
-const DashboardScreen: React.FC<{ /* ... */ }> = ({ /* ... */ }) => {
-  // This is the new proactive welcome screen.
-  // It uses getMorningBriefing service to fetch personalized content.
-  // It also uses generateImage service to generate the meme of the day.
-  // Renders a dashboard with greeting, news, challenge, and meme.
-};
+// - The welcome screen is now a proactive "DashboardScreen" that uses Skeleton components while loading.
+// - After processing a [SAVE_MEMORY] command, it now triggers a toast notification for user feedback using useToast.
 
-const Chat: React.FC = () => {
-  const { persona } = usePersona();
-  // ...
-  // Passes persona object to streamModelResponse -> generateChatResponseStream.
-  // Renders DashboardScreen when there are no messages.
-};
+// FILE: components/ui/Skeleton.tsx & ResultCardSkeleton.tsx (NEW)
+// New components to display skeleton/ghost UI elements while data is loading, improving perceived performance.
+// All tool feature components (e.g., ImageRoast, TextRoast) have been updated to use ResultCardSkeleton instead of a generic loader.
 
-// ... (summaries of other existing files)
+// --- PWA SUPPORT ---
+
+// FILE: manifest.json (NEW) & index.html (MODIFIED)
+// The app is now a Progressive Web App, making it installable on user devices for a more native-like experience.
+
+// --- HOOKS ---
+// FILE: hooks/useDebounce.ts (NEW)
+// A custom hook to debounce a value, used for the sidebar search.
+
+// FILE: hooks/useToast.ts (NEW)
+// A custom hook for easy access to the ToastContext's functions.
 `;

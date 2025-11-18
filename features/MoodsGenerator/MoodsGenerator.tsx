@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generateMoodContent } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generateMoodContent } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 interface MoodResult {
     mood_name: string;
@@ -46,7 +45,7 @@ const MoodsGenerator: React.FC = () => {
                     حلل مودي
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton count={2} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                  <div className="mt-6 space-y-4">

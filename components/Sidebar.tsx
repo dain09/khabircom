@@ -4,6 +4,7 @@ import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Se
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface SidebarProps {
     isSidebarOpen: boolean;
@@ -17,17 +18,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newName, setNewName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     const toolsByCategory = useMemo(() => {
         const categories: Record<string, Tool[]> = {};
-        TOOLS.filter(tool => tool.id !== 'chat' && tool.title.toLowerCase().includes(searchTerm.toLowerCase())).forEach(tool => {
+        TOOLS.filter(tool => tool.id !== 'chat' && tool.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())).forEach(tool => {
             if (!categories[tool.category]) {
                 categories[tool.category] = [];
             }
             categories[tool.category].push(tool);
         });
         return categories;
-    }, [searchTerm]);
+    }, [debouncedSearchTerm]);
     
     const recentToolsDetails = useMemo(() => {
         return recentTools.map(id => TOOLS.find(tool => tool.id === id)).filter((tool): tool is Tool => !!tool);
@@ -175,7 +177,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                         )}
                         <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
                         <ul className='space-y-1'>
-                            {/* Fix: Use Object.keys to iterate over categories to avoid type inference issues with Object.entries. */}
                             {Object.keys(toolsByCategory).map((category) => (
                                 <li key={category}>
                                     <details className="group" open>

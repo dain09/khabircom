@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generateRecipe } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generateRecipe } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 interface RecipeResult {
     real_recipe: { name: string; steps: string; };
@@ -45,7 +44,7 @@ const RecipeGenerator: React.FC = () => {
                     اخترعلي أكلة
                 </Button>
             </div>
-            {isLoading && <Loader />}
+            {isLoading && <ResultCardSkeleton count={3} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">

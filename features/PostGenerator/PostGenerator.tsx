@@ -1,14 +1,12 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { generatePost } from '../../services/geminiService';
-import { Loader } from '../../components/ui/Loader';
+import { generatePost } from '../../services/api/text.service';
 import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
 import { ResultCard } from '../../components/ui/ResultCard';
 import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
+import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 
 const POST_TYPES = [
     { id: 'wise', text: 'بوست حكمة' },
@@ -53,7 +51,7 @@ const PostGenerator: React.FC = () => {
                     </Button>
                 ))}
             </div>
-            {isLoading && !result && <Loader />}
+            {isLoading && !result && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <ResultCard title={`بوست ${currentType} جاهز`} copyText={result}>

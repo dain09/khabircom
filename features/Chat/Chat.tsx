@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -73,16 +72,18 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
 
 const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const { setActiveToolId } = useTool();
-    const [isExpanded, setIsExpanded] = useState(false);
     const content = message.parts[0].text;
 
-    // FIX: Add a space after markdown elements to prevent "sticky words".
-    const processedContent = content.replace(/(\*+|_+|~+|`)([\p{L}\p{N}])/gu, '$1 $2');
+    // Function to fix markdown spacing issue where bold/italic text sticks to the next word.
+    const fixMarkdownSpacing = (text: string) => {
+        // This regex looks for markdown bold/italic (**...** or *...*)
+        // followed by a non-whitespace character (\S) using a positive lookahead (?=\S).
+        // It then replaces the match with the matched markdown element ($1) followed by a space.
+        const regex = /(\*\*.*?\*\*|\*.*?\*)(?=\S)/g;
+        return text.replace(regex, '$1 ');
+    };
 
-    // Heuristic to decide if content is long enough to be collapsed.
-    // It should only be collapsible if the streaming is complete.
-    const isLong = processedContent.length > 500 && !message.isStreaming;
-    const displayContent = isLong && !isExpanded ? processedContent.substring(0, 400) + '...' : processedContent;
+    const processedContent = fixMarkdownSpacing(content);
     
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
         const [isCopied, setIsCopied] = useState(false);
@@ -169,24 +170,8 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                     code: CodeBlock,
                 }}
             >
-                {displayContent}
+                {processedContent}
             </ReactMarkdown>
-            {isLong && !isExpanded && (
-                <button
-                    onClick={() => setIsExpanded(true)}
-                    className="text-primary font-bold text-sm mt-2"
-                >
-                    اعرض المزيد...
-                </button>
-            )}
-            {isLong && isExpanded && (
-                 <button
-                    onClick={() => setIsExpanded(false)}
-                    className="text-primary font-bold text-sm mt-2"
-                >
-                    اعرض أقل...
-                </button>
-            )}
         </div>
     );
 };

@@ -2,7 +2,7 @@
 import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Voicemail, Send, Swords,
-    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal
+    Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal, KeyRound
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -34,11 +34,35 @@ export const TOOLS: Tool[] = [
     { id: 'dream-interpreter', title: 'مفسر الأحلام الفلكي', description: 'تفسيرات منطقية وفكاهية لأحلامك', icon: Cloud, color: 'text-blue-400', category: 'المعرفة والمساعدة' },
     { id: 'ai-teacher', title: 'الأستاذ الفهلوي في التخطيط', description: 'اديني اسم موضوع صعب وأنا هعملك خطة مذاكرة فهلوانية', icon: GraduationCap, color: 'text-purple-400', category: 'المعرفة والمساعدة' },
     { id: 'habit-analyzer', title: 'المحلل الفهلوي', description: 'قول 5 حاجات عنك وأنا هطلعلك موهبتك الخفية', icon: Target, color: 'text-orange-600', category: 'المعرفة والمساعدة' },
-    { id: 'memory-manager', title: 'الذاكرة', description: 'خزّن معلومات عنك عشان الخبير يفتكرها', icon: BrainCircuit, color: 'text-pink-500', category: 'المعرفة والمساعدة' },
-    { id: 'khabirkom-settings', title: 'ظبّط خبيركم', description: 'تحكم في شخصية الخبير وردوده', icon: SlidersHorizontal, color: 'text-cyan-500', category: 'المعرفة والمساعدة' },
-
+    
     // الإنتاجية اليومية
     { id: 'voice-analysis', title: 'تحليل الصوت', description: 'من صوتك هقولك مودك إيه (تجريبي)', icon: Mic, color: 'text-brown-500', category: 'الإنتاجية اليومية' },
     { id: 'recipe-generator', title: 'وصفات على قد الإيد', description: 'قولي عندك إيه وأنا هعملك أكلة', icon: CookingPot, color: 'text-green-400', category: 'الإنتاجية اليومية' },
     { id: 'voice-commands', title: 'الأوامر الصوتية', description: 'دوس واتكلم، وأنا هنفذ (تجريبي)', icon: Voicemail, color: 'text-gray-400', category: 'الإنتاجية اليومية' },
+
+    // الإعدادات (New Category)
+    { 
+        id: 'khabirkom-settings', 
+        title: 'شخصية خبيركم', 
+        description: 'تحكم في شخصية الخبير وردوده', 
+        icon: SlidersHorizontal, 
+        color: 'text-cyan-500', 
+        category: 'الإعدادات' 
+    },
+    { 
+        id: 'memory-manager', 
+        title: 'الذاكرة', 
+        description: 'خزّن معلومات عنك عشان الخبير يفتكرها', 
+        icon: BrainCircuit, 
+        color: 'text-pink-500', 
+        category: 'الإعدادات' 
+    },
+    {
+        id: 'api-key-manager',
+        title: 'إدارة مفاتيح API',
+        description: 'إضافة واختبار وحذف مفاتيح Gemini API',
+        icon: KeyRound,
+        color: 'text-yellow-600',
+        category: 'الإعدادات'
+    },
 ];

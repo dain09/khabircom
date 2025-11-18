@@ -25,7 +25,7 @@ export const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, AutoGrowTextarea
                 ref={internalTextareaRef}
                 rows={1} // Start with a single row
                 {...props}
-                style={{ ...props.style, overflowY: 'hidden' }} // Hide scrollbar
+                style={{ ...props.style, overflowY: 'auto' }} // Show scrollbar when needed
             />
         );
     }

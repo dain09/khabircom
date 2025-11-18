@@ -16,6 +16,7 @@ export interface Message {
     timestamp: string;
     error?: boolean;
     imageUrl?: string; // For UI rendering
+    isStreaming?: boolean; // To control UI during streaming
 }
 
 export interface Conversation {

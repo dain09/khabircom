@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Plus, X, Image as ImageIcon, Copy, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -70,17 +71,17 @@ const WelcomeScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }> =
 };
 
 
-const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
     const { setActiveToolId } = useTool();
     const [isExpanded, setIsExpanded] = useState(false);
+    const content = message.parts[0].text;
 
     // FIX: Add a space after markdown elements to prevent "sticky words".
-    // This regex finds markdown delimiters followed immediately by a word character (Unicode-aware)
-    // and inserts a space to ensure proper rendering.
     const processedContent = content.replace(/(\*+|_+|~+|`)([\p{L}\p{N}])/gu, '$1 $2');
 
-    // Heuristic to decide if content is long enough to be collapsed
-    const isLong = processedContent.length > 500 || processedContent.split('\n').length > 10;
+    // Heuristic to decide if content is long enough to be collapsed.
+    // It should only be collapsible if the streaming is complete.
+    const isLong = processedContent.length > 500 && !message.isStreaming;
     const displayContent = isLong && !isExpanded ? processedContent.substring(0, 400) + '...' : processedContent;
     
     const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
@@ -226,8 +227,6 @@ const Chat: React.FC = () => {
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (container) {
-            // Use a timeout to ensure the DOM is fully rendered before scrolling to the bottom.
-            // This is crucial for when a conversation is first loaded or a new message is added.
             const timer = setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
             }, 0);
@@ -252,7 +251,8 @@ const Chat: React.FC = () => {
             id: modelMessageId,
             role: 'model',
             parts: [{ text: '' }],
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            isStreaming: true,
         });
 
         let fullText = '';
@@ -308,6 +308,7 @@ const Chat: React.FC = () => {
             });
         } finally {
             setIsResponding(false);
+            updateMessageInConversation(convoId, modelMessageId, { isStreaming: false });
             stopStreamingRef.current = false;
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
@@ -375,6 +376,7 @@ const Chat: React.FC = () => {
         const memoryCommandRegex = /\[SAVE_MEMORY:(.*?)\]/g;
 
         try {
+            updateMessageInConversation(convoId, messageToContinueId, { isStreaming: true });
             const historyForApi = conversation.messages;
             const stream = await generateChatResponseStream(historyForApi, { text: "أكمل من حيث توقفت." }, memory);
 
@@ -417,6 +419,7 @@ const Chat: React.FC = () => {
             });
         } finally {
             setIsResponding(false);
+            updateMessageInConversation(convoId, messageToContinueId, { isStreaming: false });
             stopStreamingRef.current = false;
             streamingMessageIdRef.current = null;
             inputRef.current?.focus();
@@ -524,7 +527,9 @@ const Chat: React.FC = () => {
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                                <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain" />
+                                                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                    <img src={msg.imageUrl} alt="User upload" className="rounded-md max-w-xs max-h-64 object-contain cursor-pointer" />
+                                                </a>
                                             </div>
                                         )}
                                         { (msg.parts[0].text || msg.role === 'model') && (
@@ -534,14 +539,14 @@ const Chat: React.FC = () => {
                                                 : `bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none ${msg.error ? 'border border-red-500/50' : ''}`
                                             }`}>
                                                 <div className="text-sm whitespace-pre-wrap">
-                                                    {msg.role === 'model' && !msg.parts[0].text && !msg.error ? (
+                                                    {msg.role === 'model' && msg.isStreaming && !msg.parts[0].text && !msg.error ? (
                                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
                                                             <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
                                                             <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
                                                             <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
                                                         </div>
                                                     ) : (
-                                                        <MessageContent content={msg.parts[0].text} />
+                                                        <MessageContent message={msg} />
                                                     )}
                                                 </div>
                                             </div>

@@ -183,7 +183,7 @@ export const generateWelcomeSuggestions = async (): Promise<{ suggestions: strin
 // 2. Text Roast
 export const roastText = async (text: string) => {
     const prompt = `النص المطلوب تحفيل عليه: "${text}".\nطلعلي 4 حاجات بصيغة JSON بالSchema دي:\n{\n  "roast": "string",\n  "corrected": "string",\n  "analysis": "string",\n  "advice": "string"\n}\n\n1.  **roast**: تحفيل كوميدي وساخر على النص.\n2.  **corrected**: نسخة متصححة لغوياً من النص.\n3.  **analysis**: تحليل نفسي على الطاير لصاحب النص.\n4.  **advice**: نصيحة ساخرة بس مفيدة.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
@@ -277,14 +277,14 @@ export const summarizeNews = async (newsText: string) => {
 // 8. Moods Generator
 export const generateMoodContent = async (text: string) => {
     const prompt = `حلل النص التالي واكتب تقييم كوميدي لحالة كاتبه المزاجية. كن مبدعًا ومضحكًا جدًا. النص: "${text}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "mood_name": "string", \n "mood_description": "string", \n "advice": "string" \n}\n\n- mood_name: اسم كوميدي للمود (مثال: نمرود بيصيف في سيبيريا).\n- mood_description: وصف مضحك للحالة.\n- advice: نصيحة فكاهية لتغيير المود.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 // 9. Dream Interpreter
 export const interpretDream = async (dream: string) => {
     const prompt = `الحلم هو: "${dream}".\n\nفسرهولي في صيغة JSON بالSchema دي:\n{\n  "logical": "string",\n  "sarcastic": "string",\n  "advice": "string"\n}\n\n1.  **logical**: تفسير منطقي للحلم.\n2.  **sarcastic**: تفسير ساخر وفكاهي.\n3.  **advice**: نصيحة غريبة بس تضحك.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
@@ -298,7 +298,7 @@ export const generateRecipe = async (ingredients: string) => {
 // 11. Story Maker
 export const generateStory = async (scenario: string) => {
     const prompt = `أكمل السيناريو التالي بطريقة كوميدية وغير متوقعة. اجعل النهاية مضحكة جدًا. السيناريو: "${scenario}".\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "funny_story": "string"\n}`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
@@ -363,7 +363,7 @@ export const generateNames = async (category: string) => {
 // 19. Habit Analyzer
 export const analyzeHabits = async (habitAnswers: string) => {
     const prompt = `بناءً على الـ5 أشياء التالية التي يحبها المستخدم أو يفعلها، استنتج "موهبة خفية" كوميدية لديه. كن مبدعًا جدًا في استنتاجك. الأشياء هي: "${habitAnswers}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "talent_name": "string", \n "talent_description": "string", \n "advice": "string" \n}\n\n- talent_name: اسم الموهبة الخفية (مثال: أفضل نموذج كسول في العالم).\n- talent_description: شرح كوميدي للموهبة.\n- advice: نصيحة فكاهية لتنمية هذه الموهبة.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 

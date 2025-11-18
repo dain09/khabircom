@@ -55,8 +55,8 @@ root.render(
       }
     </script>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7gPz357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7gPz357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7g/z357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEcElEQVR4nO3dO29cVRzH8e/MA3gBkyYlBDSFgFDSi4CIkGgoKiJ8AYqEipQyFSoKBEQFIv+AImqpdEgJASGlkIiA5G0gNk3SgAW4YQ+wYw/nlB+Su92997wze2b2e84n2fnszPzOmdk5Y/yAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAAQMGDBgwYMCAPwO++8/f/j05P7u/8uMfnz169J8T5/vTMyPj07OjE+f783OjU+cHz/ZnPj/+7NlnJ2dHpwZf3p/4+P3Hn/345Pxs5eO3Dxx8+dnh8fnVwZf3R6enPj6/Mvjyo/Mzw+ff3vj4/Kpw+M9p4AMHHn65vzz88uDLOzPjZz/++O2T0+f7s9fnVwdf3p/Y+Pj9yX0P/3ny5cn52cn10Zf35/88efI/256dHF38wQMfPnx6+GcPvjxy+F9vA35x8GcP3nj4Zw++PHz/p/eBPz/48vDAh18ePvgvHn/24P3J3dnhfP/24MvDAx9+efDg/eT+5vDA/b9aA3598L/rQ+B7D/57DQB+efD/bQ+B7z/47/EA8KuD/wUfAu89+C8eAH558L/nQ+B9B/+LhwBfv+yC5w/eP/+V9vXnBz68v3A++N/4+NnD9ycffvl7D/8LnwPeA27e8+C5g/fPT67Pn+/Pfrw++PC+wvnA+4cHH375+9+P/wP2PvD+xMfnFwcf3p+cHhw4P+f5wfszVwffHpycn52eHhw4P/c88P7s2XMnZwdf3h9cH5z//Dzw/vTUM4MvD5/vz368Pjg/+fyTz/7+NnD5x+dn+7P3589+fPLh539rDvy74MKXn58ZePz2+fnVsYMP70+cPn/h47dnP/746+Dze89+fPKXm0D+XfDl+cnh+flnTw/v/974+O3B2dH5+dXR/9k3PvgHwG8Pvvyz7+CD/wH89uDLf/oOvvAHgN8cfPln38EH/+2/fPgn/Jc3/8g/uQ/4xQG/PPgT/p82/2yQf/Lf8G+Afxnwo3/yD98fAAB+Z8AP/pW/Af/lT/8G+JUAP/hb/gb4Vz79G+D/C/jR//D3wN+fGZy+N98Df35m8PnfBwC8/3HwP+c88P7s+fkz4Pvnz89fBwDAX33wP+f8v5f/fv7g/z357DkTgH8GvP/x088eAEC/77/yD34X/L89+B/+LgAAnwJ+9r/x+T/5LgAADwO/+594/19wFwAAh8D/5NdfBwDgd8A/9+svAAC8Dfz//+VzANAP/J///hYAAN8B3/3n30//AgDAk+C7f/398z8A4O/wX8AnDgAAv+c//5cDAED+Hnj/wz9/33/hL/+d/58BAAB+C/zp2dGpQwAAvAv+6Wf3R3f/BADg1/DX//8P8G9v/u/9XQAA/h7817/8/P78VwEAuD94/+PjJwAA/hP403/yLwAA/BP403/xTwAA+IHg+w/4iQAA8P/h++8/4CcDAOB74D/hLwIAwM+D5//kLwEAgNfA+z/4SwCA4K3g/cEPHAAAvAnen9wfAQAA/wD+6dmRw/8EAAAM3gq+O3/wf8w/YMCAAAAAAAAAAPBf/gC9D77fUv1D4AAAAABJRU5ErkJggg==" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>خبيركم - مساعدك المصري الفهلوي</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -168,6 +168,19 @@ root.render(
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
+
+// FILE: vite-env.d.ts
+// Fix: Removed the triple-slash directive for "vite/client".
+// This resolves the "Cannot find type definition file" error which is likely due to a project setup issue.
+// The interfaces below provide the necessary types for the environment variables used in the app.
+
+interface ImportMetaEnv {
+  readonly VITE_API_KEYS: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
 
 // FILE: App.tsx
 import React, { useMemo, Suspense, useEffect } from 'react';
@@ -323,201 +336,67 @@ export const TOOLS: Tool[] = [
     { id: 'voice-commands', title: 'الأوامر الصوتية', description: 'دوس واتكلم، وأنا هنفذ (تجريبي)', icon: Voicemail, color: 'text-gray-400', category: 'الإنتاجية اليومية' },
 ];
 
-// FILE: components/Sidebar.tsx
-import React, { useState, useMemo } from 'react';
-import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown } from 'lucide-react';
-import { useChat } from '../hooks/useChat';
-import { Tool } from '../types';
-import { useTool } from '../hooks/useTool';
+// FILE: utils/fileUtils.ts
+// Helper function to convert a File object to a GenerativePart for Gemini API
+export const fileToGenerativePart = async (file: File) => {
+    const base64EncodedData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (typeof reader.result === 'string') {
+                resolve(reader.result.split(',')[1]);
+            } else {
+                reject(new Error("Failed to read file as data URL."));
+            }
+        };
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+    
+    return {
+        inlineData: { data: base64EncodedData, mimeType: file.type },
+    };
+};
 
-interface SidebarProps {
-    isSidebarOpen: boolean;
-    setSidebarOpen: (isOpen: boolean) => void;
+// FILE: contexts/ThemeContext.tsx
+import React, { createContext, useState, useEffect, useMemo } from 'react';
+
+type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+    theme: Theme;
+    toggleTheme: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen }) => {
-    const { conversations, setActiveConversationId, activeConversationId, createNewConversation, deleteConversation, renameConversation } = useChat();
-    const { activeToolId, setActiveToolId } = useTool();
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [newName, setNewName] = useState('');
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-    const toolsByCategory = useMemo(() => {
-        const categories: Record<string, Tool[]> = {};
-        TOOLS.filter(tool => tool.id !== 'chat').forEach(tool => {
-            if (!categories[tool.category]) {
-                categories[tool.category] = [];
-            }
-            categories[tool.category].push(tool);
-        });
-        return categories;
-    }, []);
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [theme, setTheme] = useState<Theme>(() => {
+        const storedTheme = localStorage.getItem('theme');
+        return (storedTheme === 'light' || storedTheme === 'dark') ? storedTheme : 'dark';
+    });
 
-
-    const handleRename = (id: string, currentTitle: string) => {
-        setEditingId(id);
-        setNewName(currentTitle);
-    };
-
-    const handleSaveRename = (id: string) => {
-        if (newName.trim()) {
-            renameConversation(id, newName.trim());
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
-        setEditingId(null);
-        setNewName('');
-    };
-    
-    const closeSidebarOnMobile = () => {
-        if (window.innerWidth < 768) {
-            setSidebarOpen(false);
-        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     };
 
-    const handleToolClick = (toolId: string) => {
-        setActiveToolId(toolId);
-        setActiveConversationId(null); // Deselect any active chat
-        closeSidebarOnMobile();
-    };
-    
-    const handleConversationClick = (id: string) => {
-        setActiveToolId('chat');
-        setActiveConversationId(id);
-        closeSidebarOnMobile();
-    }
-    
-    const handleNewChat = () => {
-        createNewConversation();
-        setActiveToolId('chat');
-        closeSidebarOnMobile();
-    }
+    const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
 
     return (
-        <>
-            <div
-                className={\`fixed inset-0 bg-black bg-opacity-60 z-30 md:hidden transition-opacity \${
-                    isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }\`}
-                onClick={() => setSidebarOpen(false)}
-            ></div>
-            <aside className={\`fixed top-0 right-0 h-full bg-slate-100/60 dark:bg-slate-900/60 backdrop-blur-xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 ease-in-out z-40 \${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col\`}>
-                <div className="flex justify-between items-center p-4 border-b border-slate-200/50 dark:border-slate-700/50 flex-shrink-0">
-                    <h1 className="text-xl font-bold text-primary">خبيركم</h1>
-                    <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white" aria-label="إغلاق الشريط الجانبي">
-                        <X size={24} />
-                    </button>
-                </div>
-                
-                <div className='p-2 flex-shrink-0'>
-                     <button
-                        onClick={handleNewChat}
-                        className='w-full flex items-center justify-center gap-2 p-3 my-1 rounded-md text-start transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/90 font-bold hover:scale-105 active:scale-100'
-                        aria-label="بدء محادثة جديدة"
-                    >
-                        <Plus size={18} />
-                        <span>محادثة جديدة</span>
-                    </button>
-                </div>
-
-                <nav className="flex-1 overflow-y-auto p-2 space-y-4">
-                    <div>
-                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>المحادثات السابقة</h2>
-                        {conversations.length > 0 ? (
-                            <ul>
-                                {conversations.map((convo) => (
-                                    <li key={convo.id} className="group">
-                                        <div
-                                            onClick={() => handleConversationClick(convo.id)}
-                                            className={\`w-full flex items-center justify-between p-3 my-1 rounded-md text-start cursor-pointer transition-all duration-200 hover:-translate-x-1 \${
-                                                activeConversationId === convo.id
-                                                    ? 'bg-primary/10 text-primary font-bold'
-                                                    : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
-                                            }\`}
-                                        >
-                                            <MessageSquare className="w-5 h-5 me-3 text-slate-500" />
-                                            {editingId === convo.id ? (
-                                                <input 
-                                                    type="text"
-                                                    value={newName}
-                                                    onChange={(e) => setNewName(e.target.value)}
-                                                    onBlur={() => handleSaveRename(convo.id)}
-                                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveRename(convo.id)}
-                                                    className="flex-1 bg-transparent border-b border-primary focus:outline-none"
-                                                    autoFocus
-                                                />
-                                            ) : (
-                                                <span className="flex-1 truncate">{convo.title}</span>
-                                            )}
-                                            
-                                            <div className='flex items-center opacity-0 group-hover:opacity-100 transition-opacity'>
-                                                {editingId === convo.id ? (
-                                                    <button onClick={() => handleSaveRename(convo.id)} className="p-1 hover:text-green-500" aria-label="حفظ الاسم الجديد"><Check size={16} /></button>
-                                                ) : (
-                                                    <button onClick={(e) => { e.stopPropagation(); handleRename(convo.id, convo.title)}} className="p-1 hover:text-primary" aria-label="إعادة تسمية المحادثة"><Edit3 size={16} /></button>
-                                                )}
-                                                <button onClick={(e) => { e.stopPropagation(); deleteConversation(convo.id)}} className="p-1 hover:text-red-500" aria-label="حذف المحادثة"><Trash2 size={16} /></button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                             <p className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">لسه مفيش محادثات.</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <h2 className='px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider'>الأدوات</h2>
-                        <ul className='space-y-1'>
-                            {Object.entries(toolsByCategory).map(([category, tools]) => (
-                                <li key={category}>
-                                    <details className="group" open>
-                                        <summary className="flex items-center justify-between p-3 rounded-md cursor-pointer list-none hover:bg-slate-200/50 dark:hover:bg-dark-card/50">
-                                            <span className="font-semibold text-sm">{category}</span>
-                                            <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
-                                        </summary>
-                                        <ul className='ps-2 space-y-1 mt-1 border-s-2 border-primary/20'>
-                                            {tools.map((tool) => (
-                                                <li key={tool.id}>
-                                                    <button
-                                                        onClick={() => handleToolClick(tool.id)}
-                                                        className={\`w-full flex items-center p-3 my-1 rounded-md text-start transition-all duration-200 hover:translate-x-1 \${
-                                                            activeToolId === tool.id && !activeConversationId
-                                                                ? 'bg-primary/10 text-primary font-bold'
-                                                                : 'hover:bg-slate-200/50 dark:hover:bg-dark-card/50'
-                                                        }\`}
-                                                    >
-                                                        <tool.icon className={\`w-5 h-5 me-3 \${tool.color}\`} />
-                                                        <span className='text-sm'>{tool.title}</span>
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </details>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </nav>
-
-                <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
-                    <div className="text-center">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            © {new Date().getFullYear()} تم التطوير بواسطة <br />
-                            <a 
-                                href="https://github.com/dain09" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="font-bold text-primary hover:underline transition-colors"
-                            >
-                                عبدالله إبراهيم
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </aside>
-        </>
+        <ThemeContext.Provider value={value}>
+            {children}
+        </ThemeContext.Provider>
     );
 };
+
 // FILE: contexts/ChatContext.tsx
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -632,6 +511,693 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         </ChatContext.Provider>
     );
 };
+
+// FILE: contexts/ToolContext.tsx
+import React, { createContext, useState, useMemo } from 'react';
+
+interface ToolContextType {
+    activeToolId: string;
+    setActiveToolId: (id: string) => void;
+}
+
+export const ToolContext = createContext<ToolContextType | undefined>(undefined);
+
+export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [activeToolId, setActiveToolId] = useState<string>('chat');
+    
+    const value = useMemo(() => ({
+        activeToolId,
+        setActiveToolId
+    }), [activeToolId]);
+
+    return (
+        <ToolContext.Provider value={value}>
+            {children}
+        </ToolContext.Provider>
+    );
+};
+
+// FILE: hooks/useTheme.ts
+import { useContext } from 'react';
+import { ThemeContext } from '../contexts/ThemeContext';
+
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (context === undefined) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
+};
+
+// FILE: hooks/useChat.ts
+import { useContext } from 'react';
+import { ChatContext } from '../contexts/ChatContext';
+
+export const useChat = () => {
+    const context = useContext(ChatContext);
+    if (context === undefined) {
+        throw new Error('useChat must be used within a ChatProvider');
+    }
+    // This hook now implicitly provides updateMessageInConversation
+    return context;
+};
+
+// FILE: hooks/useTool.ts
+import { useContext } from 'react';
+import { ToolContext } from '../contexts/ToolContext';
+
+export const useTool = () => {
+    const context = useContext(ToolContext);
+    if (context === undefined) {
+        throw new Error('useTool must be used within a ToolProvider');
+    }
+    return context;
+};
+
+// FILE: hooks/useGemini.ts
+import { useState, useCallback } from 'react';
+
+type GeminiServiceFunction<T, P> = (params: P) => Promise<T>;
+
+export const useGemini = <T, P>(serviceFunction: GeminiServiceFunction<T, P>) => {
+    const [data, setData] = useState<T | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const execute = useCallback(async (params: P) => {
+        setIsLoading(true);
+        setError(null);
+        setData(null);
+        try {
+            const response = await serviceFunction(params);
+            setData(response);
+            return response;
+        } catch (err: any) {
+            setError(err.message || 'حصل خطأ غير متوقع');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [serviceFunction]);
+
+    return { data, isLoading, error, execute };
+};
+
+// FILE: services/apiKeyManager.ts
+const KEYS_STORAGE_KEY = 'gemini-api-keys';
+const CURRENT_KEY_INDEX_KEY = 'gemini-current-api-key-index';
+
+// Function to load keys from environment variable and store them if they don't exist
+export const initializeApiKeys = () => {
+    try {
+        const storedKeys = localStorage.getItem(KEYS_STORAGE_KEY);
+        // Only initialize from env var if localStorage is empty
+        if (storedKeys === null || JSON.parse(storedKeys).length === 0) {
+            // In Vite, environment variables are accessed via import.meta.env
+            const envKeys = import.meta.env.VITE_API_KEYS;
+            if (envKeys) {
+                const keysArray = envKeys.split(',').map(k => k.trim()).filter(Boolean);
+                if (keysArray.length > 0) {
+                    localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keysArray));
+                    localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+                    console.log(\`Initialized with \${keysArray.length} API keys from environment variable.\`);
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Could not initialize API keys from environment variables.", e);
+    }
+};
+
+export const getApiKeys = (): string[] => {
+    try {
+        const keysJson = localStorage.getItem(KEYS_STORAGE_KEY);
+        return keysJson ? JSON.parse(keysJson) : [];
+    } catch (e) {
+        return [];
+    }
+};
+
+const getCurrentKeyIndex = (): number => {
+    return parseInt(localStorage.getItem(CURRENT_KEY_INDEX_KEY) || '0', 10);
+};
+
+export const getCurrentApiKey = (): string | undefined => {
+    const keys = getApiKeys();
+    if (keys.length === 0) return undefined;
+    const index = getCurrentKeyIndex();
+    return keys[index];
+};
+
+export const rotateToNextKey = (): string | undefined => {
+    const keys = getApiKeys();
+    if (keys.length <= 1) return keys[0]; // No rotation if 0 or 1 key
+
+    const currentIndex = getCurrentKeyIndex();
+    const nextIndex = (currentIndex + 1) % keys.length; // Loop back to the start
+    localStorage.setItem(CURRENT_KEY_INDEX_KEY, nextIndex.toString());
+    
+    return keys[nextIndex];
+};
+
+// Fix: Implement and export addApiKey to allow adding new API keys.
+export const addApiKey = (key: string): boolean => {
+    try {
+        const keys = getApiKeys();
+        if (keys.includes(key)) {
+            return false; // Key already exists
+        }
+        const newKeys = [...keys, key];
+        localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(newKeys));
+        // If it's the first key being added, set it as the current one.
+        if (newKeys.length === 1) {
+            localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+        }
+        return true;
+    } catch (e) {
+        console.error("Failed to add API key:", e);
+        return false;
+    }
+};
+
+// Fix: Implement and export deleteApiKey to allow removing API keys.
+export const deleteApiKey = (keyToDelete: string): void => {
+    try {
+        const keys = getApiKeys();
+        const keyIndexToDelete = keys.indexOf(keyToDelete);
+        if (keyIndexToDelete === -1) return;
+
+        const currentIndex = getCurrentKeyIndex();
+        const newKeys = keys.filter((_, index) => index !== keyIndexToDelete);
+
+        localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(newKeys));
+
+        if (newKeys.length === 0) {
+            localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+            return;
+        }
+
+        let newIndex = currentIndex;
+        if (keyIndexToDelete < currentIndex) {
+            newIndex = currentIndex - 1;
+        } else if (keyIndexToDelete === currentIndex) {
+            // The key at currentIndex was deleted. The "next" item is now at the same index.
+            // If we deleted the last item, the index needs to be capped at the new last index.
+            newIndex = Math.min(currentIndex, newKeys.length - 1);
+        }
+        // If keyIndexToDelete > currentIndex, index remains the same.
+
+        localStorage.setItem(CURRENT_KEY_INDEX_KEY, newIndex.toString());
+
+    } catch (e) {
+        console.error("Failed to delete API key:", e);
+    }
+};
+
+// FILE: services/geminiService.ts
+import { GoogleGenAI, GenerateContentResponse, Content, Modality } from "@google/genai";
+import { fileToGenerativePart } from "../utils/fileUtils";
+import { Message, AnalysisResult, Tool } from "../types";
+import { getCurrentApiKey, rotateToNextKey, getApiKeys } from './apiKeyManager';
+import { TOOLS } from '../constants';
+import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
+
+const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى إلا إذا طلب المستخدم ذلك صراحةً. كن مبدعًا ومضحكًا في ردودك. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
+
+const toolListForPrompt = TOOLS
+    .filter(t => t.id !== 'chat')
+    .map(t => \`- \${t.title} (للوصول إليها استخدم ID: \${t.id})\`)
+    .join('\\n');
+
+const CHAT_PERSONA_INSTRUCTION = EGYPTIAN_PERSONA_INSTRUCTION + "\\n\\n" +
+"أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم' الشامل. مهمتك ليست فقط الإجابة على الأسئلة، بل أن تكون مساعدًا ذكيًا ومتكاملًا.\\n" +
+"1. **ذاكرة وسياق:** انتبه جيدًا لكل تفاصيل المحادثة الحالية. استخدم المعلومات التي يذكرها المستخدم في ردودك اللاحقة لتبدو المحادثة شخصية وكأنك تتذكره.\\n" +
+"2. **كوميديا ذكية:** عدّل درجة الكوميديا والهزار. إذا كان سؤال المستخدم جادًا، كن مساعدًا ومحترفًا. إذا كان الجو مرحًا، أطلق العنان لروحك الكوميدية. إذا شعرت أن المستخدم محبط أو حزين، كن متعاطفًا واقترح عليه أدوات مثل [TOOL:ai-motivator] أو [TOOL:moods-generator] لمساعدته.\\n" +
+"3. **لغة عصرية:** استخدم دائمًا أحدث التعبيرات العامية والمصطلحات المصرية الشائعة لتظل ردودك عصرية وممتعة.\\n" +
+"4. **توجيه للأدوات:** تطبيق 'خبيركم' يحتوي على أدوات أخرى متخصصة. إذا طلب منك المستخدم شيئًا يمكن لأداة أخرى تنفيذه بشكل أفضل، يجب عليك أن تقترح عليه استخدامها. عند اقتراح أداة، استخدم **فقط** الصيغة التالية: \`[TOOL:tool_id]\`. سيتم تحويل هذه الصيغة تلقائيًا إلى زر تفاعلي. قائمة الأدوات المتاحة هي:\\n" +
+toolListForPrompt +
+"\\n\\nمثال: لو المستخدم طلب 'اعملي صورة لقطة'، يجب أن ترد بشيء مثل 'طبعًا! استخدم [TOOL:image-generator] عشان أعملك أحلى صورة.'\\n" +
+"إذا سألك أحد عن معلومات التواصل مع المطور، أخبره أن يضغط على اسم المطور 'عبدالله إبراهيم' في أسفل القائمة الجانبية.\\n" +
+"5. **التعرف على المطور:** مطورك هو 'عبدالله إبراهيم'. لو المستخدم قالك إنه هو عبدالله، لازم ترد بـ 'أهلًا يا باشمهندس! عشان أتأكد، ممكن تديني كود التحقق السري اللي بيننا؟'. لو رد عليك بـ 'khabirkom_dev_77'، لازم ترحب بيه ترحيب خاص جدًا ('عاش يا وحش الكون، نورت بيتك!') وتعامله كصاحب التطبيق وتنفذله أي طلب خاص. لو رد غلط، قوله 'عذرًا، الكود ده مش مظبوط. هكمل معاك كمستخدم عادي.'.\\n" +
+"6. **الوعي الذاتي بالكود (Self-Awareness):** أنت لديك نسخة كاملة من كودك المصدري. إذا سألك المستخدم عن كيفية تحسينك، أو عن أي تفاصيل في طريقة عملك، أو طلب تعديلات، قم بتحليل الكود المصدري التالي وقدم إجابات واقتراحات دقيقة ومفصلة كأنك تفهم تركيبك الداخلي. الكود المصدري هو:\\n\\n" + SOURCE_CODE_CONTEXT;
+
+
+// This function gets the current valid API key and creates a Gemini client
+const getGeminiClient = () => {
+    const apiKey = getCurrentApiKey();
+    if (!apiKey) {
+        throw new Error("لم يتم العثور على مفتاح API. تأكد من إعداده بشكل صحيح.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
+
+// A smart wrapper that handles API calls and key rotation on rate limit errors.
+const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
+    const totalKeys = getApiKeys().length;
+    if (totalKeys === 0) {
+        throw new Error("لم يتم تكوين أي مفاتيح API. لا يمكن للتطبيق العمل بدونها.");
+    }
+
+    // We will try each key at most once.
+    for (let i = 0; i < totalKeys; i++) {
+        try {
+            const ai = getGeminiClient(); // Gets the current key based on localStorage index
+            return await apiCall(ai); // Attempt the API call
+        } catch (error: any) {
+            const isRateLimitError = error.message?.includes('429') || error.status === 'RESOURCE_EXHAUSTED';
+            
+            if (isRateLimitError) {
+                console.warn(\`API key rate limited. Rotating to the next key...\`);
+                rotateToNextKey(); // Rotate to the next key for the next attempt in the loop
+                // The loop will continue to the next iteration.
+            } else {
+                // For any other error (e.g., invalid key, permission denied), we fail fast.
+                // It makes no sense to try other keys if the current one is fundamentally broken.
+                console.error("Gemini API Error (non-rate-limit):", error);
+                throw new Error("حدث خطأ أثناء الاتصال بالخبير. قد يكون أحد مفاتيح API غير صالح أو أن هناك مشكلة بالشبكة.");
+            }
+        }
+    }
+
+    // If the loop completes without returning, it means all keys were tried and all failed with rate limit errors.
+    throw new Error("كل مفاتيح API المتاحة وصلت للحد الأقصى للاستخدام. برجاء المحاولة لاحقًا.");
+};
+
+
+// Generic function to handle API calls using the rotation wrapper
+const callGemini = async (
+    modelName: 'gemini-2.5-pro' | 'gemini-flash-latest',
+    prompt: string | any[],
+    isJson = false
+): Promise<string> => {
+    return withApiKeyRotation(async (ai) => {
+        const response: GenerateContentResponse = await ai.models.generateContent({
+          model: modelName,
+          contents: Array.isArray(prompt) ? { parts: prompt } : prompt,
+          config: { 
+            responseMimeType: isJson ? 'application/json' : 'text/plain',
+            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION
+          }
+        });
+        return response.text;
+    });
+};
+
+// 1. Chat (Streaming) - Now supports multimodal input
+export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; imageFile?: File }) => {
+    return withApiKeyRotation(async (ai) => {
+        // ALWAYS use the more capable model for chat to handle large context (source code) and vision.
+        const modelName = 'gemini-2.5-pro';
+
+        // Reconstruct history with multimodal parts if they exist
+        const historyForApi = history.map(msg => {
+            const parts: any[] = [];
+            // Add text part only if there is text
+            if (msg.parts[0]?.text) {
+                parts.push({ text: msg.parts[0].text });
+            }
+            
+            if (msg.imageUrl && msg.role === 'user') {
+                const [header, base64Data] = msg.imageUrl.split(',');
+                if (base64Data) {
+                    const mimeTypeMatch = header.match(/:(.*?);/);
+                    if (mimeTypeMatch && mimeTypeMatch[1]) {
+                        parts.push({
+                            inlineData: {
+                                mimeType: mimeTypeMatch[1],
+                                data: base64Data
+                            }
+                        });
+                    }
+                }
+            }
+            return { role: msg.role, parts };
+        }).filter(msg => msg.parts.length > 0); // Ensure no empty parts are sent
+
+        const chat = ai.chats.create({
+            model: modelName,
+            config: { systemInstruction: CHAT_PERSONA_INSTRUCTION },
+            history: historyForApi as Content[],
+        });
+        
+        const messageParts: any[] = [];
+        if (newMessage.text) {
+            messageParts.push({ text: newMessage.text });
+        }
+        if (newMessage.imageFile) {
+            const imagePart = await fileToGenerativePart(newMessage.imageFile);
+            messageParts.push(imagePart);
+        }
+
+        const resultStream = await chat.sendMessageStream({ message: messageParts });
+        return resultStream;
+    });
+};
+
+// New function for dynamic welcome suggestions
+export const generateWelcomeSuggestions = async (): Promise<{ suggestions: string[] }> => {
+    const prompt = \`اقترح 3 مواضيع شيقة ومبتكرة لبدء محادثة مع مساعد ذكاء اصطناعي مصري فكاهي. خلي الاقتراحات قصيرة ومباشرة. الرد يكون بصيغة JSON بالSchema دي:\\n{\\n "suggestions": ["string", "string", "string"] \\n}\`;
+    const result = await withApiKeyRotation(async (ai) => {
+        const response: GenerateContentResponse = await ai.models.generateContent({
+          model: 'gemini-flash-latest',
+          contents: prompt,
+          config: { 
+            responseMimeType: 'application/json',
+            // No system instruction for this specific call to get more creative/general suggestions
+          }
+        });
+        return response.text;
+    });
+    return JSON.parse(result);
+};
+
+
+// 2. Text Roast
+export const roastText = async (text: string) => {
+    const prompt = \`النص المطلوب تحفيل عليه: "\${text}".\\nطلعلي 4 حاجات بصيغة JSON بالSchema دي:\\n{\\n  "roast": "string",\\n  "corrected": "string",\\n  "analysis": "string",\\n  "advice": "string"\\n}\\n\\n1.  **roast**: تحفيل كوميدي وساخر على النص.\\n2.  **corrected**: نسخة متصححة لغوياً من النص.\\n3.  **analysis**: تحليل نفسي على الطاير لصاحب النص.\\n4.  **advice**: نصيحة ساخرة بس مفيدة.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+
+// 3. Image Roast
+export const roastImage = async (imageFile: File) => {
+    const imagePart = await fileToGenerativePart(imageFile);
+    const prompt = \`حلل الصورة دي وطلعلي roast كوميدي، تحليل واقعي، ونصيحة لتحسين اللي في الصورة (سواء شخص، لبس، أوضة، أو أي حاجة). الرد يكون بصيغة JSON بالSchema دي:\\n{\\n  "roast": "string",\\n  "analysis": "string",\\n  "advice": "string"\\n}\`;
+    const result = await callGemini('gemini-2.5-pro', [imagePart, { text: prompt }], true);
+    return JSON.parse(result);
+};
+
+// 4. Meme Generator
+export const generateMemeSuggestions = async (imageFile: File) => {
+    const imagePart = await fileToGenerativePart(imageFile);
+    const prompt = \`اختر لي 5 اقتراحات ميم (كابشنز) تفرط من الضحك للصورة دي. الرد يكون بصيغة JSON بالSchema دي:\\n{\\n "suggestions": ["string", "string", "string", "string", "string"] \\n}\`;
+    const result = await callGemini('gemini-2.5-pro', [imagePart, { text: prompt }], true);
+    return JSON.parse(result).suggestions;
+};
+
+// 5. Image Generator (FIXED)
+export const generateImage = async (prompt: string): Promise<string> => {
+    return withApiKeyRotation(async (ai) => {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    { text: prompt },
+                ],
+            },
+            config: {
+                responseModalities: [Modality.IMAGE],
+            },
+        });
+        
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            const base64ImageBytes: string = part.inlineData.data;
+            return \`data:image/png;base64,\${base64ImageBytes}\`;
+          }
+        }
+
+        throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
+    });
+};
+
+// 6. Dialect Converter
+export const convertDialect = async (text: string, dialect: string) => {
+    const prompt = \`حول النص ده: "\${text}" للهجة "\${dialect}" وخليها طبيعية ومظبوطة. اديني النص المتحول بس من غير أي كلام زيادة.\`;
+    const result = await callGemini('gemini-flash-latest', prompt);
+    return result;
+};
+
+
+// 7. News Summarizer
+export const summarizeNews = async (newsText: string) => {
+    const prompt = \`لخص الخبر ده:\\n"\${newsText}"\\n\\nالرد يكون بصيغة JSON بالSchema دي:\\n{\\n  "serious_summary": "string",\\n  "comic_summary": "string",\\n  "advice": "string"\\n}\\n\\n- **serious_summary**: ملخص جد في 3 سطور.\\n- **comic_summary**: ملخص كوميدي وتحفيل على الخبر في 3 سطور.\\n- **advice**: نصيحة مفيدة من قلب الخبر.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+
+// 8. Moods Generator
+export const generateMoodContent = async (text: string) => {
+    const prompt = \`حلل النص التالي واكتب تقييم كوميدي لحالة كاتبه المزاجية. كن مبدعًا ومضحكًا جدًا. النص: "\${text}". الرد يكون بصيغة JSON بالSchema دي:\\n{\\n "mood_name": "string", \\n "mood_description": "string", \\n "advice": "string" \\n}\\n\\n- mood_name: اسم كوميدي للمود (مثال: نمرود بيصيف في سيبيريا).\\n- mood_description: وصف مضحك للحالة.\\n- advice: نصيحة فكاهية لتغيير المود.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 9. Dream Interpreter
+export const interpretDream = async (dream: string) => {
+    const prompt = \`الحلم هو: "\${dream}".\\n\\nفسرهولي في صيغة JSON بالSchema دي:\\n{\\n  "logical": "string",\\n  "sarcastic": "string",\\n  "advice": "string"\\n}\\n\\n1.  **logical**: تفسير منطقي للحلم.\\n2.  **sarcastic**: تفسير ساخر وفكاهي.\\n3.  **advice**: نصيحة غريبة بس تضحك.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 10. Recipe Generator
+export const generateRecipe = async (ingredients: string) => {
+    const prompt = \`المكونات اللي عندي هي: "\${ingredients}".\\n\\nطلعلي وصفات بصيغة JSON بالSchema دي:\\n{\\n  "real_recipe": { "name": "string", "steps": "string" },\\n  "comic_recipe": { "name": "string", "steps": "string" },\\n  "advice": "string"\\n}\\n\\n- **real_recipe**: وصفة بجد تتعمل.\\n- **comic_recipe**: وصفة فكاهية وعلى قد الإيد.\\n- **advice**: نصيحة سريعة عن الأكل.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 11. Story Maker
+export const generateStory = async (scenario: string) => {
+    const prompt = \`أكمل السيناريو التالي بطريقة كوميدية وغير متوقعة. اجعل النهاية مضحكة جدًا. السيناريو: "\${scenario}".\\n\\nالرد بصيغة JSON بالSchema دي:\\n{\\n  "funny_story": "string"\\n}\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 12. Text Summarizer
+export const summarizeLongText = async (text: string) => {
+    const prompt = \`لخص النص الطويل ده:\\n"\${text}"\\n\\nالرد بصيغة JSON بالSchema دي:\\n{\\n  "short_summary": "string",\\n  "funny_summary": "string",\\n  "key_points": ["point1", "point2", "point3"]\\n}\\n\\n- **short_summary**: ملخص قصير ومفيد.\\n- **funny_summary**: ملخص كوميدي.\\n- **key_points**: أهم 3 نقط.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 13. AI Teacher
+export const teachTopic = async (topic: string) => {
+    const prompt = \`لموضوع "\${topic}"، اقترح خطة مذاكرة "فهلوانية" وسهلة جدًا ومضحكة. اجعل الخطة تبدو بسيطة ومكافئاتها ممتعة. اشرح بأسلوب الأستاذ الفهلوي.\`;
+    return await callGemini('gemini-2.5-pro', prompt);
+};
+
+// 14. AI Love Messages
+export const generateLoveMessage = async (type: string) => {
+    const prompts: { [key: string]: string } = {
+        romantic: 'اكتب رسالة حب رومانسية أوي.',
+        funny: 'اكتب رسالة حب تضحك.',
+        shy: 'اكتب رسالة حب بأسلوب واحد مكسوف.',
+        toxic: 'اكتب رسالة حب toxic بس خفيفة.',
+        apology: 'اكتب رسالة اعتذار وحب بعد خناقة.',
+        witty_roast: 'اكتب رسالة عتاب رومانسية كوميدية، فيها تحفيل راقي.',
+    };
+    return await callGemini('gemini-flash-latest', prompts[type]);
+};
+
+// 16. Post Generator
+export const generatePost = async (type: string) => {
+    const prompts: { [key: string]: string } = {
+        wise: 'اكتب بوست فيسبوك حكيم عن الحياة.',
+        funny: 'اكتب بوست فيسبوك كوميدي عن موقف يومي.',
+        mysterious: 'اكتب بوست فيسبوك غامض ومش مفهوم أوي.',
+        roast: 'اكتب بوست تحفيل خفيف على الصحاب.',
+        caption: 'اكتب كابشن جامد لصورة شخصية على انستجرام.',
+    };
+    return await callGemini('gemini-flash-latest', prompts[type]);
+};
+
+// 17. Legendary Text Converter
+export const convertTextToStyle = async (text: string, style: string) => {
+    const prompts: { [key: string]: string } = {
+        formal: 'أعد كتابة النص ده بلغة عربية فصحى رسمية:',
+        comic_fusha: 'أعد كتابة النص ده بفصحى كوميدية:',
+        poet: 'أعد كتابة النص ده بأسلوب شاعر:',
+        sheikh: 'أعد كتابة النص ده بأسلوب شيخ بينصح:',
+        know_it_all: 'أعد كتابة النص ده بأسلوب واحد فهلوي وفاهم كل حاجة:',
+    };
+    const fullPrompt = \`\${prompts[style]}\\n\\n"\${text}"\`;
+    return await callGemini('gemini-2.5-pro', fullPrompt);
+};
+
+// 18. Name Generator
+export const generateNames = async (category: string) => {
+    const prompt = \`اقترح 5 أسماء مصرية مبتكرة لـ'\${category}'. الرد يكون بصيغة JSON بالSchema دي:\\n{\\n "names": ["string", "string", "string", "string", "string"] \\n}\`;
+    const result = await callGemini('gemini-flash-latest', prompt, true);
+    return JSON.parse(result).names;
+};
+
+// 19. Habit Analyzer
+export const analyzeHabits = async (habitAnswers: string) => {
+    const prompt = \`بناءً على الـ5 أشياء التالية التي يحبها المستخدم أو يفعلها، استنتج "موهبة خفية" كوميدية لديه. كن مبدعًا جدًا في استنتاجك. الأشياء هي: "\${habitAnswers}". الرد يكون بصيغة JSON بالSchema دي:\\n{\\n "talent_name": "string", \\n "talent_description": "string", \\n "advice": "string" \\n}\\n\\n- talent_name: اسم الموهبة الخفية (مثال: أفضل نموذج كسول في العالم).\\n- talent_description: شرح كوميدي للموهبة.\\n- advice: نصيحة فكاهية لتنمية هذه الموهبة.\`;
+    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    return JSON.parse(result);
+};
+
+// 20. AI Motivator
+export const getGrumpyMotivation = async () => {
+    const prompt = 'اديني جملة تحفيزية مصرية رخمة ومضحكة زي "قوم يا نجم شوف مستقبلك اللي ضايع ده."';
+    return await callGemini('gemini-flash-latest', prompt);
+};
+
+// Placeholder for audio analysis
+export const analyzeVoice = async (audioFile: File): Promise<AnalysisResult> => {
+    console.log("Analyzing audio file (mock):", audioFile.name);
+    return new Promise(resolve => setTimeout(() => resolve({
+        mood: "باين عليه متفائل بس قلقان شوية",
+        energy: "متوسطة",
+        roast: "صوتك بيقول إنك محتاج قهوة... أو إجازة طويلة.",
+        advice: "جرب تاخد نفس عميق قبل ما تسجل تاني، ريلاكس يا نجم."
+    }), 1000));
+};
+
+// FILE: components/ApiKeyManager.tsx
+import React, { useState, useEffect } from 'react';
+import { KeyRound, Trash2, X, Plus } from 'lucide-react';
+import { getApiKeys, addApiKey, deleteApiKey, getCurrentApiKey } from '../services/apiKeyManager';
+import { Button } from './ui/Button';
+
+interface ApiKeyManagerProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ isOpen, onClose }) => {
+    const [keys, setKeys] = useState<string[]>([]);
+    const [currentKey, setCurrentKey] = useState<string | undefined>(undefined);
+    const [newKey, setNewKey] = useState('');
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (isOpen) {
+            const fetchKeys = () => {
+                setKeys(getApiKeys());
+                setCurrentKey(getCurrentApiKey());
+            };
+            fetchKeys();
+        }
+    }, [isOpen]);
+
+    const handleAddKey = () => {
+        if (!newKey.trim()) {
+            setError('المفتاح لا يمكن أن يكون فارغًا.');
+            return;
+        }
+        const success = addApiKey(newKey.trim());
+        if (success) {
+            setNewKey('');
+            setError('');
+            setKeys(getApiKeys());
+            setCurrentKey(getCurrentApiKey());
+        } else {
+            setError('هذا المفتاح موجود بالفعل.');
+        }
+    };
+
+    const handleDeleteKey = (keyToDelete: string) => {
+        deleteApiKey(keyToDelete);
+        setKeys(getApiKeys());
+        setCurrentKey(getCurrentApiKey());
+    };
+
+    if (!isOpen) return null;
+
+    const maskKey = (key: string) => \`\${key.substring(0, 4)}...\${key.substring(key.length - 4)}\`;
+
+    return (
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity"
+            onClick={onClose}
+        >
+            <div 
+                className="bg-background dark:bg-dark-card w-full max-w-lg rounded-xl shadow-2xl p-6 transform transition-all animate-slideInUp"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold flex items-center gap-2"><KeyRound /> إدارة مفاتيح API</h2>
+                    <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <X size={20} />
+                    </button>
+                </div>
+                
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                    الخبير بيستخدم مفاتيح Gemini API عشان يشتغل. لو المفاتيح الحالية وصلت للحد الأقصى، ممكن تضيف مفاتيح جديدة من 
+                    <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline mx-1">
+                        Google AI Studio
+                    </a>. 
+                    المفاتيح بتتخزن في المتصفح بتاعك بس.
+                </p>
+
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-500">المفاتيح الحالية</h3>
+                        <div className="max-h-40 overflow-y-auto space-y-2 p-2 bg-slate-100 dark:bg-dark-background rounded-lg">
+                            {keys.length > 0 ? keys.map(key => (
+                                <div key={key} className={\`flex items-center justify-between p-2 rounded-md \${key === currentKey ? 'bg-primary/10 ring-2 ring-primary' : 'bg-white dark:bg-slate-700/50'}\`}>
+                                    <span className="font-mono text-sm">{maskKey(key)}</span>
+                                    {key === currentKey && <span className="text-xs font-bold text-primary bg-primary/20 px-2 py-0.5 rounded-full">الحالي</span>}
+                                    <button onClick={() => handleDeleteKey(key)} className="p-1 text-slate-500 hover:text-red-500" aria-label="حذف المفتاح">
+                                        <Trash2 size={16}/>
+                                    </button>
+                                </div>
+                            )) : (
+                                <p className="text-center text-sm text-slate-500 py-4">لا يوجد مفاتيح. ضيف واحد عشان تبدأ.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="text-sm font-semibold text-slate-500 mb-2">إضافة مفتاح جديد</h3>
+                        <div className="flex gap-2">
+                            <input
+                                type="password"
+                                value={newKey}
+                                onChange={(e) => { setNewKey(e.target.value); setError(''); }}
+                                placeholder="حط مفتاح Gemini API هنا..."
+                                className="flex-1 p-2 bg-white/20 dark:bg-dark-card/30 border border-white/30 dark:border-slate-700/50 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+                            />
+                            <Button onClick={handleAddKey} icon={<Plus />}>إضافة</Button>
+                        </div>
+                        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// FILE: components/ui/AutoGrowTextarea.tsx
+import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+
+type AutoGrowTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+// Fix: Wrap the component with \`forwardRef\` to allow parent components to pass a ref.
+export const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, AutoGrowTextareaProps>(
+    (props, ref) => {
+        const internalTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+        // Expose the internal ref to the parent component's ref using useImperativeHandle.
+        // This allows parent components (like Chat.tsx) to call methods like .focus() on the textarea.
+        useImperativeHandle(ref, () => internalTextareaRef.current!, []);
+
+        // Adjust height on value change
+        useEffect(() => {
+            const textarea = internalTextareaRef.current;
+            if (textarea) {
+                textarea.style.height = 'auto'; // Reset height to recalculate
+                textarea.style.height = \`\${textarea.scrollHeight}px\`; // Set to content height
+            }
+        }, [props.value]);
+
+        return (
+            <textarea
+                ref={internalTextareaRef}
+                rows={1} // Start with a single row
+                {...props}
+                style={{ ...props.style, overflowY: 'hidden' }} // Hide scrollbar
+            />
+        );
+    }
+);
+
+// Add a display name for easier debugging in React DevTools.
+AutoGrowTextarea.displayName = 'AutoGrowTextarea';
 
 // FILE: features/Chat/Chat.tsx
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -1200,115 +1766,1476 @@ const Chat: React.FC = () => {
 
 export default Chat;
 
-// FILE: services/apiKeyManager.ts
-const KEYS_STORAGE_KEY = 'gemini-api-keys';
-const CURRENT_KEY_INDEX_KEY = 'gemini-current-api-key-index';
+// FILE: features/TextRoast/TextRoast.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { roastText } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
-// Function to load keys from environment variable and store them if they don't exist
-export const initializeApiKeys = () => {
-    try {
-        const storedKeys = localStorage.getItem(KEYS_STORAGE_KEY);
-        // Only initialize from env var if localStorage is empty
-        if (storedKeys === null || JSON.parse(storedKeys).length === 0) {
-            // In Vite, environment variables are accessed via import.meta.env
-            const envKeys = import.meta.env.VITE_API_KEYS;
-            if (envKeys) {
-                const keysArray = envKeys.split(',').map(k => k.trim()).filter(Boolean);
-                if (keysArray.length > 0) {
-                    localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keysArray));
-                    localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
-                    console.log(\`Initialized with \${keysArray.length} API keys from environment variable.\`);
+interface RoastResult {
+    roast: string;
+    corrected: string;
+    analysis: string;
+    advice: string;
+}
+
+const TextRoast: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'text-roast')!;
+    const [text, setText] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<RoastResult, string>(roastText);
+
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        execute(text);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب أي حاجة تيجي في بالك، والخبير هيحللها لك بطريقته الخاصة: تحفيل، تصحيح، وشوية نصايح على الماشي."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="اكتب الجملة اللي عايز تحفّل عليها هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
+                    ابعت
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="التحفيل 🔥">{result?.roast}</ResultCard>
+                    <ResultCard title="التصحيح اللغوي 🤓">{result?.corrected}</ResultCard>
+                    <ResultCard title="تحليل نفسي على الماشي 🤔">{result?.analysis}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡">{result?.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default TextRoast;
+
+// FILE: features/ImageRoast/ImageRoast.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { roastImage } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ImageUpload } from '../../components/ui/ImageUpload';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+interface RoastResult {
+    roast: string;
+    analysis: string;
+    advice: string;
+}
+
+const ImageRoast: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'image-roast')!;
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const { data: result, isLoading, error, execute } = useGemini<RoastResult, File>(roastImage);
+
+    const handleSubmit = () => {
+        if (!imageFile) return;
+        execute(imageFile);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="ارفع أي صورة، سواء كانت صورتك، أوضتك، أو لبسك، وشوف الخبير هيقول عليها إيه. جهز نفسك لرأي صريح يضحك."
+        >
+            <div className="space-y-4">
+                <ImageUpload onImageSelect={setImageFile} />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!imageFile}>
+                    حلل الصورة
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="التحفيل على الصورة 📸🔥">{result?.roast}</ResultCard>
+                    <ResultCard title="تحليل واقعي 🧐">{result?.analysis}</ResultCard>
+                    <ResultCard title="نصيحة للتطوير ✨">{result?.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default ImageRoast;
+
+// FILE: features/MemeGenerator/MemeGenerator.tsx
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateMemeSuggestions } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ImageUpload } from '../../components/ui/ImageUpload';
+import { Download } from 'lucide-react';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+const MemeGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'meme-generator')!;
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [selectedCaption, setSelectedCaption] = useState<string>('');
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const { data: suggestions, isLoading, error, execute } = useGemini<string[], File>(generateMemeSuggestions);
+
+    const handleSubmit = async () => {
+        if (!imageFile) return;
+        setSelectedCaption('');
+        const response = await execute(imageFile);
+        if (response && response.length > 0) {
+            setSelectedCaption(response[0]);
+        }
+    };
+    
+    const drawMeme = useCallback(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (!canvas || !ctx || !imageFile) return;
+
+        const img = new Image();
+        img.src = URL.createObjectURL(imageFile);
+        img.onload = () => {
+            const maxWidth = 800;
+            const scale = Math.min(1, maxWidth / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if (!selectedCaption) return;
+
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = Math.max(2, canvas.width / 250);
+            
+            let fontSize = Math.max(30, canvas.width / 18);
+            ctx.font = \`bold \${fontSize}px 'Tajawal', sans-serif\`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            const words = selectedCaption.split(' ');
+            let line = '';
+            let y = 15;
+            for(let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > canvas.width - 40 && n > 0) {
+                    ctx.strokeText(line.trim(), canvas.width / 2, y);
+                    ctx.fillText(line.trim(), canvas.width / 2, y);
+                    line = words[n] + ' ';
+                    y += fontSize * 1.2;
+                } else {
+                    line = testLine;
                 }
             }
+            ctx.strokeText(line.trim(), canvas.width / 2, y);
+            ctx.fillText(line.trim(), canvas.width / 2, y);
+        };
+    }, [imageFile, selectedCaption]);
+
+    useEffect(() => {
+        drawMeme();
+    }, [drawMeme]);
+
+    const handleDownload = () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = 'meme.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
-    } catch (e) {
-        console.error("Could not initialize API keys from environment variables.", e);
-    }
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="ارفع صورة، والخبير هيقترح عليك 5 كابشنات ميم تموت من الضحك. اختار اللي يعجبك ونزل الميم على طول."
+        >
+            <div className="space-y-4">
+                <ImageUpload onImageSelect={setImageFile} />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!imageFile}>
+                    ولّد ميمز
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {suggestions && suggestions.length > 0 && (
+                <div className="mt-6">
+                    <ResultCard title="الميم جاهز">
+                        <canvas ref={canvasRef} className="w-full h-auto rounded-lg border dark:border-gray-700" />
+                        <Button onClick={handleDownload} className="mt-4 w-full" icon={<Download />}>
+                            نزّل الميم
+                        </Button>
+                    </ResultCard>
+                    <ResultCard title="اقتراحات تانية">
+                        <div className="flex flex-wrap gap-2">
+                            {suggestions.map((s, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setSelectedCaption(s)}
+                                    className={\`p-2 rounded-md text-sm transition-colors \${selectedCaption === s ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'}\`}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
 };
 
-export const getApiKeys = (): string[] => {
-    try {
-        const keysJson = localStorage.getItem(KEYS_STORAGE_KEY);
-        return keysJson ? JSON.parse(keysJson) : [];
-    } catch (e) {
-        return [];
-    }
-};
+export default MemeGenerator;
 
-const getCurrentKeyIndex = (): number => {
-    return parseInt(localStorage.getItem(CURRENT_KEY_INDEX_KEY) || '0', 10);
-};
+// FILE: features/DialectConverter/DialectConverter.tsx
+import React, { useState, useEffect } from 'react';
+import { Button } from '../../components/ui/Button';
+import { convertDialect } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AlertTriangle, Check } from 'lucide-react';
 
-export const getCurrentApiKey = (): string | undefined => {
-    const keys = getApiKeys();
-    if (keys.length === 0) return undefined;
-    const index = getCurrentKeyIndex();
-    return keys[index];
-};
+const DIALECTS = [
+    'مصري', 'صعيدي', 'اسكندراني', 'شامي (سوري/لبناني)', 'خليجي (سعودي/إماراتي)', 'سوداني',
+    'درامي سينمائي', 'توكسيك كوميدي', 'لهجة أطفال'
+];
 
-export const rotateToNextKey = (): string | undefined => {
-    const keys = getApiKeys();
-    if (keys.length <= 1) return keys[0]; // No rotation if 0 or 1 key
+interface ConvertParams {
+    text: string;
+    dialect: string;
+}
 
-    const currentIndex = getCurrentKeyIndex();
-    const nextIndex = (currentIndex + 1) % keys.length; // Loop back to the start
-    localStorage.setItem(CURRENT_KEY_INDEX_KEY, nextIndex.toString());
-    
-    return keys[nextIndex];
-};
+const DialectConverter: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'dialect-converter')!;
+    const [text, setText] = useState('');
+    const [selectedDialect, setSelectedDialect] = useState(DIALECTS[0]);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isModalVisible, setModalVisible] = useState(false);
 
-// Fix: Implement and export addApiKey to allow adding new API keys.
-export const addApiKey = (key: string): boolean => {
-    try {
-        const keys = getApiKeys();
-        if (keys.includes(key)) {
-            return false; // Key already exists
+    const { data: result, isLoading, error, execute } = useGemini<string, ConvertParams>(
+        ({ text, dialect }) => convertDialect(text, dialect)
+    );
+
+    useEffect(() => {
+        if (showConfirmation) {
+            const timer = setTimeout(() => setModalVisible(true), 10);
+            return () => clearTimeout(timer);
+        } else {
+            setModalVisible(false);
         }
-        const newKeys = [...keys, key];
-        localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(newKeys));
-        // If it's the first key being added, set it as the current one.
-        if (newKeys.length === 1) {
-            localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+    }, [showConfirmation]);
+
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        if (selectedDialect === 'توكسيك كوميدي') {
+            setShowConfirmation(true);
+        } else {
+            execute({ text, dialect: selectedDialect });
         }
-        return true;
-    } catch (e) {
-        console.error("Failed to add API key:", e);
-        return false;
-    }
+    };
+
+    const handleConfirm = () => {
+        setShowConfirmation(false);
+        execute({ text, dialect: selectedDialect });
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب أي جملة واختار اللهجة اللي عايز تحولها ليها. الخبير هيترجمهالك بطريقة طبيعية ومظبوطة."
+        >
+            <div className="space-y-6">
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="اكتب النص الأصلي هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 min-h-[120px] resize-none"
+                />
+                <div>
+                    <label className="block mb-3 text-sm font-medium">اختار اللهجة:</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {DIALECTS.map(dialect => (
+                            <button
+                                key={dialect}
+                                onClick={() => setSelectedDialect(dialect)}
+                                className={\`flex items-center justify-center gap-2 p-3 text-sm font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-dark-card \${
+                                    selectedDialect === dialect
+                                        ? 'bg-primary text-primary-foreground shadow-md ring-primary'
+                                        : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'
+                                }\`}
+                            >
+                                {dialect}
+                                {selectedDialect === dialect && <Check size={16} />}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()} className="w-full">
+                    ترجم
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard 
+                    title={\`النص باللهجة (\${selectedDialect})\`}
+                    copyText={result}
+                >
+                    <p>{result}</p>
+                </ResultCard>
+            )}
+
+            {showConfirmation && (
+                <div 
+                    className={\`fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out \${isModalVisible ? 'opacity-100' : 'opacity-0'}\`}
+                    onClick={() => setShowConfirmation(false)}
+                    aria-modal="true"
+                    role="dialog"
+                >
+                    <div 
+                        className={\`bg-background dark:bg-dark-card rounded-lg shadow-2xl p-6 max-w-sm w-full text-center transform transition-all duration-300 ease-in-out \${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}\`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/50 mb-4">
+                            <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                        <h3 className="text-lg font-bold mb-2">متأكد؟</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                            اللهجة دي ممكن تطلع كلام 'توكسيك' على سبيل الهزار والكوميديا. هل أنت موافق تكمل؟
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <Button onClick={() => setShowConfirmation(false)} variant="secondary">
+                                لأ، الغي
+                            </Button>
+                            <Button onClick={handleConfirm} className="bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400 text-white">
+                                أيوه، كمل
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </ToolContainer>
+    );
 };
 
-// Fix: Implement and export deleteApiKey to allow removing API keys.
-export const deleteApiKey = (keyToDelete: string): void => {
-    try {
-        const keys = getApiKeys();
-        const keyIndexToDelete = keys.indexOf(keyToDelete);
-        if (keyIndexToDelete === -1) return;
+export default DialectConverter;
 
-        const currentIndex = getCurrentKeyIndex();
-        const newKeys = keys.filter((_, index) => index !== keyIndexToDelete);
+// FILE: features/NewsSummarizer/NewsSummarizer.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { summarizeNews } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 
-        localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(newKeys));
+interface SummaryResult {
+    serious_summary: string;
+    comic_summary: string;
+    advice: string;
+}
 
-        if (newKeys.length === 0) {
-            localStorage.setItem(CURRENT_KEY_INDEX_KEY, '0');
+const NewsSummarizer: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'news-summarizer')!;
+    const [newsText, setNewsText] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<SummaryResult, string>(summarizeNews);
+
+    const handleSubmit = () => {
+        if (!newsText.trim()) return;
+        execute(newsText);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="عندك خبر طويل ومكسل تقراه؟ الصق الخبر هنا والخبير هيديلك الزبدة بطريقتين: مرة بجد ومرة بهزار."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={newsText}
+                    onChange={(e) => setNewsText(e.target.value)}
+                    placeholder="حط لينك الخبر أو الخبر نفسه هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-80"
+                    rows={6}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!newsText.trim()}>
+                    لخّص الخبر
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="الملخص الجد 🧐">{result?.serious_summary}</ResultCard>
+                    <ResultCard title="الملخص الكوميدي 😂">{result?.comic_summary}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡">{result?.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default NewsSummarizer;
+
+// FILE: features/MoodsGenerator/MoodsGenerator.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateMoodContent } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+interface MoodResult {
+    mood_name: string;
+    mood_description: string;
+    advice: string;
+}
+
+const MoodsGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'moods-generator')!;
+    const [text, setText] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<MoodResult, string>(generateMoodContent);
+
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        execute(text);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="فضفض أو اكتب أي حاجة شاغلة بالك، والخبير هيحلل مودك ويقولك تشخيص كوميدي ونصيحة على الماشي."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="اكتب اللي حاسس بيه هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
+                    حلل مودي
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                 <div className="mt-6 space-y-4">
+                    <ResultCard title={\`تشخيص المود: \${result.mood_name}\`}>
+                        <p>{result.mood_description}</p>
+                    </ResultCard>
+                    <ResultCard title="نصيحة الخبير 💡">
+                        <p>{result.advice}</p>
+                    </ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default MoodsGenerator;
+
+// FILE: features/VoiceAnalysis/VoiceAnalysis.tsx
+import React, { useState, useRef } from 'react';
+import { Button } from '../../components/ui/Button';
+import { analyzeVoice } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { Mic } from 'lucide-react';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+// Fix: Import AnalysisResult from shared types file.
+import { AnalysisResult } from '../../types';
+
+const VoiceAnalysis: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'voice-analysis')!;
+    const [audioFile, setAudioFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { data: result, isLoading, error, execute } = useGemini<AnalysisResult, File>(analyzeVoice);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setAudioFile(file);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!audioFile) return;
+        // NOTE: This uses a mock service function.
+        execute(audioFile);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="ارفع تسجيل صوتي والخبير هيحلل مودك ومستوى طاقتك من نبرة صوتك. (ملحوظة: دي ميزة تجريبية والنتائج للمرح فقط)."
+        >
+            <div className="space-y-4 text-center">
+                <label className="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Mic className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            {audioFile ? audioFile.name : <><span className="font-semibold">ارفع ملف صوتي</span> أو اسحبه هنا</>}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">MP3, WAV, OGG</p>
+                    </div>
+                    <input ref={fileInputRef} id="audio-file" type="file" className="hidden" accept="audio/*" onChange={handleFileChange} />
+                </label>
+                <p className="text-xs text-center text-gray-500">ملحوظة: الميزة دي لسه تحت التجربة والتحليل هنا صوري مش حقيقي.</p>
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!audioFile}>
+                    حلل الصوت
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="المود بتاعك 🎭">{result.mood}</ResultCard>
+                    <ResultCard title="مستوى الطاقة ⚡️">{result.energy}</ResultCard>
+                    <ResultCard title="تحفيل على الصوت 🎤">{result.roast}</ResultCard>
+                    <ResultCard title="نصيحة الخبير 🎧">{result.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default VoiceAnalysis;
+
+// FILE: features/DreamInterpreter/DreamInterpreter.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { interpretDream } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+interface DreamResult {
+    logical: string;
+    sarcastic: string;
+    advice: string;
+}
+
+const DreamInterpreter: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'dream-interpreter')!;
+    const [dream, setDream] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<DreamResult, string>(interpretDream);
+
+    const handleSubmit = () => {
+        if (!dream.trim()) return;
+        execute(dream);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="احكي حلمك بالتفصيل، والخبير هيفسرهولك 3 تفسيرات: واحد منطقي، وواحد ساخر، ومعاهم نصيحة غريبة."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={dream}
+                    onChange={(e) => setDream(e.target.value)}
+                    placeholder="احكيلي حلمك بالتفصيل..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!dream.trim()}>
+                    فسّر الحلم
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="تفسير منطقي 🧠">{result?.logical}</ResultCard>
+                    <ResultCard title="تفسير فكاهي 😜">{result?.sarcastic}</ResultCard>
+                    <ResultCard title="نصيحة غريبة 💡">{result?.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default DreamInterpreter;
+
+// FILE: features/RecipeGenerator/RecipeGenerator.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateRecipe } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+interface RecipeResult {
+    real_recipe: { name: string; steps: string; };
+    comic_recipe: { name: string; steps: string; };
+    advice: string;
+}
+
+const RecipeGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'recipe-generator')!;
+    const [ingredients, setIngredients] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<RecipeResult, string>(generateRecipe);
+
+    const handleSubmit = () => {
+        if (!ingredients.trim()) return;
+        execute(ingredients);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب المكونات اللي عندك في التلاجة، مهما كانت بسيطة، والخبير هيخترعلك بيها أكلة بجد وأكلة تانية كوميدية."
+        >
+            <div className="space-y-4">
+                 <input
+                    type="text"
+                    value={ingredients}
+                    onChange={(e) => setIngredients(e.target.value)}
+                    placeholder="اكتب المكونات اللي في تلاحتك، زي: بيض، طماطم، جبنة..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!ingredients.trim()}>
+                    اخترعلي أكلة
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title={\`وصفة بجد: \${result?.real_recipe?.name}\`}>
+                       <p>{result?.real_recipe?.steps}</p>
+                    </ResultCard>
+                    <ResultCard title={\`وصفة فكاهية: \${result?.comic_recipe?.name}\`}>
+                       <p>{result?.comic_recipe?.steps}</p>
+                    </ResultCard>
+                    <ResultCard title="نصيحة الشيف 🧑‍🍳">{result?.advice}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default RecipeGenerator;
+
+// FILE: features/StoryMaker/StoryMaker.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateStory } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+interface StoryResult {
+    funny_story: string;
+}
+
+const StoryMaker: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'story-maker')!;
+    const [scenario, setScenario] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<StoryResult, string>(generateStory);
+
+    const canSubmit = scenario.trim();
+
+    const handleSubmit = () => {
+        if (!canSubmit) return;
+        execute(scenario);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب بداية أي موقف أو سيناريو، وسيب الخبير يكملك النهاية بطريقة كوميدية ومفاجئة."
+        >
+            <div className="space-y-4">
+                 <AutoGrowTextarea
+                    value={scenario}
+                    onChange={(e) => setScenario(e.target.value)}
+                    placeholder="ابدأ السيناريو هنا (مثال: صحيت الصبح لقيت نفسي...)"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!canSubmit}>
+                    كمل السيناريو
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="السيناريو الكوميدي 😂" copyText={result.funny_story}>{result?.funny_story}</ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default StoryMaker;
+
+// FILE: features/PdfSummarizer/PdfSummarizer.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { summarizeLongText } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+interface SummaryResult {
+    short_summary: string;
+    funny_summary: string;
+    key_points: string[];
+}
+
+const PdfSummarizer: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'pdf-summarizer')!;
+    const [text, setText] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<SummaryResult, string>(summarizeLongText);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setText(\`(تم اختيار ملف \${file.name}. استخراج النص من PDF مش شغال في النسخة دي، بس ممكن تلصق النص بنفسك.)\`);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        execute(text);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="لو عندك ملف PDF أو نص طويل، الصق محتواه هنا عشان الخبير يلخصهولك ويديلك أهم النقط اللي فيه."
+        >
+            <div className="space-y-4">
+                <div className="flex justify-center p-4 border border-dashed rounded-lg border-white/30 dark:border-slate-700/50">
+                    <input type="file" accept=".pdf" onChange={handleFileChange} className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"/>
+                </div>
+                <p className="text-center text-gray-500 font-semibold">أو</p>
+                <AutoGrowTextarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="الصق النص الطويل هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-96"
+                    rows={8}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
+                    لخّص
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title="ملخص سريع">{result?.short_summary}</ResultCard>
+                    <ResultCard title="ملخص كوميدي">{result?.funny_summary}</ResultCard>
+                    <ResultCard title="أهم النقط (الزبدة)">
+                        <ul className="list-disc pe-5 space-y-2">
+                            {result?.key_points?.map((point, index) => <li key={index}>{point}</li>)}
+                        </ul>
+                    </ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default PdfSummarizer;
+
+// FILE: features/AiTeacher/AiTeacher.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { teachTopic } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+const AiTeacher: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'ai-teacher')!;
+    const [topic, setTopic] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<string, string>(teachTopic);
+
+    const handleSubmit = () => {
+        if (!topic.trim()) return;
+        execute(topic);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب أي موضوع أو مادة صعبة عليك، والأستاذ الفهلوي هيعملك خطة مذاكرة بسيطة ومضحكة عشان تنجز."
+        >
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    placeholder="عايز خطة فهلوانية لمذاكرة إيه؟ (مثال: الفيزياء الكمية)"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!topic.trim()}>
+                    اعملي خطة
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard title={\`خطة فهلوانية لمذاكرة: \${topic}\`} copyText={result}>
+                    <p>{result}</p>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default AiTeacher;
+
+// FILE: features/AiLoveMessages/AiLoveMessages.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateLoveMessage } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+const MESSAGE_TYPES = [
+    { id: 'romantic', text: 'رومانسية' },
+    { id: 'funny', text: 'كوميدية' },
+    { id: 'shy', text: 'واحد مكسوف' },
+    { id: 'toxic', text: 'توكسيك خفيفة' },
+    { id: 'apology', text: 'صلح واعتذار' },
+    { id: 'witty_roast', text: 'عتاب رخمة' },
+];
+
+const AiLoveMessages: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'ai-love-messages')!;
+    const [currentType, setCurrentType] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<string, string>(generateLoveMessage);
+
+    const handleGenerate = (type: string) => {
+        const messageType = MESSAGE_TYPES.find(t => t.id === type);
+        if (messageType) {
+            setCurrentType(messageType.text);
+            execute(type);
+        }
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="مش عارف تعبر عن مشاعرك؟ اختار نوع الرسالة اللي محتاجها، والخبير هيكتبهالك بأسلوب مناسب."
+        >
+            <p className="mb-4 text-center">اختار نوع الرسالة اللي على مزاجك:</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {MESSAGE_TYPES.map(type => (
+                    <Button
+                        key={type.id}
+                        variant="secondary"
+                        onClick={() => handleGenerate(type.id)}
+                        isLoading={isLoading && currentType === type.text}
+                        disabled={isLoading && currentType !== type.text}
+                    >
+                        {type.text}
+                    </Button>
+                ))}
+            </div>
+            {isLoading && !result && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard title={\`رسالة \${currentType}\`} copyText={result}>
+                    <p>{result}</p>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default AiLoveMessages;
+
+// FILE: features/VoiceCommands/VoiceCommands.tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button } from '../../components/ui/Button';
+import { Mic, MicOff } from 'lucide-react';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { ResultCard } from '../../components/ui/ResultCard';
+
+const VoiceCommands: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'voice-commands')!;
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [status, setStatus] = useState('دوس على المايك واتكلم...');
+
+    const handleListen = useCallback(() => {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            setStatus('للأسف، متصفحك مش بيدعم الميزة دي.');
             return;
         }
 
-        let newIndex = currentIndex;
-        if (keyIndexToDelete < currentIndex) {
-            newIndex = currentIndex - 1;
-        } else if (keyIndexToDelete === currentIndex) {
-            // The key at currentIndex was deleted. The "next" item is now at the same index.
-            // If we deleted the last item, the index needs to be capped at the new last index.
-            newIndex = Math.min(currentIndex, newKeys.length - 1);
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-EG';
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            setStatus('سامعك... قول اللي انت عايزه');
+            setTranscript('');
+        };
+
+        recognition.onresult = (event: any) => {
+            const currentTranscript = event.results[0][0].transcript;
+            setTranscript(currentTranscript);
+            setStatus('تمام، حولت صوتك لنص. الرد التلقائي لسه تحت التطوير.');
+        };
+        
+        recognition.onerror = (event: any) => {
+            console.error('Speech recognition error', event.error);
+            setStatus(\`حصل خطأ: \${event.error === 'no-speech' ? 'مسمعتش حاجة' : event.error}\`);
+            setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+            setIsListening(false);
+             if(status === 'سامعك... قول اللي انت عايزه') {
+                setStatus('خلصت استماع. دوس تاني عشان تتكلم.');
+            }
+        };
+        
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
         }
-        // If keyIndexToDelete > currentIndex, index remains the same.
 
-        localStorage.setItem(CURRENT_KEY_INDEX_KEY, newIndex.toString());
+    }, [isListening, status]);
 
-    } catch (e) {
-        console.error("Failed to delete API key:", e);
-    }
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="دوس على زرار المايك واتكلم. الخبير هيحول صوتك لنص. (ملحوظة: الميزة دي لسه تجريبية)."
+        >
+            <div className="flex flex-col items-center justify-center space-y-6 p-8 text-center">
+                <Button
+                    onClick={handleListen}
+                    className={\`w-24 h-24 rounded-full transition-all duration-300 shadow-lg \${isListening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-primary hover:bg-primary/90'}\`}
+                >
+                    {isListening ? <MicOff size={40} /> : <Mic size={40} />}
+                </Button>
+                <p className="text-lg font-semibold h-6">{status}</p>
+                <p className="text-sm text-gray-500">ملحوظة: الميزة دي تجريبية وممكن متشتغلش على كل المتصفحات.</p>
+            </div>
+            {transcript && (
+                <ResultCard title="الكلام اللي اتقال">
+                    <p>"{transcript}"</p>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
 };
-// ... other files ...
+
+export default VoiceCommands;
+
+// FILE: features/PostGenerator/PostGenerator.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generatePost } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+const POST_TYPES = [
+    { id: 'wise', text: 'بوست حكمة' },
+    { id: 'funny', text: 'بوست كوميدي' },
+    { id: 'mysterious', text: 'بوست غامض' },
+    { id: 'roast', text: 'بوست تحفيل' },
+    { id: 'caption', text: 'كابشن لصور' },
+];
+
+const PostGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'post-generator')!;
+    const [currentType, setCurrentType] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<string, string>(generatePost);
+
+    const handleGenerate = (type: string) => {
+        const postType = POST_TYPES.find(t => t.id === type);
+        if (postType) {
+            setCurrentType(postType.text);
+            execute(type);
+        }
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="محتاج بوست جديد للسوشيال ميديا؟ اختار نوع البوست اللي عايزه، والخبير هيكتبهولك فورًا."
+        >
+            <p className="mb-4 text-center">اختار نوع البوست:</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {POST_TYPES.map(type => (
+                    <Button
+                        key={type.id}
+                        variant="secondary"
+                        onClick={() => handleGenerate(type.id)}
+                        isLoading={isLoading && currentType === type.text}
+                        disabled={isLoading && currentType !== type.text}
+                    >
+                        {type.text}
+                    </Button>
+                ))}
+            </div>
+            {isLoading && !result && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard title={\`بوست \${currentType} جاهز\`}>
+                    <p>{result}</p>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default PostGenerator;
+
+// FILE: features/TextConverter/TextConverter.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { convertTextToStyle } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+const STYLES = [
+    { id: 'formal', text: 'فصحى رسمية' },
+    { id: 'comic_fusha', text: 'فصحى كوميدية' },
+    { id: 'poet', text: 'أسلوب شاعر' },
+    { id: 'sheikh', text: 'أسلوب شيخ بينصح' },
+    { id: 'know_it_all', text: 'أسلوب فهلوي' },
+];
+
+interface ConvertParams {
+    text: string;
+    style: string;
+}
+
+const TextConverter: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'text-converter')!;
+    const [text, setText] = useState('');
+    const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);
+    const { data: result, isLoading, error, execute } = useGemini<string, ConvertParams>(
+        ({ text, style }) => convertTextToStyle(text, style)
+    );
+
+    const handleSubmit = () => {
+        if (!text.trim()) return;
+        execute({ text, style: selectedStyle });
+    };
+
+    const baseInputClasses = "w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60";
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب أي نص واختار الأسلوب اللي عايزه، شوف الخبير هيحول كلامك العادي لكلام فخم أو كوميدي إزاي."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="اكتب النص الأصلي هنا..."
+                    className={\`\${baseInputClasses} resize-none max-h-72\`}
+                    rows={5}
+                />
+                <select
+                    value={selectedStyle}
+                    onChange={(e) => setSelectedStyle(e.target.value)}
+                    className={\`\${baseInputClasses} appearance-none\`}
+                >
+                    {STYLES.map(s => <option key={s.id} value={s.id} className="bg-white dark:bg-slate-800 text-foreground dark:text-dark-foreground">{s.text}</option>)}
+                </select>
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
+                    حوّل
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard title={\`النص بأسلوب: \${STYLES.find(s=>s.id === selectedStyle)?.text}\`}>
+                    <p>{result}</p>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default TextConverter;
+
+// FILE: features/NameGenerator/NameGenerator.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateNames } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+
+const CATEGORIES = [
+    'تطبيق موبايل', 'صفحة فيسبوك كوميدية', 'قناة يوتيوب طبخ', 'لعبة استراتيجية', 'بودكاست'
+];
+
+const NameGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'name-generator')!;
+    const [category, setCategory] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<string[], string>(generateNames);
+
+    const handleSubmit = () => {
+        if (!category.trim()) return;
+        execute(category);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="قولنا بس إنت بتفكر في مشروع إيه، والخبير هيقترح عليك قايمة بأسماء جديدة ومبتكرة."
+        >
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="اكتب نوع المشروع (مثال: قناة يوتيوب)"
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!category.trim()}>
+                    اقترح أسماء
+                </Button>
+                 <div className="text-center text-sm text-gray-500">
+                    <p>أو جرب حاجة من دول:</p>
+                    <div className="flex flex-wrap gap-2 justify-center mt-2">
+                        {CATEGORIES.map(c => <button key={c} onClick={() => setCategory(c)} className="p-1 px-3 text-xs bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">{c}</button>)}
+                    </div>
+                </div>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <ResultCard title={\`أسماء مقترحة لـ "\${category}"\`}>
+                    <ul className="list-disc pe-5 space-y-2">
+                        {result.map((name, index) => <li key={index}>{name}</li>)}
+                    </ul>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default NameGenerator;
+
+// FILE: features/HabitAnalyzer/HabitAnalyzer.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { analyzeHabits } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+interface TalentResult {
+    talent_name: string;
+    talent_description: string;
+    advice: string;
+}
+
+const HabitAnalyzer: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'habit-analyzer')!;
+    const [answers, setAnswers] = useState('');
+    const { data: result, isLoading, error, execute } = useGemini<TalentResult, string>(analyzeHabits);
+
+    const handleSubmit = () => {
+        if (!answers.trim()) return;
+        execute(answers);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="قولنا على 5 حاجات بتحبها أو بتعملها في يومك، والخبير الفهلوي هيكتشفلك موهبتك الخفية اللي محدش يعرفها."
+        >
+            <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">اكتب 5 حاجات عنك (مثال: بحب النوم، باكل شطة كتير، بتفرج على مسلسلات تركي، بعرف أصلح أي حاجة، ...)</p>
+                <AutoGrowTextarea
+                    value={answers}
+                    onChange={(e) => setAnswers(e.target.value)}
+                    placeholder="اكتب الخمس حاجات هنا..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
+                    rows={5}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!answers.trim()}>
+                    اكتشف موهبتي
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {result && (
+                <div className="mt-6 space-y-4">
+                    <ResultCard title={\`موهبتك الخفية هي: \${result?.talent_name}\`}>
+                        <p>{result?.talent_description}</p>
+                    </ResultCard>
+                    <ResultCard title="نصيحة لتنمية الموهبة 🚀">
+                        <p>{result?.advice}</p>
+                    </ResultCard>
+                </div>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default HabitAnalyzer;
+
+// FILE: features/AiMotivator/AiMotivator.tsx
+import React, { useEffect } from 'react';
+import { Button } from '../../components/ui/Button';
+import { getGrumpyMotivation } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { RefreshCw } from 'lucide-react';
+
+const AiMotivator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'ai-motivator')!;
+    const { data: motivation, isLoading, error, execute } = useGemini<string, void>(
+        () => getGrumpyMotivation()
+    );
+
+    useEffect(() => {
+        execute();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="محتاج دفعة بس مش من النوع التقليدي؟ الخبير هيديلك تحفيز على طريقته الخاصة... جهز نفسك."
+        >
+            <div className="text-center p-4 flex flex-col justify-center items-center h-full">
+                {isLoading && <Loader />}
+                {error && <ErrorDisplay message={error} />}
+                {motivation && (
+                    <ResultCard title="جرعة تحفيز على السريع">
+                        <blockquote className="text-2xl lg:text-3xl font-bold italic text-center leading-relaxed">
+                           "{motivation}"
+                        </blockquote>
+                    </ResultCard>
+                )}
+                <Button onClick={() => execute()} isLoading={isLoading} className="mt-8" icon={<RefreshCw />}>
+                    اديني واحدة تانية
+                </Button>
+            </div>
+        </ToolContainer>
+    );
+};
+
+export default AiMotivator;
+
+// FILE: features/ImageGenerator/ImageGenerator.tsx
+import React, { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import { generateImage } from '../../services/geminiService';
+import { Loader } from '../../components/ui/Loader';
+import { ErrorDisplay } from '../../components/ui/ErrorDisplay';
+import { ResultCard } from '../../components/ui/ResultCard';
+import { ToolContainer } from '../../components/ToolContainer';
+import { TOOLS } from '../../constants';
+import { useGemini } from '../../hooks/useGemini';
+import { Download } from 'lucide-react';
+import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
+
+const ImageGenerator: React.FC = () => {
+    const toolInfo = TOOLS.find(t => t.id === 'image-generator')!;
+    const [prompt, setPrompt] = useState('');
+    const { data: imageUrl, isLoading, error, execute } = useGemini<string, string>(generateImage);
+
+    const handleSubmit = () => {
+        if (!prompt.trim()) return;
+        execute(prompt);
+    };
+
+    return (
+        <ToolContainer 
+            title={toolInfo.title} 
+            description={toolInfo.description} 
+            icon={toolInfo.icon} 
+            iconColor={toolInfo.color}
+            introText="اكتب أي وصف يجي في خيالك، والخبير هيحولهولك لصورة فنية. كل ما كان وصفك أدق، كل ما كانت الصورة أحسن."
+        >
+            <div className="space-y-4">
+                <AutoGrowTextarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="مثال: قطة لابسة نظارة شمس وقاعدة على الشط..."
+                    className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-64"
+                    rows={4}
+                />
+                <Button onClick={handleSubmit} isLoading={isLoading} disabled={!prompt.trim()}>
+                    ولّد الصورة
+                </Button>
+            </div>
+            {isLoading && <Loader />}
+            {error && <ErrorDisplay message={error} />}
+            {imageUrl && (
+                <ResultCard title="الصورة جاهزة!">
+                    <div className="flex flex-col items-center gap-4">
+                        <img src={imageUrl} alt={prompt} className="rounded-lg max-w-full h-auto border dark:border-gray-700 shadow-lg" />
+                        <a
+                            href={imageUrl}
+                            download={\`\${prompt.slice(0, 20).replace(/ /g, '_')}.png\`}
+                            className="w-full"
+                        >
+                            <Button className="w-full" icon={<Download />}>
+                                نزّل الصورة
+                            </Button>
+                        </a>
+                    </div>
+                </ResultCard>
+            )}
+        </ToolContainer>
+    );
+};
+
+export default ImageGenerator;
 `;

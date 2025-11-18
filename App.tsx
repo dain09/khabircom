@@ -47,42 +47,47 @@ const App: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
-        // Load keys from environment variable on first load
         initializeApiKeys();
+        // Mobile check for sidebar
+        if (window.innerWidth < 768) {
+            setSidebarOpen(false);
+        }
     }, []);
 
     const activeTool = useMemo((): Tool | undefined => TOOLS.find(tool => tool.id === activeToolId), [activeToolId]);
     const ActiveToolComponent = activeTool ? featureComponents[activeTool.id] : featureComponents['chat'];
 
     return (
-        <div className={`relative flex h-full bg-transparent text-foreground dark:text-dark-foreground font-sans antialiased leading-relaxed selection:bg-primary/30`}>
+        <div className={`relative flex h-full text-foreground dark:text-dark-foreground font-sans antialiased selection:bg-primary/30 overflow-hidden`}>
              {/* 
-                Performance Optimization:
-                Moving the gradient to a fixed standalone div to prevent heavy repaints of the body/root container
-                during the view transition. This keeps the "wipe" effect smooth.
+                Performance Optimization: Fixed Background
+                This div stays completely static in terms of DOM position. 
+                Colors are handled by CSS variables or simple class switching, preventing layout thrashing.
              */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-[#1e1e2e] dark:to-slate-900 animate-gradient bg-[length:400%_400%] pointer-events-none" />
+            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pointer-events-none" />
             
             <Sidebar 
                 isSidebarOpen={isSidebarOpen}
                 setSidebarOpen={setSidebarOpen}
                 onOpenApiKeyManager={() => setApiKeyManagerOpen(true)}
             />
-            <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'md:mr-80' : 'mr-0'}`}>
+            
+            <div className={`flex-1 flex flex-col h-full transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:mr-80' : 'mr-0'}`}>
                 <Navbar 
                     toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
                     toggleTheme={toggleTheme}
                     theme={theme}
                     toolName={activeTool?.title || 'دردشة مع خبيركم'}
                 />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
-                    <div key={activeToolId} className="animate-slideInUp h-full p-1">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto relative">
+                    <div key={activeToolId} className="h-full p-1 sm:p-2 max-w-7xl mx-auto animate-fadeIn">
                         <Suspense fallback={<Loader />}>
                             {ActiveToolComponent && <ActiveToolComponent />}
                         </Suspense>
                     </div>
                 </main>
             </div>
+            
             <ApiKeyManager isOpen={isApiKeyManagerOpen} onClose={() => setApiKeyManagerOpen(false)} />
             <ToastContainer />
         </div>

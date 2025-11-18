@@ -17,46 +17,47 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return (storedTheme === 'light' || storedTheme === 'dark') ? storedTheme : 'dark';
     });
 
-    // We keep useEffect for initial load and persisting to localStorage
+    // Initial Load Side Effect
     useEffect(() => {
-        localStorage.setItem('theme', theme);
-        // Fallback for initial load
+        const root = document.documentElement;
         if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
+            root.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('dark');
+            root.classList.remove('dark');
         }
+        localStorage.setItem('theme', theme);
     }, [theme]);
 
     const toggleTheme = async (e?: React.MouseEvent) => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        const isToDark = newTheme === 'dark';
+        const nextTheme = theme === 'light' ? 'dark' : 'light';
+        const isToDark = nextTheme === 'dark';
 
-        // Check if the browser supports the View Transitions API
+        // Check for View Transition support
         // @ts-ignore
         if (!document.startViewTransition) {
-            setTheme(newTheme);
+            setTheme(nextTheme);
             return;
         }
 
-        // Fallback coordinates (center of screen) if no event is provided
+        // Calculate transition origin (cursor position or center)
         const x = e?.clientX ?? window.innerWidth / 2;
         const y = e?.clientY ?? window.innerHeight / 2;
 
+        // Calculate the radius needed to cover the screen
         const endRadius = Math.hypot(
             Math.max(x, window.innerWidth - x),
             Math.max(y, window.innerHeight - y)
         );
 
-        // Set attribute for CSS to handle Z-index BEFORE the transition starts
+        // Set the data attribute for CSS to know which way we are going (Z-Index logic)
         document.documentElement.setAttribute('data-transition', isToDark ? 'to-dark' : 'to-light');
 
         // @ts-ignore
         const transition = document.startViewTransition(() => {
-            // flushSync is crucial here. It forces React to apply the state change DOM updates immediately.
+            // CRITICAL: flushSync ensures React updates the DOM *immediately* inside this callback.
+            // This means the "New View" snapshot will strictly have the new class applied.
             flushSync(() => {
-                setTheme(newTheme);
-                // Force class update instantly inside the snapshot window
+                setTheme(nextTheme);
                 if (isToDark) {
                     document.documentElement.classList.add('dark');
                 } else {
@@ -65,44 +66,45 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             });
         });
 
-        // Wait for the pseudo-elements to be created
         await transition.ready;
 
+        // The animation Logic
         const clipPath = [
             `circle(0px at ${x}px ${y}px)`,
             `circle(${endRadius}px at ${x}px ${y}px)`,
         ];
 
         if (isToDark) {
-            // Light -> Dark: 
-            // The Old View (Light) sits ON TOP (z-index logic in CSS).
-            // We animate the Old View shrinking to reveal the New View (Dark) underneath.
-            // Since New View is static underneath, we must ensure it's already dark (handled by flushSync).
+            // Going Dark: We shrink the Old View (Light) to reveal the New View (Dark) underneath.
+            // The New View (Dark) is static.
             document.documentElement.animate(
                 {
                     clipPath: [...clipPath].reverse(),
                 },
                 {
-                    duration: 500,
-                    easing: 'ease-in',
+                    duration: 600,
+                    easing: 'ease-in', // Start slow, speed up
                     pseudoElement: '::view-transition-old(root)',
                 }
             );
         } else {
-            // Dark -> Light:
-            // The New View (Light) sits ON TOP.
-            // We animate the New View expanding to cover the Old View (Dark).
+            // Going Light: We expand the New View (Light) on top of the Old View (Dark).
             document.documentElement.animate(
                 {
                     clipPath: clipPath,
                 },
                 {
-                    duration: 500,
-                    easing: 'ease-out',
+                    duration: 600,
+                    easing: 'ease-out', // Start fast, slow down
                     pseudoElement: '::view-transition-new(root)',
                 }
             );
         }
+        
+        // Cleanup attribute after animation
+        transition.finished.then(() => {
+            document.documentElement.removeAttribute('data-transition');
+        });
     };
 
     const value = useMemo(() => ({ theme, toggleTheme }), [theme]);

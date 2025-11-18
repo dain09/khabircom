@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, Sparkles, ArrowRight, ChevronDown } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, FileText, Plus, BrainCircuit, ArrowRight, ChevronDown, Sparkles, Terminal, Volume2, Square } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -26,28 +26,28 @@ const ToolSuggestionCard: React.FC<{ toolId: string }> = ({ toolId }) => {
     const { setActiveToolId } = useTool();
     const tool = TOOLS.find(t => t.id === toolId);
 
-    if (!tool) return <span className="text-xs text-red-400">[أداة غير معروفة: {toolId}]</span>;
+    if (!tool) return null;
 
     const Icon = tool.icon;
 
     return (
         <div 
             onClick={() => setActiveToolId(toolId)}
-            className="group flex items-center gap-4 p-4 my-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-300 w-full sm:w-fit sm:min-w-[300px]"
+            className="group flex items-center gap-3 p-3 my-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 w-full sm:w-fit sm:min-w-[280px] active:scale-95"
         >
-            <div className={`p-3 rounded-full bg-slate-100 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
-                <Icon size={24} className={`${tool.color}`} />
+            <div className={`p-2.5 rounded-full bg-slate-100 dark:bg-slate-700 group-hover:bg-primary/10 transition-colors`}>
+                <Icon size={20} className={`${tool.color}`} />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 text-start">
                 <h4 className="font-bold text-sm text-foreground dark:text-slate-200 group-hover:text-primary transition-colors">
                     {tool.title}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                    {tool.description}
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                    اضغط للتجربة الآن
                 </p>
             </div>
-            <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full group-hover:bg-primary group-hover:text-white transition-all">
-                <ArrowRight size={16} className="rtl:rotate-180" />
+            <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded-full group-hover:bg-primary group-hover:text-white transition-all">
+                <ArrowRight size={14} className="rtl:rotate-180" />
             </div>
         </div>
     );
@@ -79,30 +79,30 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
     ];
 
     return (
-        <div className="flex flex-col h-full items-center justify-center p-4 text-center">
+        <div className="flex flex-col h-full items-center justify-center p-4 text-center overflow-y-auto">
             <div className="w-24 h-24 mb-6 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center animate-bubbleIn shadow-lg shadow-primary/10">
                 <Bot size={56} className="text-primary drop-shadow-md" />
             </div>
             {isBriefingLoading 
                 ? <Skeleton className="h-10 w-64 mb-3 rounded-lg" />
-                : <h2 className="text-3xl sm:text-4xl font-bold mb-3 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                : <h2 className="text-2xl sm:text-4xl font-bold mb-3 animate-slideInUp bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
                     {briefing?.greeting || "خبيركم تحت أمرك"}
                   </h2>
             }
-            <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-md animate-slideInUp leading-relaxed" style={{ animationDelay: '200ms' }}>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md animate-slideInUp leading-relaxed text-sm sm:text-base" style={{ animationDelay: '200ms' }}>
                 أنا هنا عشان أساعدك، أضحكك، وأنجز معاك أي مهمة. اختار حاجة نبدأ بيها:
             </p>
-            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-2xl" style={{ animationDelay: '300ms' }}>
+            <div className="flex flex-wrap justify-center gap-3 animate-slideInUp max-w-2xl pb-10" style={{ animationDelay: '300ms' }}>
                  {isBriefingLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-10 w-40 rounded-full" />
+                        <Skeleton key={i} className="h-10 w-32 sm:w-40 rounded-full" />
                     ))
                 ) : (
                     suggestions.map((s, i) => (
                         <button 
                             key={s} 
                             onClick={() => onSuggestionClick(s)}
-                            className="group relative px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden"
+                            className="group relative px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs sm:text-sm font-medium hover:border-primary hover:shadow-md transition-all duration-300 overflow-hidden active:scale-95"
                             style={{ animationDelay: `${400 + i * 100}ms` }}
                         >
                             <span className="relative z-10 group-hover:text-primary transition-colors">{s}</span>
@@ -132,8 +132,7 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         const match = /language-(\w+)/.exec(className || '');
         const codeText = String(children).replace(/\n$/, '');
         
-        // CHECK: Is this actually a tool ID wrapped in code blocks?
-        // Example: `[TOOL:image-roast]`
+        // Special handling: check if the code block is actually a tool command
         const toolMatch = codeText.match(/^\[TOOL:(.*?)\]$/);
         if (toolMatch) {
             return <ToolSuggestionCard toolId={toolMatch[1]} />;
@@ -146,28 +145,35 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         };
 
         return !inline ? (
-            <div className="relative my-4 rounded-lg overflow-hidden border border-slate-700 shadow-lg">
-                <div className="flex items-center justify-between px-4 py-2 bg-[#1e1e1e] border-b border-slate-700">
-                    <span className="text-xs text-slate-400 font-mono">{match?.[1] || 'code'}</span>
+            <div className="relative my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm dir-ltr text-left">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-slate-100 dark:bg-[#1e1e1e] border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                        <Terminal size={14} className="text-slate-400"/>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{match?.[1] || 'code'}</span>
+                    </div>
                     <button 
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
                     >
-                        {isCopied ? <><Check size={14} className="text-green-500"/> <span className="text-green-500">تم النسخ</span></> : <><Copy size={14} /> نسخ الكود</>}
+                        {isCopied ? (
+                            <><Check size={12} className="text-green-500"/> <span className="text-[10px] text-green-500">تم</span></>
+                        ) : (
+                            <><Copy size={12} className="text-slate-400"/> <span className="text-[10px] text-slate-400">نسخ</span></>
+                        )}
                     </button>
                 </div>
                 <SyntaxHighlighter
                     style={vscDarkPlus}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ margin: 0, borderRadius: 0, padding: '1rem' }}
+                    customStyle={{ margin: 0, borderRadius: 0, padding: '1rem', fontSize: '0.85rem' }}
                     {...props}
                 >
                     {codeText}
                 </SyntaxHighlighter>
             </div>
         ) : (
-            <code className="bg-slate-200 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground rounded px-1.5 py-0.5 text-sm font-mono dir-ltr" {...props}>
+            <code className="bg-slate-100 dark:bg-slate-800 text-primary-dark dark:text-primary-foreground border border-slate-200 dark:border-slate-700/50 rounded px-1.5 py-0.5 text-xs font-mono dir-ltr mx-0.5" {...props}>
                 {children}
             </code>
         );
@@ -189,8 +195,9 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 parts.forEach((part, index) => {
                     if (index % 2 === 1) {
                         const toolId = part.trim();
+                        // Instead of pushing text, push the component directly
                         newChildren.push(
-                            <div key={`${toolId}-${childIndex}-${index}`} className="inline-block w-full sm:w-auto">
+                            <div key={`${toolId}-${childIndex}-${index}`} className="block w-full">
                                 <ToolSuggestionCard toolId={toolId} />
                             </div>
                         );
@@ -203,12 +210,11 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
             }
         });
         
-        // If the paragraph contains tools, we might want to ensure it renders flex/block correctly
-        return <p {...props} className={`mb-3 last:mb-0 leading-relaxed ${hasTools ? 'flex flex-col items-start' : ''}`}>{newChildren}</p>;
+        return <p {...props} className={`mb-3 last:mb-0 leading-relaxed ${hasTools ? '' : ''}`}>{newChildren}</p>;
     };
 
     return (
-         <div className="prose prose-sm dark:prose-invert max-w-none">
+         <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -238,6 +244,7 @@ const Chat: React.FC = () => {
     const [stoppedMessageId, setStoppedMessageId] = useState<string | null>(null);
     const [isListening, setIsListening] = useState(false);
     const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+    const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
     const [isMenuOpen, setMenuOpen] = useState(false);
     const [showScrollButton, setShowScrollButton] = useState(false);
 
@@ -265,6 +272,13 @@ const Chat: React.FC = () => {
         scrollToBottom();
     }, [activeConversationId, isResponding, activeConversation?.messages.length]);
 
+    // Stop speech when leaving conversation or unmounting
+    useEffect(() => {
+        return () => {
+            window.speechSynthesis.cancel();
+        };
+    }, [activeConversationId]);
+
     // Show/Hide scroll button
     const handleScroll = () => {
         const container = scrollContainerRef.current;
@@ -287,6 +301,26 @@ const Chat: React.FC = () => {
         navigator.clipboard.writeText(text);
         setCopiedMessageId(messageId);
         setTimeout(() => setCopiedMessageId(null), 2000);
+        addToast('تم نسخ النص', { icon: <Check size={16}/>, duration: 1500 });
+    };
+
+    const handleSpeak = (text: string, messageId: string) => {
+        if (speakingMessageId === messageId) {
+            window.speechSynthesis.cancel();
+            setSpeakingMessageId(null);
+            return;
+        }
+
+        window.speechSynthesis.cancel(); // Stop any current speech
+        setSpeakingMessageId(messageId);
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-EG'; // Target Egyptian Arabic
+        
+        utterance.onend = () => setSpeakingMessageId(null);
+        utterance.onerror = () => setSpeakingMessageId(null);
+
+        window.speechSynthesis.speak(utterance);
     };
 
     const streamModelResponse = useCallback(async (convoId: string, userMessage: Message, newMessage: { text: string, imageFile?: File }) => {
@@ -366,6 +400,10 @@ const Chat: React.FC = () => {
     const handleSend = useCallback(async () => {
         if ((!input.trim() && !attachedFile) || isResponding) return;
 
+        // Stop speech if user sends a new message
+        window.speechSynthesis.cancel();
+        setSpeakingMessageId(null);
+
         setStoppedMessageId(null);
         let currentConvoId = activeConversationId;
         
@@ -415,6 +453,10 @@ const Chat: React.FC = () => {
 
     const handleStop = () => {
         stopStreamingRef.current = true;
+        // Also stop speech if happening
+        window.speechSynthesis.cancel();
+        setSpeakingMessageId(null);
+
         if (streamingMessageIdRef.current) {
             setStoppedMessageId(streamingMessageIdRef.current);
         }
@@ -501,7 +543,6 @@ const Chat: React.FC = () => {
         const messages = activeConversation?.messages || [];
         const failedMessageIndex = messages.findIndex(m => m.id === failedMessage.id);
         
-        // Guard against invalid index (e.g., message deleted or first message)
         if (failedMessageIndex <= 0) {
              console.error("Cannot retry: No preceding message found or message not found.");
              return;
@@ -525,7 +566,6 @@ const Chat: React.FC = () => {
             convoId = newConvo.id;
         }
         
-        // Fire and forget title generation, log error if fails but don't stop flow
         generateConversationTitle(prompt).then(smartTitle => {
             if (smartTitle && convoId) renameConversation(convoId, smartTitle);
         }).catch(e => console.error("Title gen failed", e));
@@ -629,7 +669,7 @@ const Chat: React.FC = () => {
                              <div key={msg.id} className={`flex w-full animate-bubbleIn group ${
                                 msg.role === 'user' ? 'justify-start' : 'justify-end'
                             }`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] md:max-w-[85%] ${
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[98%] sm:max-w-[90%] ${
                                     msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'
                                 }`}>
                                     
@@ -643,7 +683,7 @@ const Chat: React.FC = () => {
                                     </div>
 
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
-                                        <span className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
+                                        <span className={`text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-0.5 px-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
                                             {msg.role === 'user' ? 'أنت' : botName}
                                         </span>
 
@@ -671,21 +711,33 @@ const Chat: React.FC = () => {
                                                         <MessageContent message={msg} />
                                                     )}
                                                 </div>
-                                                
-                                                {msg.role === 'model' && !msg.error && !msg.isStreaming && (
-                                                    <div className="absolute -bottom-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                        <button 
-                                                            onClick={() => handleCopy(msg.parts[0].text, msg.id)}
-                                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
-                                                            aria-label="نسخ الرد"
-                                                        >
-                                                            {copiedMessageId === msg.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                                                        </button>
-                                                        <button onClick={() => handleRetry(msg)} className="p-1 text-slate-400 hover:text-primary transition-colors" aria-label="إعادة توليد">
-                                                            <RefreshCw size={14} />
-                                                        </button>
-                                                    </div>
-                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Mobile Friendly Action Footer for Bot Messages */}
+                                        {msg.role === 'model' && !msg.error && !msg.isStreaming && (
+                                            <div className="flex gap-2 mt-1 px-1 flex-wrap justify-end">
+                                                <button 
+                                                    onClick={() => handleSpeak(msg.parts[0].text, msg.id)}
+                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-[10px] font-medium ${speakingMessageId === msg.id ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                >
+                                                    {speakingMessageId === msg.id ? <Square size={12} className="fill-current" /> : <Volume2 size={12} />}
+                                                    <span>{speakingMessageId === msg.id ? 'إيقاف' : 'نطق'}</span>
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleCopy(msg.parts[0].text, msg.id)}
+                                                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors text-[10px] font-medium ${copiedMessageId === msg.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                                                >
+                                                    {copiedMessageId === msg.id ? <Check size={12} /> : <Copy size={12} />}
+                                                    <span>{copiedMessageId === msg.id ? 'تم النسخ' : 'نسخ'}</span>
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleRetry(msg)} 
+                                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-[10px] font-medium"
+                                                >
+                                                    <RefreshCw size={12} />
+                                                    <span>توليد تاني</span>
+                                                </button>
                                             </div>
                                         )}
                                         
@@ -809,7 +861,7 @@ const Chat: React.FC = () => {
                             }
                         }}
                         placeholder="اسأل خبيركم أو الصق صورة..."
-                        className="flex-1 p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none transition-all duration-200 shadow-inner placeholder:text-slate-400 resize-none max-h-40 min-h-[50px] glow-effect textarea-scrollbar text-base"
+                        className="flex-1 p-3.5 bg-slate-5 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none transition-all duration-200 shadow-inner placeholder:text-slate-400 resize-none max-h-40 min-h-[50px] glow-effect textarea-scrollbar text-base"
                         aria-label="اكتب رسالتك هنا"
                     />
                     

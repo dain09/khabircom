@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { TOOLS } from '../constants';
-import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Search, Clock } from 'lucide-react';
+import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, KeyRound, Search, Clock, Download, Upload } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { Tool } from '../types';
 import { useTool } from '../hooks/useTool';
@@ -20,6 +20,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     const [newName, setNewName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    
+    const fileImportRef = useRef<HTMLInputElement>(null);
 
     const toolsByCategory = useMemo(() => {
         const categories: Record<string, Tool[]> = {};
@@ -88,6 +90,55 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
         setActiveToolId('chat');
         closeSidebarOnMobile();
     }
+    
+    const handleExportData = () => {
+        const data = {
+            conversations: localStorage.getItem('chat-conversations'),
+            memory: localStorage.getItem('khabirkom-user-memory'),
+            persona: localStorage.getItem('khabirkom-persona-settings'),
+            recentTools: localStorage.getItem('khabirkom-recent-tools'),
+            theme: localStorage.getItem('theme'),
+            timestamp: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `khabirkom-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target?.result as string;
+                const data = JSON.parse(content);
+                
+                if (data.conversations) localStorage.setItem('chat-conversations', data.conversations);
+                if (data.memory) localStorage.setItem('khabirkom-user-memory', data.memory);
+                if (data.persona) localStorage.setItem('khabirkom-persona-settings', data.persona);
+                if (data.recentTools) localStorage.setItem('khabirkom-recent-tools', data.recentTools);
+                if (data.theme) localStorage.setItem('theme', data.theme);
+                
+                alert('تم استعادة البيانات بنجاح! سيتم إعادة تحميل الصفحة.');
+                window.location.reload();
+            } catch (error) {
+                console.error("Import failed", error);
+                alert('فشل استيراد الملف. تأكد أنه ملف نسخ احتياطي صالح.');
+            }
+        };
+        reader.readAsText(file);
+        // Reset input
+        if (fileImportRef.current) fileImportRef.current.value = '';
+    };
 
     return (
         <>
@@ -234,6 +285,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                 </nav>
 
                 <div className="flex-shrink-0 p-4 mt-auto border-t border-slate-200/50 dark:border-slate-700/50">
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                         <button
+                            onClick={handleExportData}
+                            className='flex items-center justify-center gap-2 p-2 rounded-md text-xs bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
+                            aria-label="تصدير البيانات"
+                        >
+                            <Download size={14} />
+                            <span>تصدير</span>
+                        </button>
+                         <button
+                            onClick={() => fileImportRef.current?.click()}
+                            className='flex items-center justify-center gap-2 p-2 rounded-md text-xs bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors'
+                            aria-label="استيراد البيانات"
+                        >
+                            <Upload size={14} />
+                            <span>استيراد</span>
+                        </button>
+                         <input type="file" ref={fileImportRef} onChange={handleImportData} accept=".json" className="hidden" />
+                    </div>
+
                      <button
                         onClick={onOpenApiKeyManager}
                         className='w-full flex items-center gap-2 p-2 mb-4 rounded-md text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-card/50 transition-colors'

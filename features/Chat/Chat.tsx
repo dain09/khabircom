@@ -203,6 +203,12 @@ const Chat: React.FC = () => {
     const stopStreamingRef = useRef(false);
     const streamingMessageIdRef = useRef<string | null>(null);
     const recognitionRef = useRef<any>(null);
+
+    const botName = useMemo(() => {
+        // Simple logic to determine name based on settings
+        if (persona.humor >= 8 && persona.verbosity <= 3) return 'فهيمكم';
+        return 'خبيركم';
+    }, [persona.humor, persona.verbosity]);
     
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -550,6 +556,11 @@ const Chat: React.FC = () => {
                                     </div>
 
                                     <div className={`flex flex-col gap-1 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
+                                        {/* Name Display */}
+                                        <span className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 ${msg.role === 'user' ? 'mr-1' : 'ml-1'}`}>
+                                            {msg.role === 'user' ? 'أنت' : botName}
+                                        </span>
+
                                         {msg.role === 'user' && msg.imageUrl && (
                                             <div className="p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
                                                  <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
@@ -614,11 +625,16 @@ const Chat: React.FC = () => {
                                     <div className="self-end flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                                         <Bot className="w-5 h-5 text-slate-600 dark:text-slate-300 animate-bot-idle-bob" />
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
-                                         <div className="flex gap-1.5 justify-center items-center px-2 py-1">
-                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
-                                            <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
+                                    <div className="flex flex-col gap-1 w-full items-end">
+                                         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 ml-1">
+                                            {botName}
+                                        </span>
+                                        <div className="p-3 rounded-2xl bg-slate-200 dark:bg-slate-700 text-foreground dark:text-dark-foreground rounded-bl-none">
+                                             <div className="flex gap-1.5 justify-center items-center px-2 py-1">
+                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0s'}}></span>
+                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.2s'}}></span>
+                                                <span className="w-2 h-2 bg-primary/80 rounded-full animate-bouncing-dots" style={{animationDelay: '0.4s'}}></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

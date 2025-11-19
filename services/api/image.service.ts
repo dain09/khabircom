@@ -3,7 +3,7 @@ import { fileToGenerativePart } from "../../utils/fileUtils";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
 
 const callGemini = async (
-    modelName: 'gemini-2.5-pro' | 'gemini-flash-latest',
+    modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest',
     prompt: any[],
     isJson = false
 ): Promise<string> => {
@@ -23,14 +23,14 @@ const callGemini = async (
 export const roastImage = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
     const prompt = `حلل الصورة دي وطلعلي roast كوميدي، تحليل واقعي، ونصيحة لتحسين اللي في الصورة (سواء شخص، لبس، أوضة، أو أي حاجة). الرد يكون بصيغة JSON بالSchema دي:\n{\n  "roast": "string",\n  "analysis": "string",\n  "advice": "string"\n}`;
-    const result = await callGemini('gemini-2.5-pro', [imagePart, { text: prompt }], true);
+    const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
     return JSON.parse(result);
 };
 
 export const generateMemeSuggestions = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
     const prompt = `اختر لي 5 اقتراحات ميم (كابشنز) تفرط من الضحك للصورة دي. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string", "string", "string"] \n}`;
-    const result = await callGemini('gemini-2.5-pro', [imagePart, { text: prompt }], true);
+    const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
     return JSON.parse(result).suggestions;
 };
 

@@ -1,10 +1,9 @@
-
 import { GenerateContentResponse } from "@google/genai";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
 import { AnalysisResult } from "../../types";
 
 const callGemini = async (
-    modelName: 'gemini-2.5-pro' | 'gemini-flash-latest',
+    modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest',
     prompt: string,
     isJson = false,
     useGrounding = false
@@ -37,7 +36,7 @@ export const convertDialect = async (text: string, dialect: string) => {
 
 export const summarizeNews = async (newsText: string) => {
     const prompt = `لخص الخبر ده:\n"${newsText}"\n\nالرد يكون بصيغة JSON بالSchema دي:\n{\n  "serious_summary": "string",\n  "comic_summary": "string",\n  "advice": "string"\n}\n\n- **serious_summary**: ملخص جد في 3 سطور.\n- **comic_summary**: ملخص كوميدي وتحفيل على الخبر في 3 سطور.\n- **advice**: نصيحة مفيدة من قلب الخبر.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
@@ -55,7 +54,7 @@ export const interpretDream = async (dream: string) => {
 
 export const generateRecipe = async (ingredients: string) => {
     const prompt = `المكونات اللي عندي هي: "${ingredients}".\n\nطلعلي وصفات بصيغة JSON بالSchema دي:\n{\n  "real_recipe": { "name": "string", "steps": "string" },\n  "comic_recipe": { "name": "string", "steps": "string" },\n  "advice": "string"\n}\n\n- **real_recipe**: وصفة بجد تتعمل.\n- **comic_recipe**: وصفة فكاهية وعلى قد الإيد.\n- **advice**: نصيحة سريعة عن الأكل.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
@@ -67,13 +66,13 @@ export const generateStory = async (scenario: string) => {
 
 export const summarizeLongText = async (text: string) => {
     const prompt = `لخص النص الطويل ده:\n"${text}"\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "short_summary": "string",\n  "funny_summary": "string",\n  "key_points": ["point1", "point2", "point3"]\n}\n\n- **short_summary**: ملخص قصير ومفيد.\n- **funny_summary**: ملخص كوميدي.\n- **key_points**: أهم 3 نقط.`;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
 export const teachTopic = async (topic: string) => {
     const prompt = `لموضوع "${topic}"، اقترح خطة مذاكرة "فهلوانية" وسهلة جدًا ومضحكة. اجعل الخطة تبدو بسيطة ومكافئاتها ممتعة. اشرح بأسلوب الأستاذ الفهلوي.`;
-    return await callGemini('gemini-2.5-pro', prompt);
+    return await callGemini('gemini-3-pro-preview', prompt);
 };
 
 export const generateLoveMessage = async (type: string) => {
@@ -108,7 +107,7 @@ export const convertTextToStyle = async (text: string, style: string) => {
         know_it_all: 'أعد كتابة النص ده بأسلوب واحد فهلوي وفاهم كل حاجة:',
     };
     const fullPrompt = `${prompts[style]}\n\n"${text}"`;
-    return await callGemini('gemini-2.5-pro', fullPrompt);
+    return await callGemini('gemini-3-pro-preview', fullPrompt);
 };
 
 export const generateNames = async (category: string) => {
@@ -130,7 +129,7 @@ export const getGrumpyMotivation = async () => {
 
 export const explainCode = async (code: string) => {
     const prompt = `اشرح الكود التالي بالتفصيل وبشكل بسيط جدًا. استخدم اللغة العامية المصرية. الرد يكون بصيغة JSON بالSchema دي:\n{\n "explanation": "string",\n "breakdown": "string",\n "language": "string"\n}\n\n- **explanation**: شرح عام ومبسط للكود بيعمل إيه.\n- **breakdown**: شرح تفصيلي سطر بسطر أو جزء بجزء، استخدم markdown للتنسيق.\n- **language**: اللغة البرمجية المستخدمة.\n\nالكود:\n\`\`\`\n${code}\n\`\`\``;
-    const result = await callGemini('gemini-2.5-pro', prompt, true);
+    const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 

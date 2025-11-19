@@ -149,23 +149,36 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
         return (<div onClick={() => navigateTo(toolId)} className="group flex items-center gap-3 p-3 my-3 bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-primary/30 hover:shadow-lg shadow-sm active:scale-[0.98] transition-all duration-300 w-full backdrop-blur-sm max-w-sm"><div className={`flex-shrink-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 group-hover:bg-primary/10 transition-colors`}><tool.icon size={22} className={`${tool.color}`} /></div><div className="flex-1 min-w-0 text-start"><h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-primary truncate transition-colors">{tool.title}</h4><p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">اضغط للتجربة الآن</p></div><ArrowRight size={16} className="text-slate-400 rtl:rotate-180" /></div>);
     };
 
+    const renderableChildren = React.useMemo(() => {
+        const content = message.parts[0].text;
+        const toolRegex = /\[TOOL:([^\]]+)\]/g;
+        const parts = content.split(toolRegex);
+
+        return parts.map((part, index) => {
+            if (index % 2 === 1) { // This is a tool ID
+                return <ToolSuggestionCard key={index} toolId={part} />;
+            } else { // This is regular text
+                if (!part.trim()) return null;
+                return (
+                    <ReactMarkdown key={index} remarkPlugins={[remarkGfm]} components={{
+                        p: ({ children }) => <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{children}</p>,
+                        a: ({ node, ...props }) => <a {...props} className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50" target="_blank" rel="noopener noreferrer"><LinkIcon size={10} /><span className="truncate max-w-[200px]">{props.children}</span><ExternalLink size={10} className="opacity-50" /></a>,
+                        ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-2 marker:font-bold" />,
+                        ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-2" />,
+                        li: ({ node, ...props }) => <li {...props} className="my-1 leading-relaxed" />,
+                        code: CodeBlock,
+                        strong: ({ node, ...props }) => <strong {...props} className="font-extrabold" />,
+                    }}>
+                        {part}
+                    </ReactMarkdown>
+                );
+            }
+        });
+    }, [message.parts[0].text]);
+    
     return (
         <div className={`prose prose-base max-w-none ${message.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} font-sans break-words`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                p: ({ children }) => {
-                    if (Array.isArray(children) && typeof children[0] === 'string' && children[0].startsWith('[TOOL:')) {
-                        const toolId = children[0].match(/\[TOOL:(.*?)\]/)?.[1];
-                        return toolId ? <ToolSuggestionCard toolId={toolId} /> : <p>{children}</p>;
-                    }
-                    return <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{children}</p>
-                },
-                a: ({ node, ...props }) => <a {...props} className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50" target="_blank" rel="noopener noreferrer"><LinkIcon size={10} /><span className="truncate max-w-[200px]">{props.children}</span><ExternalLink size={10} className="opacity-50" /></a>,
-                ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-2 marker:font-bold" />,
-                ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-2" />,
-                li: ({ node, ...props }) => <li {...props} className="my-1 leading-relaxed" />,
-                code: CodeBlock,
-                strong: ({ node, ...props }) => <strong {...props} className="font-extrabold" />,
-            }}>{message.parts[0].text}</ReactMarkdown>
+            {renderableChildren}
         </div>
     );
 };
@@ -386,12 +399,12 @@ export const Chat: React.FC = () => {
                 {activeConversation.messages.length === 0 ? <DashboardScreen onSuggestionClick={(prompt) => submitMessage(prompt)} /> : (
                     <div className="space-y-6 max-w-3xl mx-auto">
                         {activeConversation.messages.map((msg, index) => (
-                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
+                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-110 ${msg.role === 'user' ? 'bg-white dark:bg-slate-700' : 'bg-white dark:bg-slate-700'}`}>
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className={`w-5 h-5 ${msg.senderName === 'فهيمكم' ? 'text-orange-500' : 'text-primary'}`} />}
                                     </div>
-                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
+                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                                         <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{msg.role === 'model' ? msg.senderName : 'أنت'}</p>
                                         {editingMessage?.id === msg.id ? (
                                             <div className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-primary rounded-2xl shadow-lg">
@@ -405,8 +418,8 @@ export const Chat: React.FC = () => {
                                                 {(msg.parts[0].text || msg.isStreaming) && (
                                                     <div className={`relative p-3.5 sm:p-5 rounded-2xl shadow-sm text-base leading-relaxed transition-all duration-300 ${
                                                         msg.role === 'user' 
-                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-br-none' // Changed: User is Right, so Bottom-Right is sharp
-                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/60 w-full' // Changed: Bot is Left, so Bottom-Left is sharp
+                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-es-none'
+                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-ss-none border border-slate-100 dark:border-slate-700/60 w-full'
                                                     } ${msg.error ? 'border-red-500/50 border-2' : ''}`}>
                                                         {msg.isStreaming && !msg.parts[0].text ? (
                                                             <div className="flex gap-1.5 h-6 items-center px-2"><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}/></div>
@@ -420,7 +433,7 @@ export const Chat: React.FC = () => {
                                         {msg.error && <button onClick={() => handleRegenerate(msg.id)} className="text-red-500 flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition-colors"><RefreshCw size={12}/> فشل، حاول تاني</button>}
                                     </div>
                                     <div className="relative self-center flex-shrink-0">
-                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
+                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
                                         {menuOpenFor === msg.id && (
                                             <div className="absolute bottom-full ltr:right-0 rtl:left-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-100 dark:border-slate-700 p-1.5 z-20 animate-zoomIn origin-bottom" onMouseLeave={() => setMenuOpenFor(null)}>
                                                 <button onClick={() => { navigator.clipboard.writeText(msg.parts[0].text); addToast('تم النسخ!'); setMenuOpenFor(null); }} className="w-full flex items-center gap-3 p-2 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"><Copy size={14}/> نسخ النص</button>
@@ -441,7 +454,7 @@ export const Chat: React.FC = () => {
             <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
                 <div className="max-w-3xl mx-auto">
                      {attachedFile && (
-                        <div className="relative w-fit max-w-full mb-3 p-2 pr-10 pl-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">
+                        <div className="relative w-fit max-w-full mb-3 p-2 ps-10 pe-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">
                             <div className='flex items-center gap-3'>
                                 {attachedFile.type.startsWith('image/') ? <img src={URL.createObjectURL(attachedFile)} alt="Preview" className="w-12 h-12 object-cover rounded-xl"/> : <div className="p-2 bg-primary/10 rounded-xl"><FileText size={24} className="text-primary"/></div>}
                                 <div className="flex flex-col">
@@ -449,19 +462,18 @@ export const Chat: React.FC = () => {
                                     <span className='text-[10px] text-slate-500'>{(attachedFile.size / 1024).toFixed(1)} KB</span>
                                 </div>
                             </div>
-                            <button onClick={() => setAttachedFile(null)} className="absolute top-2 right-2 p-1 bg-slate-200 dark:bg-slate-700 hover:bg-red-100 hover:text-red-500 rounded-full transition-colors"><X size={14} /></button>
+                            <button onClick={() => setAttachedFile(null)} className="absolute top-2 start-2 p-1 bg-slate-200 dark:bg-slate-700 hover:bg-red-100 hover:text-red-500 rounded-full transition-colors"><X size={14} /></button>
                         </div>
                     )}
 
                     <div className="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-[28px] p-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 glow-effect">
-                        {/* Send / Mic Button - Moved to Start (Right in RTL) */}
                          {input.trim() || attachedFile ? (
                              <Button 
                                 onClick={handleSend} 
                                 className="p-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex-shrink-0 mb-1"
                                 aria-label="إرسال"
                             >
-                                <ArrowRight size={20} className="rtl:rotate-180" strokeWidth={3} />
+                                <Send size={20} strokeWidth={3} />
                             </Button>
                          ) : (
                              <button 
@@ -482,7 +494,6 @@ export const Chat: React.FC = () => {
                             className="flex-1 max-h-40 py-3 px-2 bg-transparent border-none focus:ring-0 outline-none resize-none text-[15px] placeholder:text-slate-400 textarea-scrollbar"
                         />
 
-                        {/* Attachment Button - Moved to End (Left in RTL) */}
                          <button 
                             onClick={() => fileInputRef.current?.click()} 
                             className="p-3 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary transition-colors flex-shrink-0"

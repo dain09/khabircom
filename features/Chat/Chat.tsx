@@ -68,7 +68,15 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         fetchBriefing();
     }, [fetchBriefing]);
 
-    const suggestions = briefing?.suggestions || t('chat.dashboard.defaultSuggestions', { returnObjects: true }) as string[];
+    const rawSuggestions = briefing?.suggestions || t('chat.dashboard.defaultSuggestions', { returnObjects: true });
+    const suggestions = Array.isArray(rawSuggestions) 
+        ? rawSuggestions 
+        : [
+            "اشرحلي يعني إيه 'حوسبة سحابية' كإني عندي 5 سنين",
+            "قول نكتة عن القهوة",
+            "إيه هي عاصمة أستراليا؟",
+            "اقترح أسماء لمشروع عصير قصب"
+          ];
     const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
 
     return (

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { comparePrices } from '../../services/api/text.service';
@@ -63,7 +62,7 @@ const PriceComparator: React.FC = () => {
                         <Tag size={24} />
                         <h3>{t('tools.priceComparator.resultTitle', { product: submittedProduct })}</h3>
                     </div>
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden">
                         <ReactMarkdown 
                             remarkPlugins={[remarkGfm]}
                             components={{
@@ -72,9 +71,9 @@ const PriceComparator: React.FC = () => {
                                         {props.children} <ExternalLink size={12} />
                                     </a>
                                 ),
-                                table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="min-w-[500px] w-full table-fixed" /></div>,
+                                table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="min-w-full w-full" /></div>,
                                 thead: ({ node, ...props }) => <thead {...props} className="bg-slate-50 dark:bg-slate-800" />,
-                                th: ({ node, ...props }) => <th {...props} className="px-4 py-3 font-bold text-start uppercase tracking-wider text-right" style={{width: props.children?.toString().toLowerCase().includes('store') || props.children?.toString().toLowerCase().includes('متجر') ? '50%' : 'auto'}}/>,
+                                th: ({ node, ...props }) => <th {...props} className="px-4 py-3 font-bold text-start uppercase tracking-wider text-right" />,
                                 td: ({ node, ...props }) => <td {...props} className="px-4 py-3 whitespace-nowrap border-t border-slate-100 dark:border-slate-700 text-right" />,
                             }}
                         >

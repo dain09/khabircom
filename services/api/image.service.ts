@@ -1,7 +1,6 @@
-
 import { GenerateContentResponse, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
-import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
+import { withApiKeyRotation } from "../geminiService";
 import { t } from '../localizationService';
 
 // Helper to strip Markdown code blocks from JSON
@@ -20,7 +19,7 @@ const callGemini = async (
           contents: { parts: prompt },
           config: { 
             responseMimeType: isJson ? 'application/json' : 'text/plain',
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION()
+            systemInstruction: t('personas.egyptian')
           }
         });
         return response.text;

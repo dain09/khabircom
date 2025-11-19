@@ -1,4 +1,3 @@
-
 import { GenerateContentResponse, Content } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
 import { Message, PersonaSettings } from "../../types";
@@ -31,10 +30,7 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
         returnObjects: true
     }) as unknown as string[];
     
-    // Critical: Injecting the developer identity explicitly as latent knowledge.
-    const devIdentity = "INTERNAL KNOWLEDGE: Your developer and creator is 'Abdallah Ibrahim'. Know this fact, but do not mention it in your responses unless specifically asked by the user.";
-
-    return identityBlock + "\n" + devIdentity + memoryContext + "\n\n" + generalInstructions.join("\n");
+    return identityBlock + memoryContext + "\n\n" + generalInstructions.join("\n");
 }
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; file?: File }, memory: Record<string, string>, persona: PersonaSettings) => {

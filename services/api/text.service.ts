@@ -1,6 +1,5 @@
-
 import { GenerateContentResponse } from "@google/genai";
-import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
+import { withApiKeyRotation } from "../geminiService";
 import { AnalysisResult } from "../../types";
 import { t } from '../localizationService';
 
@@ -16,7 +15,7 @@ const callGemini = async (
           contents: prompt,
           config: { 
             responseMimeType: isJson ? 'application/json' : 'text/plain',
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION(),
+            systemInstruction: t('personas.egyptian'),
             tools: useGrounding ? [{ googleSearch: {} }] : undefined
           }
         });

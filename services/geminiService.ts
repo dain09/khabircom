@@ -1,9 +1,6 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { getApiKeys } from './apiKeyManager';
 import { t } from './localizationService';
-
-export const EGYPTIAN_PERSONA_INSTRUCTION = () => t('personas.egyptian');
 
 // Helper utility for waiting (used in backoff)
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

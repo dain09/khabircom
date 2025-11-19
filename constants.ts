@@ -3,7 +3,7 @@ import {
     MessageSquare, Flame, Image as ImageIcon, Smile, Languages, Newspaper, Sparkles, Mic,
     Cloud, CookingPot, BookOpen, FileText, GraduationCap, Heart, Send, Swords,
     Lightbulb, Target, Zap, Paintbrush, Code, BrainCircuit, Wand2, SlidersHorizontal,
-    CheckSquare, Tag, Star
+    CheckSquare, Tag, Star, Scale
 } from 'lucide-react';
 import { Tool } from './types';
 
@@ -14,6 +14,7 @@ export const TOOLS: Tool[] = [
     // الأدوات الجديدة
     { id: 'task-manager', title: 'tools.taskManager.title', description: 'tools.taskManager.description', icon: CheckSquare, color: 'text-emerald-500', category: 'categories.knowledge' },
     { id: 'price-comparator', title: 'tools.priceComparator.title', description: 'tools.priceComparator.description', icon: Tag, color: 'text-rose-500', category: 'categories.knowledge' },
+    { id: 'the-judge', title: 'tools.theJudge.title', description: 'tools.theJudge.description', icon: Scale, color: 'text-slate-600', category: 'categories.fun' },
 
     // المرح والإبداع
     { id: 'text-roast', title: 'tools.textRoast.title', description: 'tools.textRoast.description', icon: Flame, color: 'text-green-500', category: 'categories.fun' },

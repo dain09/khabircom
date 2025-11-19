@@ -14,7 +14,7 @@ const AiLoveMessages: React.FC = () => {
     const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'ai-love-messages')!;
     
-    const MESSAGE_TYPES = t('tools.aiLoveMessages.messageTypes', { returnObjects: true }) as { id: string, text: string }[];
+    const MESSAGE_TYPES = t('tools.aiLoveMessages.messageTypes', { returnObjects: true }) as unknown as { id: string, text: string }[];
 
     const [currentType, setCurrentType] = useState('');
     const [generatedType, setGeneratedType] = useState('');

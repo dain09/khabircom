@@ -13,7 +13,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 const NameGenerator: React.FC = () => {
     const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'name-generator')!;
-    const CATEGORIES = t('tools.nameGenerator.categories', { returnObjects: true }) as string[];
+    const CATEGORIES = t('tools.nameGenerator.categories', { returnObjects: true }) as unknown as string[];
 
     const [category, setCategory] = useState('');
     const [submittedCategory, setSubmittedCategory] = useState('');

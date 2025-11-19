@@ -29,14 +29,28 @@ const Settings: React.FC = () => {
         const interestsArray = tempInterests.split(',').map(i => i.trim()).filter(Boolean);
         setInterests(interestsArray);
     };
+    
+    const handleHumorChange = (val: number) => {
+        setHumor(val);
+        if (val <= 3) addToast(t('settings.manual.humor.levels.low'), { duration: 2000 });
+        else if (val <= 7) addToast(t('settings.manual.humor.levels.medium'), { duration: 2000 });
+        else addToast(t('settings.manual.humor.levels.high'), { duration: 2000 });
+    };
+
+    const handleVerbosityChange = (val: number) => {
+        setVerbosity(val);
+        if (val <= 3) addToast(t('settings.manual.verbosity.levels.low'), { duration: 2000 });
+        else if (val <= 7) addToast(t('settings.manual.verbosity.levels.medium'), { duration: 2000 });
+        else addToast(t('settings.manual.verbosity.levels.high'), { duration: 2000 });
+    };
 
     const handlePreset = (type: 'khabirkom' | 'fahimkom') => {
         if (type === 'khabirkom') {
             setPersona({ ...persona, humor: 5, verbosity: 8 });
-            addToast(t('tools.settings.presets.khabirkom.toast'));
+            addToast(t('tools.settings.presets.khabirkom.toast'), { icon: <CheckCircle2 className="text-blue-500" /> });
         } else {
             setPersona({ ...persona, humor: 10, verbosity: 2 });
-            addToast(t('tools.settings.presets.fahimkom.toast'));
+            addToast(t('tools.settings.presets.fahimkom.toast'), { icon: <Zap className="text-orange-500" /> });
         }
     };
 
@@ -182,7 +196,7 @@ const Settings: React.FC = () => {
                         <SettingSlider
                             label={t('tools.settings.manual.humor.label')}
                             value={persona.humor}
-                            onChange={setHumor}
+                            onChange={handleHumorChange}
                             minLabel={t('tools.settings.manual.humor.min')}
                             maxLabel={t('tools.settings.manual.humor.max')}
                         />
@@ -190,7 +204,7 @@ const Settings: React.FC = () => {
                         <SettingSlider
                             label={t('tools.settings.manual.verbosity.label')}
                             value={persona.verbosity}
-                            onChange={setVerbosity}
+                            onChange={handleVerbosityChange}
                             minLabel={t('tools.settings.manual.verbosity.min')}
                             maxLabel={t('tools.settings.manual.verbosity.max')}
                         />

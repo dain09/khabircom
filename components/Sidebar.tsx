@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { TOOLS } from '../constants';
 import { X, MessageSquare, Plus, Trash2, Edit3, Check, ChevronDown, Search, Clock, Code, Heart, Star, Zap } from 'lucide-react';
@@ -38,13 +39,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     
     const favoriteToolsDetails = useMemo(() => {
         return favoriteTools
-            .map(id => TOOLS.find(tool => tool.id === id))
+            .map((id: string) => TOOLS.find(tool => tool.id === id))
             .filter((tool): tool is Tool => !!tool && filteredTools.includes(tool));
     }, [favoriteTools, filteredTools]);
     
     const toolsByCategory = useMemo(() => {
         const categories: Record<string, Tool[]> = {};
-        filteredTools.forEach(tool => {
+        filteredTools.forEach((tool: Tool) => {
             const categoryName = t(tool.category);
             if (!categories[categoryName]) {
                 categories[categoryName] = [];
@@ -55,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
     }, [filteredTools, t]);
     
     const recentToolsDetails = useMemo(() => {
-        return recentTools.map(id => TOOLS.find(tool => tool.id === id)).filter((tool): tool is Tool => !!tool && !hiddenTools.includes(tool.id));
+        return recentTools.map((id: string) => TOOLS.find(tool => tool.id === id)).filter((tool): tool is Tool => !!tool && !hiddenTools.includes(tool.id));
     }, [recentTools]);
 
 
@@ -149,7 +150,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                  <button 
                     onClick={handleFavoriteToggle}
                     aria-label={isFavorite ? t('sidebar.removeFromFavorites') : t('sidebar.addToFavorites')}
-                    className="absolute end-1 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 opacity-40 group-hover:opacity-100 focus:opacity-100 hover:text-amber-500 transition-all"
+                    className="absolute end-1 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 opacity-100 hover:text-amber-500 transition-all"
                 >
                     <Star size={16} className={`${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`} />
                 </button>
@@ -269,7 +270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                              <div>
                                 <h3 className="px-2 mb-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2"><Star size={12} className="text-amber-500"/> {t('sidebar.favorites')}</h3>
                                 <ul className='space-y-1'>
-                                     {favoriteToolsDetails.map(tool => (
+                                     {favoriteToolsDetails.map((tool: Tool) => (
                                         <li key={`fav-${tool.id}`}>
                                             <ToolListItem tool={tool} />
                                         </li>
@@ -282,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                             <div>
                                 <h3 className="px-2 mb-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2"><Clock size={12}/> {t('sidebar.recent')}</h3>
                                 <ul className='space-y-1'>
-                                     {recentToolsDetails.map(tool => (
+                                     {recentToolsDetails.map((tool: Tool) => (
                                         <li key={`recent-${tool.id}`}>
                                              <button onClick={() => handleToolClick(tool.id)} className={`w-full flex items-center p-2.5 rounded-xl text-start transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 ${activeToolId === tool.id && !activeConversationId ? 'bg-white dark:bg-slate-800 text-primary font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300'}`}>
                                                 <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 me-3`}>
@@ -307,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                 <ChevronDown className="w-4 h-4 text-slate-400 transition-transform duration-300 group-open:rotate-180" />
                                             </summary>
                                             <ul className='p-2 pt-0 space-y-1'>
-                                                {toolsByCategory[category].map((tool) => (
+                                                {toolsByCategory[category].map((tool: Tool) => (
                                                     <li key={tool.id}>
                                                         <ToolListItem tool={tool} />
                                                     </li>

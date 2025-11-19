@@ -40,6 +40,7 @@ const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
     'khabirkom-settings': React.lazy(() => import('./features/Settings/Settings')),
     'task-manager': React.lazy(() => import('./features/TaskManager/TaskManager')),
     'price-comparator': React.lazy(() => import('./features/PriceComparator/PriceComparator')),
+    'the-judge': React.lazy(() => import('./features/TheJudge/TheJudge')),
 };
 
 const App: React.FC = () => {

@@ -15,7 +15,7 @@ const DialectConverter: React.FC = () => {
     const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'dialect-converter')!;
     
-    const DIALECTS = t('tools.dialectConverter.dialects', { returnObjects: true }) as { id: string, name: string }[];
+    const DIALECTS = t('tools.dialectConverter.dialects', { returnObjects: true }) as unknown as { id: string, name: string }[];
 
     const [text, setText] = useState('');
     const [selectedDialect, setSelectedDialect] = useState(DIALECTS[0].id);

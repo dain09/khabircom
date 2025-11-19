@@ -20,6 +20,7 @@ export interface Message {
     fileInfo?: { name: string; type: string }; // For non-image files
     isStreaming?: boolean; // To control UI during streaming
     senderName?: string; // Persist sender identity (Khabirkom/Fahimkom)
+    memoryUpdates?: string[]; // Visual feedback for memory actions
 }
 
 export interface Conversation {

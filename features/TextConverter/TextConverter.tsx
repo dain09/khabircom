@@ -20,7 +20,7 @@ const TextConverter: React.FC = () => {
     const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'text-converter')!;
 
-    const STYLES = t('tools.textConverter.styles', { returnObjects: true }) as { id: string, text: string }[];
+    const STYLES = t('tools.textConverter.styles', { returnObjects: true }) as unknown as { id: string, text: string }[];
 
     const [text, setText] = useState('');
     const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);

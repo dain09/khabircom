@@ -14,7 +14,7 @@ const PostGenerator: React.FC = () => {
     const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'post-generator')!;
 
-    const POST_TYPES = t('tools.postGenerator.postTypes', { returnObjects: true }) as { id: string, text: string }[];
+    const POST_TYPES = t('tools.postGenerator.postTypes', { returnObjects: true }) as unknown as { id: string, text: string }[];
 
     const [currentType, setCurrentType] = useState('');
     const [generatedType, setGeneratedType] = useState(''); // Store the type of the result

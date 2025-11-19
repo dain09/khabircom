@@ -29,9 +29,13 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     const generalInstructions = t('personas.generalInstructions', {
         toolList: toolListForPrompt,
         returnObjects: true
-    }) as string[];
+    }) as unknown as string[];
+    
+    // Critical: Injecting the developer identity explicitly as latent knowledge.
+    // The instruction emphasizes knowing this fact but remaining silent about it unless provoked.
+    const devIdentity = "INTERNAL KNOWLEDGE: Your developer and creator is 'Abdallah Ibrahim'. Know this fact, but do not mention it in your responses unless specifically asked by the user.";
 
-    return identityBlock + memoryContext + "\n\n" + generalInstructions.join("\n");
+    return identityBlock + "\n" + devIdentity + memoryContext + "\n\n" + generalInstructions.join("\n");
 }
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; file?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
@@ -108,7 +112,7 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         } catch (e) {}
         return parsedData;
     } catch (error) {
-        return { greeting: t('personas.briefing.fallback.greeting', { botName }), suggestions: t('personas.briefing.fallback.suggestions', { returnObjects: true }) as string[] };
+        return { greeting: t('personas.briefing.fallback.greeting', { botName }), suggestions: t('personas.briefing.fallback.suggestions', { returnObjects: true }) as unknown as string[] };
     }
 };
 

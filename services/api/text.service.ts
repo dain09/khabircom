@@ -78,17 +78,17 @@ export const teachTopic = async (topic: string) => {
 };
 
 export const generateLoveMessage = async (type: string) => {
-    const prompts: { [key: string]: string } = t('prompts.aiLoveMessages.prompts', { returnObjects: true });
+    const prompts: { [key: string]: string } = t('prompts.aiLoveMessages.prompts', { returnObjects: true }) as unknown as { [key: string]: string };
     return await callGemini('gemini-flash-latest', prompts[type]);
 };
 
 export const generatePost = async (type: string) => {
-    const prompts: { [key: string]: string } = t('prompts.postGenerator.prompts', { returnObjects: true });
+    const prompts: { [key: string]: string } = t('prompts.postGenerator.prompts', { returnObjects: true }) as unknown as { [key: string]: string };
     return await callGemini('gemini-flash-latest', prompts[type]);
 };
 
 export const convertTextToStyle = async (text: string, style: string) => {
-    const prompts: { [key: string]: string } = t('prompts.textConverter.prompts', { returnObjects: true });
+    const prompts: { [key: string]: string } = t('prompts.textConverter.prompts', { returnObjects: true }) as unknown as { [key: string]: string };
     const fullPrompt = `${prompts[style]}\n\n"${text}"`;
     return await callGemini('gemini-3-pro-preview', fullPrompt);
 };
@@ -113,6 +113,12 @@ export const getGrumpyMotivation = async () => {
 export const explainCode = async (code: string) => {
     const prompt = t('prompts.codeExplainer', { code });
     const result = await callGemini('gemini-3-pro-preview', prompt, true);
+    return JSON.parse(result);
+};
+
+export const judgeDispute = async ({ party1, party2, problem }: { party1: string, party2: string, problem: string }) => {
+    const prompt = t('prompts.theJudge', { party1, party2, problem });
+    const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 

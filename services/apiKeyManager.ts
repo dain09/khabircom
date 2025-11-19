@@ -1,5 +1,4 @@
 
-
 const KEYS_STORAGE_KEY = 'gemini-api-keys';
 const CURRENT_KEY_INDEX_KEY = 'gemini-current-api-key-index';
 
@@ -26,20 +25,7 @@ export const initializeApiKeys = () => {
             }
         }
 
-        // 3. Check import.meta.env.VITE_API_KEYS (Vite Env)
-        try {
-            const viteEnvKeys = import.meta.env?.VITE_API_KEYS;
-            if (viteEnvKeys) {
-                const keysArray = viteEnvKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
-                keysArray.forEach((k: string) => {
-                    if (!keys.includes(k)) keys.push(k);
-                });
-            }
-        } catch (e) {
-            // Ignore if import.meta is not defined
-        }
-
-        // 4. Save back to localStorage if we found keys
+        // 3. Save back to localStorage if we found keys
         if (keys.length > 0) {
             localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keys));
             // Ensure index is set

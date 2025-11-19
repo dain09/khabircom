@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, Plus, BrainCircuit, ArrowRight, MoreVertical, Edit, Volume2, Save, FileText, Zap, Lightbulb, Sparkles, Flame, Puzzle, Link as LinkIcon, ExternalLink, Waves, ChevronDown, ShieldCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -261,10 +262,11 @@ export const Chat: React.FC = () => {
         const modelMessageId = uuidv4();
         addMessageToConversation(convoId, { id: modelMessageId, role: 'model', parts: [{ text: '' }], timestamp: new Date().toISOString(), isStreaming: true, senderName: botName });
 
-        const memorySaveRegex = /\[SAVE_MEMORY:(.*?)\]/g;
-        const memoryDeleteRegex = /\[DELETE_MEMORY:(.*?)\]/g;
-        let fullText = '';
-        
+        let buffer = '';
+        let displayedText = '';
+        let memoryUpdates: string[] = [];
+        let hasError = false;
+
         try {
             const currentConvo = conversations.find(c => c.id === convoId);
             const historyForApi = currentConvo?.messages.filter(m => m.id !== modelMessageId && !m.error) || [];
@@ -286,19 +288,83 @@ export const Chat: React.FC = () => {
 
             for await (const chunk of stream) {
                 if (stopStreamingRef.current) { setStoppedMessageId(modelMessageId); break; }
-                let chunkText = chunk.text;
-                if(chunkText){
-                    Array.from(chunkText.matchAll(memorySaveRegex)).forEach(m => { try { const j=JSON.parse(m[1]); updateMemory(j.key, j.value); addToast(t('chat.memory.saved', { key: j.key })); } catch(e){} });
-                    Array.from(chunkText.matchAll(memoryDeleteRegex)).forEach(m => { try { const j=JSON.parse(m[1]); deleteMemoryItem(j.key); addToast(t('chat.memory.deleted', { key: j.key })); } catch(e){} });
-                    let clean = chunkText.replace(memorySaveRegex, '').replace(memoryDeleteRegex, '').trim();
-                    if(clean){ fullText += clean; updateMessageInConversation(convoId, modelMessageId, { parts: [{ text: fullText }] }); }
+                
+                // Improved buffering to handle streaming tokens splitting tags
+                buffer += chunk.text || '';
+                
+                let hasTags = true;
+                while(hasTags) {
+                    const sMatch = buffer.match(/\[SAVE_MEMORY:(.*?)\]/);
+                    const dMatch = buffer.match(/\[DELETE_MEMORY:(.*?)\]/);
+                    
+                    if (sMatch && (!dMatch || sMatch.index! < dMatch.index!)) {
+                        const dataStr = sMatch[1];
+                        try {
+                            const data = JSON.parse(dataStr);
+                            updateMemory(data.key, data.value);
+                            const badgeText = t('chat.memory.badgeSaved', {key: data.key});
+                            if(!memoryUpdates.includes(badgeText)) memoryUpdates.push(badgeText);
+                            addToast(t('chat.memory.saved', { key: data.key }));
+                        } catch(e) {}
+                        
+                        displayedText += buffer.substring(0, sMatch.index);
+                        buffer = buffer.substring(sMatch.index! + sMatch[0].length);
+                    } else if (dMatch) {
+                        try {
+                            const data = JSON.parse(dMatch[1]);
+                            deleteMemoryItem(data.key);
+                            const badgeText = t('chat.memory.badgeDeleted', {key: data.key});
+                            if(!memoryUpdates.includes(badgeText)) memoryUpdates.push(badgeText);
+                            addToast(t('chat.memory.deleted', { key: data.key }));
+                        } catch(e) {}
+
+                        displayedText += buffer.substring(0, dMatch.index);
+                        buffer = buffer.substring(dMatch.index! + dMatch[0].length);
+                    } else {
+                        hasTags = false;
+                    }
                 }
+                
+                // Check if buffer potentially starts with a tag, if so, wait.
+                // If not, flush safe part to display.
+                const openBracketIndex = buffer.indexOf('[');
+                if (openBracketIndex !== -1) {
+                     // Flush text before [
+                     displayedText += buffer.substring(0, openBracketIndex);
+                     buffer = buffer.substring(openBracketIndex);
+                     // Safety: if buffer is too long without closing ], probably not a tag or malformed. Flush some.
+                     if (buffer.length > 150) {
+                         displayedText += buffer.substring(0, 1);
+                         buffer = buffer.substring(1);
+                     }
+                } else {
+                    displayedText += buffer;
+                    buffer = '';
+                }
+                
+                updateMessageInConversation(convoId, modelMessageId, { 
+                    parts: [{ text: displayedText }], 
+                    memoryUpdates: [...memoryUpdates] 
+                });
             }
         } catch (error) {
-            updateMessageInConversation(convoId, modelMessageId, { parts: [{ text: fullText + `\n\n[${t('chat.error')}]` }], error: true });
+            hasError = true;
         } finally {
+            // Flush remaining buffer
+            if (buffer) {
+                displayedText += buffer;
+            }
+            
+            // Update final state
+            const finalUpdate: any = { 
+                isStreaming: false, 
+                parts: [{ text: displayedText + (hasError ? `\n\n[${t('chat.error')}]` : '') }],
+                memoryUpdates: [...memoryUpdates]
+            };
+            if (hasError) finalUpdate.error = true;
+            
+            updateMessageInConversation(convoId, modelMessageId, finalUpdate);
             setIsResponding(false);
-            updateMessageInConversation(convoId, modelMessageId, { isStreaming: false });
             setAttachedFile(null);
         }
     }, [conversations, addMessageToConversation, updateMessageInConversation, memory, persona, botName, addToast, updateMemory, deleteMemoryItem, attachedFile, t]);
@@ -333,13 +399,12 @@ export const Chat: React.FC = () => {
     
     const handleSend = () => {
         const trimmedInput = input.trim();
-        if (trimmedInput === 'khabirkom_dev_77') {
+        if (trimmedInput === '1368') {
             addToast(t('sidebar.developerVerified'), {
                 icon: <ShieldCheck className="text-green-500" />,
                 duration: 5000
             });
-            setInput('');
-            return;
+            // Allow message to pass through
         }
         submitMessage(input, attachedFile);
         setInput('');
@@ -434,7 +499,7 @@ export const Chat: React.FC = () => {
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className={`w-5 h-5 ${msg.senderName === t('personas.fahimkom.name') ? 'text-orange-500' : 'text-primary'}`} />}
                                     </div>
                                     <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                                        <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{msg.role === 'model' ? msg.senderName : t('chat.you')}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5">{msg.role === 'model' ? msg.senderName : t('chat.you')}</p>
                                         {editingMessage?.id === msg.id ? (
                                             <div className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-primary rounded-2xl shadow-lg">
                                                 <AutoGrowTextarea value={editingMessage.text} onChange={e => setEditingMessage({...editingMessage, text: e.target.value})} className="w-full bg-transparent outline-none text-sm"/>
@@ -444,6 +509,18 @@ export const Chat: React.FC = () => {
                                             <>
                                                 {msg.imageUrl && <div className="p-1 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-2"><img onClick={() => setSelectedImage(msg.imageUrl!)} src={msg.imageUrl} alt="upload" className="rounded-lg max-h-64 object-cover cursor-zoom-in" /></div>}
                                                 {msg.fileInfo && <div className="p-3 flex items-center gap-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-2"><FileText className="w-6 h-6 text-primary" /><span className="text-sm font-medium">{msg.fileInfo.name}</span></div>}
+                                                
+                                                {/* Memory Badge */}
+                                                {msg.memoryUpdates && msg.memoryUpdates.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mb-2 px-2">
+                                                        {msg.memoryUpdates.map((update, i) => (
+                                                            <span key={i} className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full border border-primary/20 flex items-center gap-1 animate-bubbleIn">
+                                                                <BrainCircuit size={10} /> {update}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+
                                                 {(msg.parts[0].text || msg.isStreaming) && (
                                                     <div className={`relative p-3.5 sm:p-5 rounded-2xl shadow-sm text-base leading-relaxed transition-all duration-300 ${
                                                         msg.role === 'user' 

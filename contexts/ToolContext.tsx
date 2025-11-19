@@ -22,7 +22,6 @@ interface ToolContextType {
 export const ToolContext = createContext<ToolContextType | undefined>(undefined);
 
 export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // History stores paths like 'chat/', 'chat/conv-id', or 'tool-id'
     const [history, setHistory] = useState<string[]>(['chat/']);
     
     const [recentTools, setRecentTools] = useState<string[]>(() => {
@@ -59,6 +58,24 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, [favoriteTools]);
 
+    // Listen for changes in other tabs
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            try {
+                if (event.key === RECENT_TOOLS_KEY && event.newValue) {
+                    setRecentTools(JSON.parse(event.newValue));
+                }
+                if (event.key === FAVORITE_TOOLS_KEY && event.newValue) {
+                    setFavoriteTools(JSON.parse(event.newValue));
+                }
+            } catch (e) {
+                console.error("Failed to parse tool data from storage event.", e);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
     const addFavorite = useCallback((id: string) => {
         setFavoriteTools(prev => [...prev, id]);
     }, []);
@@ -76,7 +93,6 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const navigateTo = useCallback((path: string) => {
-        // Prevent pushing the same path consecutively
         setHistory(prev => {
             if (prev[prev.length - 1] === path) {
                 return prev;
@@ -94,7 +110,7 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const activePath = useMemo(() => history[history.length - 1], [history]);
     const [activeToolId, activeConversationId] = useMemo(() => {
         const parts = activePath.split('/');
-        return [parts[0], parts[1]]; // e.g., 'chat', 'conv-id' OR 'tool-id', undefined
+        return [parts[0], parts[1]];
     }, [activePath]);
     
     const value = useMemo(() => ({

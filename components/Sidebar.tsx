@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                  <button 
                     onClick={handleFavoriteToggle}
                     aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
-                    className="absolute left-1 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 opacity-0 group-hover:opacity-100 focus:opacity-100 hover:text-amber-500 transition-all"
+                    className="absolute left-1 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 opacity-40 group-hover:opacity-100 focus:opacity-100 hover:text-amber-500 transition-all"
                 >
                     <Star size={16} className={`${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`} />
                 </button>
@@ -164,7 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                 }`}
                 onClick={() => setSidebarOpen(false)}
             ></div>
-            <aside className={`fixed top-0 right-0 h-full bg-white/90 dark:bg-slate-900/95 backdrop-blur-2xl border-l border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 cubic-bezier(0.2, 0, 0, 1) z-[60] ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col font-sans antialiased`}>
+            <aside className={`fixed top-0 right-0 h-full bg-white/90 dark:bg-slate-900/95 backdrop-blur-2xl border-s border-white/20 dark:border-slate-700/50 shadow-2xl w-80 transform transition-transform duration-300 cubic-bezier(0.2, 0, 0, 1) z-[60] ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col font-sans antialiased`}>
                 <div className="flex justify-between items-center p-5 pb-2 border-b border-transparent flex-shrink-0">
                     <button onClick={handleLogoClick} className="flex items-center gap-2 group focus:outline-none select-none" aria-label="العودة للرئيسية">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300 active:scale-90">
@@ -207,7 +207,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                                     : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
                                             }`}
                                         >
-                                            {activeConversationId === convo.id && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-primary rounded-e-full"></div>}
+                                            {activeConversationId === convo.id && <div className="absolute end-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-primary rounded-s-full"></div>}
                                             <MessageSquare className={`w-4 h-4 me-3 flex-shrink-0 ${activeConversationId === convo.id ? 'text-primary' : 'text-slate-400'}`} />
                                             {editingId === convo.id ? (
                                                 <input 
@@ -259,7 +259,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen,
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full p-3 ps-10 text-sm bg-slate-100 dark:bg-slate-800 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-primary/20 rounded-xl outline-none transition-all"
                             />
-                            <Search size={18} className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
+                            <Search size={18} className="absolute top-1/2 end-3 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
                         </div>
                         
                         {favoriteToolsDetails.length > 0 && !searchTerm && (

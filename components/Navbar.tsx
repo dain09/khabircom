@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                         aria-label="رجوع"
                         title="رجوع"
                     >
-                        <ArrowRight size={26} strokeWidth={2} className="rtl:rotate-180" />
+                        <ArrowRight size={26} strokeWidth={2} />
                     </button>
                 )}
             </div>
@@ -60,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                     onClick={(e) => toggleTheme(e)}
                     className="group relative p-2 text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-indigo-400 transition-colors duration-200 active:scale-95"
                     aria-label="تبديل الوضع"
+                    title="تبديل الوضع"
                 >
                     <div className="relative z-10">
                          {theme === 'light' ? (

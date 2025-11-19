@@ -31,6 +31,21 @@ export const MemoryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     }, [memory]);
 
+    // Listen for changes in other tabs
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === MEMORY_STORAGE_KEY && event.newValue) {
+                try {
+                    setMemory(JSON.parse(event.newValue));
+                } catch(e) {
+                    console.error("Failed to parse memory data from storage event.", e);
+                }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
     const updateMemory = useCallback((key: string, value: string) => {
         if (!key.trim() || !value.trim()) return;
         setMemory(prev => ({ ...prev, [key]: value }));

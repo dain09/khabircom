@@ -38,6 +38,21 @@ export const PersonaProvider: React.FC<{ children: React.ReactNode }> = ({ child
             console.error("Failed to save persona to localStorage", error);
         }
     }, [persona]);
+    
+    // Listen for changes in other tabs
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === PERSONA_STORAGE_KEY && event.newValue) {
+                try {
+                    setPersona({ ...defaultPersona, ...JSON.parse(event.newValue) });
+                } catch(e) {
+                    console.error("Failed to parse persona data from storage event.", e);
+                }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const setHumor = useCallback((level: number) => {
         setPersona(p => ({ ...p, humor: level }));
@@ -57,7 +72,7 @@ export const PersonaProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setHumor,
         setVerbosity,
         setInterests,
-    }), [persona, setHumor, setVerbosity, setInterests]);
+    }), [persona, setPersona, setHumor, setVerbosity, setInterests]);
 
     return (
         <PersonaContext.Provider value={value}>

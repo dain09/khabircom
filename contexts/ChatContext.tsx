@@ -17,12 +17,14 @@ interface ChatContextType {
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+const CONVERSATIONS_KEY = 'chat-conversations';
+
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { activeConversationId, navigateTo, goBack } = useTool();
 
     const [conversations, setConversations] = useState<Conversation[]>(() => {
         try {
-            const localData = localStorage.getItem('chat-conversations');
+            const localData = localStorage.getItem(CONVERSATIONS_KEY);
             return localData ? JSON.parse(localData) : [];
         } catch (error) {
             return [];
@@ -31,11 +33,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         try {
-            localStorage.setItem('chat-conversations', JSON.stringify(conversations));
+            localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(conversations));
         } catch (error) {
             console.error("Failed to save conversations to localStorage", error);
         }
     }, [conversations]);
+    
+    // Listen for changes in other tabs
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === CONVERSATIONS_KEY && event.newValue) {
+                try {
+                    setConversations(JSON.parse(event.newValue));
+                } catch(e) {
+                    console.error("Failed to parse conversations from storage event.", e);
+                }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const createNewConversation = useCallback(() => {
         const newConversation: Conversation = {

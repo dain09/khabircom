@@ -76,7 +76,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
                         <img src={preview} alt="معاينة الصورة" className="object-contain h-full w-full rounded-lg p-2" />
                         <button
                             onClick={handleRemoveImage}
-                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                            className="absolute top-2 end-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
                             aria-label="إزالة الصورة"
                         >
                             <X size={18} />

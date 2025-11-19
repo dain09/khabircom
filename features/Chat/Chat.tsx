@@ -55,13 +55,15 @@ const DashboardScreen: React.FC<{ onSuggestionClick: (prompt: string) => void }>
         return hour < 12 ? "الصباح" : hour < 18 ? "بعد الظهر" : "المساء";
     }, []);
 
-    const { data: briefing, isLoading: isBriefingLoading, execute: fetchBriefing } = useGemini<BriefingData, void>(
-        () => getMorningBriefing(memory, persona, context, botName)
-    );
+    const memoizedGetBriefing = useCallback(() => {
+        return getMorningBriefing(memory, persona, context, botName);
+    }, [memory, persona, context, botName]);
+
+    const { data: briefing, isLoading: isBriefingLoading, execute: fetchBriefing } = useGemini<BriefingData, void>(memoizedGetBriefing);
     
     useEffect(() => {
         fetchBriefing();
-    }, [memory, persona, botName, fetchBriefing]);
+    }, [fetchBriefing]);
 
     const suggestions = briefing?.suggestions || ["اكتب نكتة", "لخص مفهوم الثقب الأسود", "اقترح فكرة مشروع", "إيه رأيك في الذكاء الاصطناعي؟"];
     const quickTools = ['image-generator', 'meme-generator', 'dialect-converter', 'ai-teacher'];
@@ -386,12 +388,12 @@ export const Chat: React.FC = () => {
                 {activeConversation.messages.length === 0 ? <DashboardScreen onSuggestionClick={(prompt) => submitMessage(prompt)} /> : (
                     <div className="space-y-6 max-w-3xl mx-auto">
                         {activeConversation.messages.map((msg, index) => (
-                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
+                            <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-110 ${msg.role === 'user' ? 'bg-white dark:bg-slate-700' : 'bg-white dark:bg-slate-700'}`}>
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className={`w-5 h-5 ${msg.senderName === 'فهيمكم' ? 'text-orange-500' : 'text-primary'}`} />}
                                     </div>
-                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-start' : 'items-end'}`}>
+                                    <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                                         <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{msg.role === 'model' ? msg.senderName : 'أنت'}</p>
                                         {editingMessage?.id === msg.id ? (
                                             <div className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-primary rounded-2xl shadow-lg">
@@ -405,8 +407,8 @@ export const Chat: React.FC = () => {
                                                 {(msg.parts[0].text || msg.isStreaming) && (
                                                     <div className={`relative p-3.5 sm:p-5 rounded-2xl shadow-sm text-base leading-relaxed transition-all duration-300 ${
                                                         msg.role === 'user' 
-                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-br-none' // Changed: User is Right, so Bottom-Right is sharp
-                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/60 w-full' // Changed: Bot is Left, so Bottom-Left is sharp
+                                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white rounded-es-none'
+                                                        : 'bg-white dark:bg-slate-800 text-foreground dark:text-slate-200 rounded-ss-none border border-slate-100 dark:border-slate-700/60 w-full'
                                                     } ${msg.error ? 'border-red-500/50 border-2' : ''}`}>
                                                         {msg.isStreaming && !msg.parts[0].text ? (
                                                             <div className="flex gap-1.5 h-6 items-center px-2"><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}/><span className="w-2 h-2 bg-current opacity-50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}/></div>
@@ -420,7 +422,7 @@ export const Chat: React.FC = () => {
                                         {msg.error && <button onClick={() => handleRegenerate(msg.id)} className="text-red-500 flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition-colors"><RefreshCw size={12}/> فشل، حاول تاني</button>}
                                     </div>
                                     <div className="relative self-center flex-shrink-0">
-                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
+                                        <button aria-label="خيارات" onClick={() => setMenuOpenFor(menuOpenFor === msg.id ? null : msg.id)} className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110"><MoreVertical size={16}/></button>
                                         {menuOpenFor === msg.id && (
                                             <div className="absolute bottom-full ltr:right-0 rtl:left-0 mb-2 w-48 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-100 dark:border-slate-700 p-1.5 z-20 animate-zoomIn origin-bottom" onMouseLeave={() => setMenuOpenFor(null)}>
                                                 <button onClick={() => { navigator.clipboard.writeText(msg.parts[0].text); addToast('تم النسخ!'); setMenuOpenFor(null); }} className="w-full flex items-center gap-3 p-2 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"><Copy size={14}/> نسخ النص</button>
@@ -441,7 +443,7 @@ export const Chat: React.FC = () => {
             <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
                 <div className="max-w-3xl mx-auto">
                      {attachedFile && (
-                        <div className="relative w-fit max-w-full mb-3 p-2 pr-10 pl-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">
+                        <div className="relative w-fit max-w-full mb-3 p-2 pe-10 ps-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">
                             <div className='flex items-center gap-3'>
                                 {attachedFile.type.startsWith('image/') ? <img src={URL.createObjectURL(attachedFile)} alt="Preview" className="w-12 h-12 object-cover rounded-xl"/> : <div className="p-2 bg-primary/10 rounded-xl"><FileText size={24} className="text-primary"/></div>}
                                 <div className="flex flex-col">
@@ -449,19 +451,19 @@ export const Chat: React.FC = () => {
                                     <span className='text-[10px] text-slate-500'>{(attachedFile.size / 1024).toFixed(1)} KB</span>
                                 </div>
                             </div>
-                            <button onClick={() => setAttachedFile(null)} className="absolute top-2 right-2 p-1 bg-slate-200 dark:bg-slate-700 hover:bg-red-100 hover:text-red-500 rounded-full transition-colors"><X size={14} /></button>
+                            <button onClick={() => setAttachedFile(null)} className="absolute top-2 start-2 p-1 bg-slate-200 dark:bg-slate-700 hover:bg-red-100 hover:text-red-500 rounded-full transition-colors"><X size={14} /></button>
                         </div>
                     )}
 
                     <div className="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-[28px] p-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 glow-effect">
-                        {/* Send / Mic Button - Moved to Start (Right in RTL) */}
+                        {/* Send / Mic Button */}
                          {input.trim() || attachedFile ? (
                              <Button 
                                 onClick={handleSend} 
                                 className="p-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 flex-shrink-0 mb-1"
                                 aria-label="إرسال"
                             >
-                                <ArrowRight size={20} className="rtl:rotate-180" strokeWidth={3} />
+                                <Send size={20} />
                             </Button>
                          ) : (
                              <button 
@@ -482,7 +484,7 @@ export const Chat: React.FC = () => {
                             className="flex-1 max-h-40 py-3 px-2 bg-transparent border-none focus:ring-0 outline-none resize-none text-[15px] placeholder:text-slate-400 textarea-scrollbar"
                         />
 
-                        {/* Attachment Button - Moved to End (Left in RTL) */}
+                        {/* Attachment Button */}
                          <button 
                             onClick={() => fileInputRef.current?.click()} 
                             className="p-3 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary transition-colors flex-shrink-0"

@@ -48,7 +48,7 @@ export const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promis
     }
     
     if (keys.length === 0) {
-        throw new Error("لم يتم تكوين أي مفاتيح API. لا يمكن للتطبيق العمل بدونها.");
+        throw new Error("لا يوجد أي مفاتيح API. يرجى إضافة مفتاح صالح في الإعدادات حتى يعمل التطبيق.");
     }
 
     const totalKeys = keys.length;

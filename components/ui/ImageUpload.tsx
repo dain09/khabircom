@@ -49,57 +49,59 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
         }
     }, [preview, onImageSelect]);
 
-    const handleDrop = useCallback((event: React.DragEvent<HTMLLabelElement>) => {
+    const handleDrop = useCallback((event: React.DragEvent<HTMLLabelElement | HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
         handleFileSelect(event.dataTransfer.files?.[0]);
     }, [handleFileSelect]);
 
-    const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
+    const handleDragOver = (event: React.DragEvent<HTMLLabelElement | HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
     };
 
     return (
         <div className="w-full">
-            <label 
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                className={`relative flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer bg-gray-50/80 dark:bg-gray-800/50 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 ${
-                    error 
-                    ? 'border-red-500' 
-                    : preview 
-                    ? 'border-primary' 
-                    : 'border-gray-300 dark:border-gray-600'
-                } ${className}`}
-            >
-                {preview ? (
-                    <>
-                        <img src={preview} alt={t('imageUpload.previewAlt')} className="object-contain h-full w-full rounded-lg p-2" />
-                        <button
-                            onClick={handleRemoveImage}
-                            className="absolute top-2 end-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
-                            aria-label={t('imageUpload.removeAria')}
-                        >
-                            <X size={18} />
-                        </button>
-                    </>
-                ) : (
+             {preview ? (
+                 <div 
+                    className={`relative w-full border-2 border-primary rounded-lg overflow-hidden bg-gray-50/80 dark:bg-gray-800/50 ${className}`}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                 >
+                    <img src={preview} alt={t('imageUpload.previewAlt')} className="object-contain h-full w-full p-2" />
+                    <button
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 end-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10 shadow-md"
+                        aria-label={t('imageUpload.removeAria')}
+                    >
+                        <X size={18} />
+                    </button>
+                 </div>
+             ) : (
+                <label 
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    className={`relative flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer bg-gray-50/80 dark:bg-gray-800/50 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all duration-300 ${
+                        error 
+                        ? 'border-red-500' 
+                        : 'border-gray-300 dark:border-gray-600'
+                    } ${className}`}
+                >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                         <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
                         <p className="mb-2 text-sm text-gray-500 dark:text-gray-400" dangerouslySetInnerHTML={{ __html: t('imageUpload.prompt') }} />
                         <p className="text-xs text-gray-500 dark:text-gray-400">{t('imageUpload.supportedFormats')}</p>
                     </div>
-                )}
-                <input 
-                    ref={fileInputRef} 
-                    id="dropzone-file" 
-                    type="file" 
-                    className="hidden" 
-                    accept={ALLOWED_TYPES.join(',')} 
-                    onChange={handleFileChange} 
-                />
-            </label>
+                    <input 
+                        ref={fileInputRef} 
+                        id="dropzone-file" 
+                        type="file" 
+                        className="hidden" 
+                        accept={ALLOWED_TYPES.join(',')} 
+                        onChange={handleFileChange} 
+                    />
+                </label>
+             )}
             {error && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-red-600 dark:text-red-400">
                     <AlertCircle size={16} />

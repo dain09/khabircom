@@ -4,8 +4,13 @@ import { fileToGenerativePart } from "../../utils/fileUtils";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
 import { t } from '../localizationService';
 
+// Helper to strip Markdown code blocks from JSON
+const cleanJson = (text: string): string => {
+    return text.replace(/```json/g, '').replace(/```/g, '').trim();
+};
+
 const callGemini = async (
-    modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest',
+    modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest' | 'gemini-2.5-flash',
     prompt: any[],
     isJson = false
 ): Promise<string> => {
@@ -25,15 +30,17 @@ const callGemini = async (
 export const roastImage = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
     const prompt = t('prompts.imageRoast');
-    const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
-    return JSON.parse(result);
+    // Switched to 2.5-flash to avoid quotas issues
+    const result = await callGemini('gemini-2.5-flash', [imagePart, { text: prompt }], true);
+    return JSON.parse(cleanJson(result));
 };
 
 export const generateMemeSuggestions = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
     const prompt = t('prompts.memeGenerator');
-    const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
-    return JSON.parse(result).suggestions;
+    // Switched to 2.5-flash to avoid quotas issues
+    const result = await callGemini('gemini-2.5-flash', [imagePart, { text: prompt }], true);
+    return JSON.parse(cleanJson(result)).suggestions;
 };
 
 export const generateImage = async (prompt: string): Promise<string> => {

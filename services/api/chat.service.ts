@@ -16,9 +16,9 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
-        memoryContext = "\n\n--- " + t('personas.memory.header') + " ---\n" +
+        memoryContext = "\n\n" + t('personas.memory.header') + "\n" +
                         memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
-                        "\n--- " + t('personas.memory.footer') + " ---";
+                        "\n" + t('personas.memory.footer');
     }
 
     const toolListForPrompt = TOOLS
@@ -32,7 +32,6 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
     }) as unknown as string[];
     
     // Critical: Injecting the developer identity explicitly as latent knowledge.
-    // The instruction emphasizes knowing this fact but remaining silent about it unless provoked.
     const devIdentity = "INTERNAL KNOWLEDGE: Your developer and creator is 'Abdallah Ibrahim'. Know this fact, but do not mention it in your responses unless specifically asked by the user.";
 
     return identityBlock + "\n" + devIdentity + memoryContext + "\n\n" + generalInstructions.join("\n");
@@ -41,7 +40,7 @@ const getChatPersonaInstruction = (memory: Record<string, string>, persona: Pers
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; file?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
     return withApiKeyRotation(async (ai) => {
         const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
-        const modelName = 'gemini-flash-latest'; 
+        const modelName = 'gemini-2.5-flash'; 
         const chatPersona = getChatPersonaInstruction(memory, persona);
 
         const historyForApi = await Promise.all(history.map(async (msg) => {
@@ -61,9 +60,9 @@ export const generateChatResponseStream = async (history: Message[], newMessage:
             model: modelName,
             config: { 
                 systemInstruction: chatPersona,
-                temperature: isFahimkom ? 1.2 : 0.8,
+                temperature: isFahimkom ? 1.3 : 0.7, // Distinct temperature for personalities
                 topK: isFahimkom ? 64 : 40,
-                tools: [{ googleSearch: {} }],
+                tools: [{ googleSearch: {} }], // Enable Grounding for live info and links
             },
             history: historyForApi as Content[],
         });
@@ -100,7 +99,7 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
     try {
         const result = await withApiKeyRotation(async (ai) => {
             const response = await ai.models.generateContent({
-              model: 'gemini-flash-latest', 
+              model: 'gemini-2.5-flash', 
               contents: prompt,
               config: { responseMimeType: 'application/json' }
             });
@@ -120,7 +119,7 @@ export const generateConversationTitle = async (messages: Message[]): Promise<st
     const conversationContext = messages.slice(0, 3).map(m => `${m.role}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
     const prompt = t('personas.titleGenerationPrompt', { context: conversationContext });
     return withApiKeyRotation(async (ai) => {
-        const response = await ai.models.generateContent({ model: 'gemini-flash-latest', contents: prompt });
+        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
         return response.text.trim().replace(/["']/g, '');
     });
 };

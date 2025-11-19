@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
-import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, Plus, BrainCircuit, ArrowRight, MoreVertical, Edit, Volume2, Save, FileText, Zap, Lightbulb, Sparkles, Flame, Puzzle, Link as LinkIcon, ExternalLink, Waves, ChevronDown, ShieldCheck } from 'lucide-react';
+import { Send, User, Bot, RefreshCw, StopCircle, Play, Paperclip, X, Mic, Copy, Check, Plus, BrainCircuit, ArrowRight, MoreVertical, Edit, Volume2, Save, FileText, Zap, Lightbulb, Sparkles, Flame, Puzzle, Link as LinkIcon, ExternalLink, Waves, ChevronDown, ShieldCheck, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { generateChatResponseStream, getMorningBriefing, generateConversationTitle } from '../../services/api/chat.service';
 import { useChat } from '../../hooks/useChat';
@@ -187,7 +187,7 @@ const CodeBlock: React.FC<any> = ({ inline, className, children }) => {
     };
 
     return !inline ? (
-        <div className="relative my-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-[#1e1e1e] shadow-lg dir-ltr text-left w-full max-w-full group/code">
+        <div className="relative my-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-[#1e1e1e] shadow-lg dir-ltr text-left w-full max-w-[85vw] sm:max-w-full group/code">
             <div className="flex items-center justify-between px-4 py-2 bg-[#2d2d2d] border-b border-white/10"><div className="flex items-center gap-3"><div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div><div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div><div className="w-3 h-3 rounded-full bg-[#27c93f]"></div></div>{match?.[1] && <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{match[1]}</span>}</div><button onClick={handleCopy} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all active:scale-95">{isCopied ? <Check size={14} className="text-green-400"/> : <Copy size={14} />}<span className="text-[10px] font-medium">{isCopied ? t('chat.code.copied') : t('chat.code.copy')}</span></button></div>
             <div className="overflow-x-auto custom-scrollbar w-full"><SyntaxHighlighter style={vscDarkPlus} language={match?.[1] || 'text'} PreTag="div" customStyle={{ margin: 0, padding: '1.5rem', fontSize: '0.85rem', lineHeight: '1.6', background: 'transparent', minWidth: '100%' }} wrapLines={false}>{codeText}</SyntaxHighlighter></div>
         </div>
@@ -219,13 +219,19 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
                 return (
                     <ReactMarkdown key={index} remarkPlugins={[remarkGfm]} components={{
                         p: ({ children }) => <p className={`mb-2 last:mb-0 leading-7 text-[15px] sm:text-base ${message.role === 'user' ? 'text-white/95' : 'text-slate-800 dark:text-slate-200'}`}>{children}</p>,
-                        a: ({ node, ...props }) => <a {...props} className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-1 my-0.5 rounded-full text-xs font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50" target="_blank" rel="noopener noreferrer"><LinkIcon size={10} /><span className="truncate max-w-[200px]">{props.children}</span><ExternalLink size={10} className="opacity-50" /></a>,
+                        a: ({ node, ...props }) => (
+                            <a {...props} className="inline-flex items-center gap-2 px-3 py-1.5 mx-1 my-1 rounded-xl font-bold transition-all no-underline transform hover:-translate-y-0.5 shadow-sm bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-100 dark:border-blue-700/50 w-fit max-w-full" target="_blank" rel="noopener noreferrer">
+                                <LinkIcon size={14} className="flex-shrink-0" />
+                                <span className="truncate">{props.children}</span>
+                                <ExternalLink size={12} className="opacity-50 flex-shrink-0" />
+                            </a>
+                        ),
                         ol: ({ node, ...props }) => <ol {...props} className="list-decimal list-outside ps-5 mb-4 space-y-2 marker:font-bold" />,
                         ul: ({ node, ...props }) => <ul {...props} className="list-disc list-outside ps-5 mb-4 space-y-2" />,
                         li: ({ node, ...props }) => <li {...props} className="my-1 leading-relaxed" />,
                         code: CodeBlock,
                         strong: ({ node, ...props }) => <strong {...props} className="font-extrabold" />,
-                        table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm" /></div>,
+                        table: ({ node, ...props }) => <div className="overflow-x-auto w-full my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm" /></div>,
                         thead: ({ node, ...props }) => <thead {...props} className="bg-slate-50 dark:bg-slate-800" />,
                         th: ({ node, ...props }) => <th {...props} className="px-4 py-3 font-bold text-start uppercase tracking-wider" />,
                         td: ({ node, ...props }) => <td {...props} className="px-4 py-3 whitespace-nowrap" />,
@@ -248,7 +254,7 @@ const MessageContent: React.FC<{ message: Message }> = ({ message }) => {
 
 export const Chat: React.FC = () => {
     const { activeConversation, addMessageToConversation, updateMessageInConversation, createNewConversation, activeConversationId, conversations, renameConversation, editUserMessageAndBranch } = useChat();
-    const { memory, updateMemory, deleteMemoryItem } = useMemory();
+    const { memory, updateMemory, deleteMemoryItem, clearMemory } = useMemory();
     const { persona } = usePersona();
     const { addToast } = useToast();
     const { t } = useLanguage();
@@ -337,15 +343,26 @@ export const Chat: React.FC = () => {
                 while(hasTags) {
                     const sMatch = buffer.match(/\[SAVE_MEMORY:(.*?)\]/);
                     const dMatch = buffer.match(/\[DELETE_MEMORY:(.*?)\]/);
+                    const cMatch = buffer.match(/\[CLEAR_MEMORY\]/);
                     
-                    if (sMatch && (!dMatch || sMatch.index! < dMatch.index!)) {
+                    // Handle Clear Memory Command
+                    if (cMatch && (!sMatch || cMatch.index! < sMatch.index!) && (!dMatch || cMatch.index! < dMatch.index!)) {
+                        clearMemory();
+                        const badgeText = t('chat.memory.badgeCleared');
+                        if(!memoryUpdates.includes(badgeText)) memoryUpdates.push(badgeText);
+                        addToast(t('chat.memory.cleared'), { icon: <Trash2 className="text-red-500"/> });
+                        
+                        displayedText += buffer.substring(0, cMatch.index);
+                        buffer = buffer.substring(cMatch.index! + cMatch[0].length);
+
+                    } else if (sMatch && (!dMatch || sMatch.index! < dMatch.index!)) {
                         const dataStr = sMatch[1];
                         try {
                             const data = JSON.parse(dataStr);
                             updateMemory(data.key, data.value);
                             const badgeText = t('chat.memory.badgeSaved', {key: data.key});
                             if(!memoryUpdates.includes(badgeText)) memoryUpdates.push(badgeText);
-                            addToast(t('chat.memory.saved', { key: data.key }));
+                            addToast(t('chat.memory.saved', { key: data.key }), { icon: <BrainCircuit className="text-primary"/> });
                         } catch(e) {}
                         
                         displayedText += buffer.substring(0, sMatch.index);
@@ -356,7 +373,7 @@ export const Chat: React.FC = () => {
                             deleteMemoryItem(data.key);
                             const badgeText = t('chat.memory.badgeDeleted', {key: data.key});
                             if(!memoryUpdates.includes(badgeText)) memoryUpdates.push(badgeText);
-                            addToast(t('chat.memory.deleted', { key: data.key }));
+                            addToast(t('chat.memory.deleted', { key: data.key }), { icon: <Trash2 className="text-red-500"/> });
                         } catch(e) {}
 
                         displayedText += buffer.substring(0, dMatch.index);
@@ -367,14 +384,11 @@ export const Chat: React.FC = () => {
                 }
                 
                 // Check if buffer potentially starts with a tag, if so, wait.
-                // If not, flush safe part to display.
                 const openBracketIndex = buffer.indexOf('[');
                 if (openBracketIndex !== -1) {
-                     // Flush text before [
                      displayedText += buffer.substring(0, openBracketIndex);
                      buffer = buffer.substring(openBracketIndex);
-                     // Safety: if buffer is too long without closing ], probably not a tag or malformed. Flush some.
-                     if (buffer.length > 150) {
+                     if (buffer.length > 150) { // Safety flush
                          displayedText += buffer.substring(0, 1);
                          buffer = buffer.substring(1);
                      }
@@ -391,12 +405,7 @@ export const Chat: React.FC = () => {
         } catch (error) {
             hasError = true;
         } finally {
-            // Flush remaining buffer
-            if (buffer) {
-                displayedText += buffer;
-            }
-            
-            // Update final state
+            if (buffer) displayedText += buffer;
             const finalUpdate: any = { 
                 isStreaming: false, 
                 parts: [{ text: displayedText + (hasError ? `\n\n[${t('chat.error')}]` : '') }],
@@ -408,7 +417,7 @@ export const Chat: React.FC = () => {
             setIsResponding(false);
             setAttachedFile(null);
         }
-    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, persona, botName, addToast, updateMemory, deleteMemoryItem, attachedFile, t]);
+    }, [conversations, addMessageToConversation, updateMessageInConversation, memory, persona, botName, addToast, updateMemory, deleteMemoryItem, clearMemory, attachedFile, t]);
 
     const submitMessage = useCallback((text: string, file?: File | null) => {
         if (!text.trim() && !file) return;
@@ -530,9 +539,9 @@ export const Chat: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full w-full relative bg-transparent">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4 pb-28 sm:pb-36 scroll-smooth">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4 scroll-smooth">
                 {activeConversation.messages.length === 0 ? <DashboardScreen onSuggestionClick={(prompt) => submitMessage(prompt)} /> : (
-                    <div className="space-y-6 max-w-3xl mx-auto">
+                    <div className="space-y-6 max-w-3xl mx-auto pb-4">
                         {activeConversation.messages.map((msg, index) => (
                             <div key={msg.id} className={`flex w-full animate-slideInUpFade group ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`flex items-end gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -598,7 +607,7 @@ export const Chat: React.FC = () => {
             </div>
 
             {/* Floating Input Area */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
+            <div className="flex-shrink-0 p-3 sm:p-6 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 z-20">
                 <div className="max-w-3xl mx-auto">
                      {attachedFile && (
                         <div className="relative w-fit max-w-full mb-3 p-2 ps-10 pe-4 border rounded-2xl border-primary/30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg animate-slideInUpFade">

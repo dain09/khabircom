@@ -72,9 +72,9 @@ const PriceComparator: React.FC = () => {
                                         {props.children} <ExternalLink size={12} />
                                     </a>
                                 ),
-                                table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="w-full table-fixed" style={{minWidth: '300px'}} /></div>,
+                                table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-lg border border-slate-200 dark:border-slate-700"><table {...props} className="min-w-[500px] w-full table-fixed" /></div>,
                                 thead: ({ node, ...props }) => <thead {...props} className="bg-slate-50 dark:bg-slate-800" />,
-                                th: ({ node, ...props }) => <th {...props} className="px-4 py-3 font-bold text-start uppercase tracking-wider text-right" style={{width: props.children?.toString().toLowerCase().includes('store') || props.children?.toString().toLowerCase().includes('متجر') ? '60%' : '40%'}}/>,
+                                th: ({ node, ...props }) => <th {...props} className="px-4 py-3 font-bold text-start uppercase tracking-wider text-right" style={{width: props.children?.toString().toLowerCase().includes('store') || props.children?.toString().toLowerCase().includes('متجر') ? '50%' : 'auto'}}/>,
                                 td: ({ node, ...props }) => <td {...props} className="px-4 py-3 whitespace-nowrap border-t border-slate-100 dark:border-slate-700 text-right" />,
                             }}
                         >

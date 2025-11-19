@@ -1,6 +1,5 @@
-
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { initializeLocalization, t, TFunction } from '../services/localizationService';
+import React, { createContext, useState, useMemo } from 'react';
+import { t, TFunction } from '../services/localizationService';
 
 interface LanguageContextType {
     language: string;
@@ -13,27 +12,14 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [language, setLanguage] = useState('ar');
-    const [isInitialized, setIsInitialized] = useState(false);
 
-    useEffect(() => {
-        const init = async () => {
-            await initializeLocalization();
-            setIsInitialized(true);
-        };
-        init();
-    }, []);
-
+    // Since localization is initialized at module load, we are always initialized.
     const value = useMemo(() => ({
         language,
         setLanguage,
         t,
-        isInitialized,
-    }), [language, isInitialized]);
-
-    if (!isInitialized) {
-        // You can render a global loader here if needed
-        return null; 
-    }
+        isInitialized: true,
+    }), [language]);
 
     return (
         <LanguageContext.Provider value={value}>

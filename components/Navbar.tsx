@@ -2,6 +2,7 @@
 import React from 'react';
 import { Menu, Sun, Moon, Settings, ArrowRight } from 'lucide-react';
 import { useTool } from '../hooks/useTool';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface NavbarProps {
     toggleSidebar: () => void;
@@ -12,6 +13,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, theme, toolName }) => {
     const { history, goBack, navigateTo } = useTool();
+    const { t } = useLanguage();
     const canGoBack = history.length > 1;
 
     return (
@@ -21,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                 <button 
                     onClick={toggleSidebar} 
                     className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-200 active:scale-95"
-                    aria-label="فتح القائمة"
+                    aria-label={t('navbar.openMenu')}
                 >
                     <Menu size={26} strokeWidth={2} />
                 </button>
@@ -30,8 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                     <button 
                         onClick={goBack}
                         className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-200 active:scale-95 animate-fadeIn"
-                        aria-label="رجوع"
-                        title="رجوع"
+                        aria-label={t('navbar.goBack')}
+                        title={t('navbar.goBack')}
                     >
                         <ArrowRight size={26} strokeWidth={2} />
                     </button>
@@ -50,8 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                  <button
                     onClick={() => navigateTo('khabirkom-settings')}
                     className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-200 active:scale-95 active:rotate-45"
-                    aria-label="الإعدادات"
-                    title="إعدادات خبيركم"
+                    aria-label={t('navbar.settings')}
+                    title={t('navbar.settingsTitle')}
                 >
                     <Settings size={24} strokeWidth={2} />
                 </button>
@@ -59,8 +61,8 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, toggleTheme, them
                  <button
                     onClick={(e) => toggleTheme(e)}
                     className="group relative p-2 text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-indigo-400 transition-colors duration-200 active:scale-95"
-                    aria-label="تبديل الوضع"
-                    title="تبديل الوضع"
+                    aria-label={t('navbar.toggleTheme')}
+                    title={t('navbar.toggleTheme')}
                 >
                     <div className="relative z-10">
                          {theme === 'light' ? (

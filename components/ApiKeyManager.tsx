@@ -4,6 +4,7 @@ import { KeyRound, Trash2, X, Plus, Loader2, CheckCircle2, XCircle } from 'lucid
 import { getApiKeys, addApiKey, deleteApiKey, getCurrentApiKey } from '../services/apiKeyManager';
 import { testApiKey } from '../services/geminiService';
 import { Button } from './ui/Button';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ApiKeyManagerProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ isOpen, onClose })
     const [newKey, setNewKey] = useState('');
     const [error, setError] = useState('');
     const [testStatus, setTestStatus] = useState<Record<string, TestStatus>>({});
+    const { t } = useLanguage();
 
     useEffect(() => {
         if (isOpen) {
@@ -36,14 +38,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ isOpen, onClose })
 
     const handleAddKey = async () => {
         if (!newKey.trim()) {
-            setError('المفتاح لا يمكن أن يكون فارغًا.');
+            setError(t('apiKeyManager.errors.empty'));
             return;
         }
         // Test key before adding
         setTestStatus(prev => ({ ...prev, [newKey]: 'testing' }));
         const isValid = await testApiKey(newKey.trim());
         if (!isValid) {
-            setError('هذا المفتاح غير صالح أو لا يعمل.');
+            setError(t('apiKeyManager.errors.invalid'));
             setTestStatus(prev => ({ ...prev, [newKey]: 'failure' }));
             return;
         }
@@ -56,7 +58,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ isOpen, onClose })
             setCurrentKey(getCurrentApiKey());
             setTestStatus(prev => ({ ...prev, [newKey]: 'success' }));
         } else {
-            setError('هذا المفتاح موجود بالفعل.');
+            setError(t('apiKeyManager.errors.exists'));
             setTestStatus(prev => ({ ...prev, [newKey]: 'failure' }));
         }
     };
@@ -103,57 +105,51 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ isOpen, onClose })
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2"><KeyRound /> إدارة مفاتيح API</h2>
+                    <h2 className="text-xl font-bold flex items-center gap-2"><KeyRound /> {t('apiKeyManager.title')}</h2>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
                         <X size={20} />
                     </button>
                 </div>
                 
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-                    الخبير بيستخدم مفاتيح Gemini API عشان يشتغل. لو المفاتيح الحالية وصلت للحد الأقصى، ممكن تضيف مفاتيح جديدة من 
-                    <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline mx-1">
-                        Google AI Studio
-                    </a>. 
-                    المفاتيح بتتخزن في المتصفح بتاعك بس.
-                </p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6" dangerouslySetInnerHTML={{ __html: t('apiKeyManager.description')}} />
 
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <h3 className="text-sm font-semibold text-slate-500">المفاتيح الحالية</h3>
+                        <h3 className="text-sm font-semibold text-slate-500">{t('apiKeyManager.currentKeys')}</h3>
                         <div className="max-h-40 overflow-y-auto space-y-2 p-2 bg-slate-100 dark:bg-dark-background rounded-lg">
                             {keys.length > 0 ? keys.map(key => (
                                 <div key={key} className={`flex items-center justify-between p-2 rounded-md ${key === currentKey ? 'bg-primary/10 ring-2 ring-primary' : 'bg-white dark:bg-slate-700/50'}`}>
                                     <div className="flex items-center gap-2">
                                         <div className="w-5 h-5 flex items-center justify-center">{renderTestIcon(testStatus[key] || 'idle')}</div>
                                         <span className="font-mono text-sm">{maskKey(key)}</span>
-                                        {key === currentKey && <span className="text-xs font-bold text-primary bg-primary/20 px-2 py-0.5 rounded-full">الحالي</span>}
+                                        {key === currentKey && <span className="text-xs font-bold text-primary bg-primary/20 px-2 py-0.5 rounded-full">{t('apiKeyManager.currentLabel')}</span>}
                                     </div>
                                     <div className="flex items-center gap-1">
-                                         <button onClick={() => handleTestKey(key)} className="p-1 text-slate-500 hover:text-primary disabled:opacity-50" aria-label="اختبار المفتاح" disabled={testStatus[key] === 'testing'}>
-                                            <span className="text-xs font-bold">اختبار</span>
+                                         <button onClick={() => handleTestKey(key)} className="p-1 text-slate-500 hover:text-primary disabled:opacity-50" aria-label={t('apiKeyManager.testAria')} disabled={testStatus[key] === 'testing'}>
+                                            <span className="text-xs font-bold">{t('apiKeyManager.testButton')}</span>
                                         </button>
-                                        <button onClick={() => handleDeleteKey(key)} className="p-1 text-slate-500 hover:text-red-500" aria-label="حذف المفتاح">
+                                        <button onClick={() => handleDeleteKey(key)} className="p-1 text-slate-500 hover:text-red-500" aria-label={t('apiKeyManager.deleteAria')}>
                                             <Trash2 size={16}/>
                                         </button>
                                     </div>
                                 </div>
                             )) : (
-                                <p className="text-center text-sm text-slate-500 py-4">لا يوجد مفاتيح. ضيف واحد عشان تبدأ.</p>
+                                <p className="text-center text-sm text-slate-500 py-4">{t('apiKeyManager.noKeys')}</p>
                             )}
                         </div>
                     </div>
 
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-500 mb-2">إضافة مفتاح جديد</h3>
+                        <h3 className="text-sm font-semibold text-slate-500 mb-2">{t('apiKeyManager.addNew')}</h3>
                         <div className="flex gap-2">
                             <input
                                 type="password"
                                 value={newKey}
                                 onChange={(e) => { setNewKey(e.target.value); setError(''); }}
-                                placeholder="حط مفتاح Gemini API هنا..."
+                                placeholder={t('apiKeyManager.placeholder')}
                                 className="flex-1 p-2 bg-white/20 dark:bg-dark-card/30 border border-white/30 dark:border-slate-700/50 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                             />
-                            <Button onClick={handleAddKey} isLoading={testStatus[newKey] === 'testing'} icon={<Plus />}>إضافة</Button>
+                            <Button onClick={handleAddKey} isLoading={testStatus[newKey] === 'testing'} icon={<Plus />}>{t('apiKeyManager.add')}</Button>
                         </div>
                         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
                     </div>

@@ -8,17 +8,14 @@ import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
-
-const POST_TYPES = [
-    { id: 'wise', text: 'بوست حكمة' },
-    { id: 'funny', text: 'بوست كوميدي' },
-    { id: 'mysterious', text: 'بوست غامض' },
-    { id: 'roast', text: 'بوست تحفيل' },
-    { id: 'caption', text: 'كابشن لصور' },
-];
+import { useLanguage } from '../../hooks/useLanguage';
 
 const PostGenerator: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'post-generator')!;
+
+    const POST_TYPES = t('tools.postGenerator.postTypes', { returnObjects: true }) as { id: string, text: string }[];
+
     const [currentType, setCurrentType] = useState('');
     const [generatedType, setGeneratedType] = useState(''); // Store the type of the result
     const { data: result, isLoading, error, execute } = useGemini<string, string>(generatePost);
@@ -34,13 +31,13 @@ const PostGenerator: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="محتاج بوست جديد للسوشيال ميديا؟ اختار نوع البوست اللي عايزه، والخبير هيكتبهولك فورًا."
+            introText={t('tools.postGenerator.intro')}
         >
-            <p className="mb-4 text-center">اختار نوع البوست:</p>
+            <p className="mb-4 text-center">{t('tools.postGenerator.prompt')}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {POST_TYPES.map(type => (
                     <Button
@@ -57,7 +54,7 @@ const PostGenerator: React.FC = () => {
             {isLoading && !result && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`بوست ${generatedType || currentType} جاهز`} copyText={result}>
+                <ResultCard title={t('tools.postGenerator.resultTitle', { type: generatedType || currentType })} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

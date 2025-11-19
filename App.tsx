@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -11,6 +10,7 @@ import { initializeApiKeys } from './services/apiKeyManager';
 import { useTool } from './hooks/useTool';
 import { ApiKeyManager } from './components/ApiKeyManager';
 import { ToastContainer } from './components/ToastContainer';
+import { useLanguage } from './hooks/useLanguage';
 
 // Dynamic import for all feature components to optimize initial load
 const featureComponents: Record<string, React.LazyExoticComponent<React.FC>> = {
@@ -47,6 +47,7 @@ const App: React.FC = () => {
     const [isSidebarOpen, setSidebarOpen] = useState<boolean>(true);
     const [isApiKeyManagerOpen, setApiKeyManagerOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
+    const { t } = useLanguage();
 
     useEffect(() => {
         initializeApiKeys();
@@ -85,7 +86,7 @@ const App: React.FC = () => {
                     toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
                     toggleTheme={toggleTheme}
                     theme={theme}
-                    toolName={activeTool?.title || 'دردشة مع خبيركم'}
+                    toolName={activeTool ? t(activeTool.title) : t('tools.chat.title')}
                 />
                 <main className="flex-1 relative min-h-0">
                     <div key={activePath} className="h-full w-full">

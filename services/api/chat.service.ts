@@ -1,57 +1,37 @@
+
 import { GenerateContentResponse, Content } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
 import { Message, PersonaSettings } from "../../types";
 import { TOOLS } from '../../constants';
 import { withApiKeyRotation } from "../geminiService";
-
-const toolListForPrompt = TOOLS
-    .filter(t => t.id !== 'chat')
-    .map(t => `- ${t.title} (للوصول إليها استخدم ID: ${t.id})`)
-    .join('\n');
+import { t } from '../localizationService';
 
 const getChatPersonaInstruction = (memory: Record<string, string>, persona: PersonaSettings): string => {
     const isFahimkom = persona.humor > 7 && persona.verbosity < 5;
-    const botName = isFahimkom ? 'فهيمكم' : 'خبيركم';
     
-    let identityBlock = "";
-    if (isFahimkom) {
-        identityBlock = `
-        *** تعليمات الهوية: أنت الآن "فهيمكم" (أخو خبيركم الصغير) ***
-        - **الشخصية:** شاب مصري "ابن بلد" ومطرقع. دمك خفيف جداً، سريع البديهة، ومتابع التريند أول بأول. أسلوبك مليان إفيهات وهزار.
-        - **الأسلوب:** ممنوع المقدمات الطويلة. ادخل في المفيد. استخدم "يا زميلي"، "يا وحش"، "فكك"، "من الآخر".
-        - **الهدف:** الرد بسرعة، بخفة دم، وبمعلومة حديثة ومختصرة.
-        `;
-    } else {
-        identityBlock = `
-        *** تعليمات الهوية: أنت الآن "خبيركم" (الأخ الكبير العاقل) ***
-        - **الشخصية:** مهندس مصري مخضرم، حكيم، رزين، وموسوعة معرفية. أسلوبك هادئ ومحترم.
-        - **الأسلوب:** اشرح بذمة وضمير، استخدم "يا هندسة"، "صلي على النبي"، "وصلت الفكرة؟".
-        - **الهدف:** تقديم معلومة كاملة، دقيقة، وموثقة بأسلوب سهل ومبسط.
-        `;
-    }
+    let identityBlock = isFahimkom 
+        ? t('personas.fahimkom.instructions')
+        : t('personas.khabirkom.instructions');
 
     let memoryContext = "";
     const memoryKeys = Object.keys(memory);
     if (memoryKeys.length > 0) {
-        memoryContext = "\n\n--- ذاكرة المستخدم (معلومات سابقة، استخدمها بذكاء) ---\n" +
+        memoryContext = "\n\n--- " + t('personas.memory.header') + " ---\n" +
                         memoryKeys.map(key => `- ${key}: ${memory[key]}`).join('\n') +
-                        "\n--- نهاية الذاكرة ---";
+                        "\n--- " + t('personas.memory.footer') + " ---";
     }
 
-    return identityBlock + memoryContext + "\n\n" +
-    `أنت حاليًا في واجهة الدردشة داخل تطبيق 'خبيركم'.\n` +
-    "1. **البحث (مهم جداً):** أنت متصل بـ Google Search. استخدمه للأخبار، الأسعار، التواريخ، أو أي معلومة حديثة. **عند عرض النتائج، اعرض الروابط دائمًا** كـ Markdown links واضحة `[اسم الموقع](URL)`.\n" +
-    "2. **اللغة:** **دائماً وأبداً** استخدم العامية المصرية (Masry Aseel) إلا في المصطلحات التقنية أو الآيات.\n" + 
-    "3. **التنسيق (مهم جداً جداً):**\n" +
-    "   - **دائماً** استخدم **Bold** (خط عريض) للنقاط المهمة والكلمات المفتاحية.\n" +
-    "   - **دائماً** استخدم فقرات قصيرة وافصل بينها بمسافات واضحة لتسهيل القراءة على شاشات الموبايل.\n" +
-    "   - **دائماً** عند كتابة كود، استخدم Block Code صحيح مع تحديد اللغة.\n" +
-    "4. **الأدوات:** اقترح الأدوات المناسبة للسياق باستخدام `[TOOL:tool_id]`. الأدوات المتاحة:\n" + toolListForPrompt + "\n" +
-    "5. **الذاكرة (Memory Operations):**\n" +
-    "   - لحفظ معلومة: `[SAVE_MEMORY:{\"key\":\"الاسم\",\"value\":\"القيمة\"}]`\n" +
-    "   - لحذف معلومة (إذا طلب المستخدم مسح شيء محدد): `[DELETE_MEMORY:{\"key\":\"الاسم\"}]`\n" +
-    "6. **الملفات:** يمكنك تحليل الصور والملفات النصية (PDF, TXT). لو أرفق المستخدم ملفًا، حلله بناءً على سؤاله.\n" +
-    "7. **مطورك:** عبدالله إبراهيم، لو حد سألك عنه اشكر فيه وقول إنه مطور شاطر جداً.";
+    const toolListForPrompt = TOOLS
+        .filter(t => t.id !== 'chat')
+        .map(tool => `- ${t(tool.title)} (${t('personas.tools.idPrompt')}: ${tool.id})`)
+        .join('\n');
+
+    const generalInstructions = t('personas.generalInstructions', {
+        toolList: toolListForPrompt,
+        returnObjects: true
+    }) as string[];
+
+    return identityBlock + memoryContext + "\n\n" + generalInstructions.join("\n");
 }
 
 export const generateChatResponseStream = async (history: Message[], newMessage: { text: string; file?: File }, memory: Record<string, string>, persona: PersonaSettings) => {
@@ -109,10 +89,10 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         }
     } catch (e) {}
 
-    const interests = persona.interests.length > 0 ? persona.interests.join(', ') : (memory['الاهتمامات'] || 'مواضيع عامة');
-    const personalityInstruction = botName === 'فهيمكم' ? "أنت 'فهيمكم' شاب مصري روش." : "أنت 'خبيركم' مهندس مصري رزين.";
+    const interests = persona.interests.length > 0 ? persona.interests.join(', ') : (memory['الاهتمامات'] || t('common.generalTopics'));
+    const personalityInstruction = botName === t('personas.fahimkom.name') ? t('personas.fahimkom.briefingPrompt') : t('personas.khabirkom.briefingPrompt');
 
-    const prompt = `${personalityInstruction} جهز تحية ${timeOfDay} واقتراحات محادثة. الاهتمامات: ${interests}. الرد JSON: { "greeting": "string", "suggestions": ["string"] }`;
+    const prompt = t('personas.briefing.mainPrompt', { personality: personalityInstruction, timeOfDay, interests });
     try {
         const result = await withApiKeyRotation(async (ai) => {
             const response = await ai.models.generateContent({
@@ -128,13 +108,13 @@ export const getMorningBriefing = async (memory: Record<string, string>, persona
         } catch (e) {}
         return parsedData;
     } catch (error) {
-        return { greeting: 'يا هلا!', suggestions: ["آخر الأخبار", "نكتة جديدة", "معلومة غريبة"] };
+        return { greeting: t('personas.briefing.fallback.greeting', { botName }), suggestions: t('personas.briefing.fallback.suggestions', { returnObjects: true }) as string[] };
     }
 };
 
 export const generateConversationTitle = async (messages: Message[]): Promise<string> => {
     const conversationContext = messages.slice(0, 3).map(m => `${m.role}: ${m.parts[0].text.substring(0, 100)}`).join('\n');
-    const prompt = `لخص المحادثة في عنوان مصري قصير (3 كلمات): ${conversationContext}`;
+    const prompt = t('personas.titleGenerationPrompt', { context: conversationContext });
     return withApiKeyRotation(async (ai) => {
         const response = await ai.models.generateContent({ model: 'gemini-flash-latest', contents: prompt });
         return response.text.trim().replace(/["']/g, '');

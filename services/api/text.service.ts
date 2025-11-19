@@ -1,6 +1,8 @@
+
 import { GenerateContentResponse } from "@google/genai";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
 import { AnalysisResult } from "../../types";
+import { t } from '../localizationService';
 
 const callGemini = async (
     modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest',
@@ -14,7 +16,7 @@ const callGemini = async (
           contents: prompt,
           config: { 
             responseMimeType: isJson ? 'application/json' : 'text/plain',
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION,
+            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION(),
             tools: useGrounding ? [{ googleSearch: {} }] : undefined
           }
         });
@@ -23,132 +25,105 @@ const callGemini = async (
 };
 
 export const roastText = async (text: string) => {
-    const prompt = `النص المطلوب تحفيل عليه: "${text}".\nطلعلي 4 حاجات بصيغة JSON بالSchema دي:\n{\n  "roast": "string",\n  "corrected": "string",\n  "analysis": "string",\n  "advice": "string"\n}\n\n1.  **roast**: تحفيل كوميدي وساخر على النص.\n2.  **corrected**: نسخة متصححة لغوياً من النص.\n3.  **analysis**: تحليل نفسي على الطاير لصاحب النص.\n4.  **advice**: نصيحة ساخرة بس مفيدة.`;
+    const prompt = t('prompts.textRoast', { text });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const convertDialect = async (text: string, dialect: string) => {
-    const prompt = `حول النص ده: "${text}" للهجة "${dialect}" وخليها طبيعية ومظبوطة. اديني النص المتحول بس من غير أي كلام زيادة.`;
+    const prompt = t('prompts.dialectConverter', { text, dialect });
     const result = await callGemini('gemini-flash-latest', prompt);
     return result;
 };
 
 export const summarizeNews = async (newsText: string) => {
-    const prompt = `لخص الخبر ده:\n"${newsText}"\n\nالرد يكون بصيغة JSON بالSchema دي:\n{\n  "serious_summary": "string",\n  "comic_summary": "string",\n  "advice": "string"\n}\n\n- **serious_summary**: ملخص جد في 3 سطور.\n- **comic_summary**: ملخص كوميدي وتحفيل على الخبر في 3 سطور.\n- **advice**: نصيحة مفيدة من قلب الخبر.`;
+    const prompt = t('prompts.newsSummarizer', { newsText });
     const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
 export const generateMoodContent = async (text: string) => {
-    const prompt = `حلل النص التالي واكتب تقييم كوميدي لحالة كاتبه المزاجية. كن مبدعًا ومضحكًا جدًا. النص: "${text}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "mood_name": "string", \n "mood_description": "string", \n "advice": "string" \n}\n\n- mood_name: اسم كوميدي للمود (مثال: نمرود بيصيف في سيبيريا).\n- mood_description: وصف مضحك للحالة.\n- advice: نصيحة فكاهية لتغيير المود.`;
+    const prompt = t('prompts.moodsGenerator', { text });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const interpretDream = async (dream: string) => {
-    const prompt = `الحلم هو: "${dream}".\n\nفسرهولي في صيغة JSON بالSchema دي:\n{\n  "logical": "string",\n  "sarcastic": "string",\n  "advice": "string"\n}\n\n1.  **logical**: تفسير منطقي للحلم.\n2.  **sarcastic**: تفسير ساخر وفكاهي.\n3.  **advice**: نصيحة غريبة بس تضحك.`;
+    const prompt = t('prompts.dreamInterpreter', { dream });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const generateRecipe = async (ingredients: string) => {
-    const prompt = `المكونات اللي عندي هي: "${ingredients}".\n\nطلعلي وصفات بصيغة JSON بالSchema دي:\n{\n  "real_recipe": { "name": "string", "steps": "string" },\n  "comic_recipe": { "name": "string", "steps": "string" },\n  "advice": "string"\n}\n\n- **real_recipe**: وصفة بجد تتعمل.\n- **comic_recipe**: وصفة فكاهية وعلى قد الإيد.\n- **advice**: نصيحة سريعة عن الأكل.`;
+    const prompt = t('prompts.recipeGenerator', { ingredients });
     const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
 export const generateStory = async (scenario: string) => {
-    const prompt = `أكمل السيناريو التالي بطريقة كوميدية وغير متوقعة. اجعل النهاية مضحكة جدًا. السيناريو: "${scenario}".\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "funny_story": "string"\n}`;
+    const prompt = t('prompts.storyMaker', { scenario });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const summarizeLongText = async (text: string) => {
-    const prompt = `لخص النص الطويل ده:\n"${text}"\n\nالرد بصيغة JSON بالSchema دي:\n{\n  "short_summary": "string",\n  "funny_summary": "string",\n  "key_points": ["point1", "point2", "point3"]\n}\n\n- **short_summary**: ملخص قصير ومفيد.\n- **funny_summary**: ملخص كوميدي.\n- **key_points**: أهم 3 نقط.`;
+    const prompt = t('prompts.pdfSummarizer', { text });
     const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
 export const teachTopic = async (topic: string) => {
-    const prompt = `لموضوع "${topic}"، اقترح خطة مذاكرة "فهلوانية" وسهلة جدًا ومضحكة. اجعل الخطة تبدو بسيطة ومكافئاتها ممتعة. اشرح بأسلوب الأستاذ الفهلوي.`;
+    const prompt = t('prompts.aiTeacher', { topic });
     return await callGemini('gemini-3-pro-preview', prompt);
 };
 
 export const generateLoveMessage = async (type: string) => {
-    const prompts: { [key: string]: string } = {
-        romantic: 'اكتب رسالة حب رومانسية أوي.',
-        funny: 'اكتب رسالة حب تضحك.',
-        shy: 'اكتب رسالة حب بأسلوب واحد مكسوف.',
-        toxic: 'اكتب رسالة حب toxic بس خفيفة.',
-        apology: 'اكتب رسالة اعتذار وحب بعد خناقة.',
-        witty_roast: 'اكتب رسالة عتاب رومانسية كوميدية، فيها تحفيل راقي.',
-    };
+    const prompts: { [key: string]: string } = t('prompts.aiLoveMessages.prompts', { returnObjects: true });
     return await callGemini('gemini-flash-latest', prompts[type]);
 };
 
 export const generatePost = async (type: string) => {
-    const prompts: { [key: string]: string } = {
-        wise: 'اكتب بوست فيسبوك حكيم عن الحياة.',
-        funny: 'اكتب بوست فيسبوك كوميدي عن موقف يومي.',
-        mysterious: 'اكتب بوست فيسبوك غامض ومش مفهوم أوي.',
-        roast: 'اكتب بوست تحفيل خفيف على الصحاب.',
-        caption: 'اكتب كابشن جامد لصورة شخصية على انستجرام.',
-    };
+    const prompts: { [key: string]: string } = t('prompts.postGenerator.prompts', { returnObjects: true });
     return await callGemini('gemini-flash-latest', prompts[type]);
 };
 
 export const convertTextToStyle = async (text: string, style: string) => {
-    const prompts: { [key: string]: string } = {
-        formal: 'أعد كتابة النص ده بلغة عربية فصحى رسمية:',
-        comic_fusha: 'أعد كتابة النص ده بفصحى كوميدية:',
-        poet: 'أعد كتابة النص ده بأسلوب شاعر:',
-        sheikh: 'أعد كتابة النص ده بأسلوب شيخ بينصح:',
-        know_it_all: 'أعد كتابة النص ده بأسلوب واحد فهلوي وفاهم كل حاجة:',
-    };
+    const prompts: { [key: string]: string } = t('prompts.textConverter.prompts', { returnObjects: true });
     const fullPrompt = `${prompts[style]}\n\n"${text}"`;
     return await callGemini('gemini-3-pro-preview', fullPrompt);
 };
 
 export const generateNames = async (category: string) => {
-    const prompt = `اقترح 5 أسماء مصرية مبتكرة لـ'${category}'. الرد يكون بصيغة JSON بالSchema دي:\n{\n "names": ["string", "string", "string", "string", "string"] \n}`;
+    const prompt = t('prompts.nameGenerator', { category });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result).names;
 };
 
 export const analyzeHabits = async (habitAnswers: string) => {
-    const prompt = `بناءً على الـ5 أشياء التالية التي يحبها المستخدم أو يفعلها، استنتج "موهبة خفية" كوميدية لديه. كن مبدعًا جدًا في استنتاجك. الأشياء هي: "${habitAnswers}". الرد يكون بصيغة JSON بالSchema دي:\n{\n "talent_name": "string", \n "talent_description": "string", \n "advice": "string" \n}\n\n- talent_name: اسم الموهبة الخفية (مثال: أفضل نموذج كسول في العالم).\n- talent_description: شرح كوميدي للموهبة.\n- advice: نصيحة فكاهية لتنمية هذه الموهبة.`;
+    const prompt = t('prompts.habitAnalyzer', { habitAnswers });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const getGrumpyMotivation = async () => {
-    const prompt = 'اديني جملة تحفيزية مصرية رخمة ومضحكة زي "قوم يا نجم شوف مستقبلك اللي ضايع ده."';
+    const prompt = t('prompts.aiMotivator');
     return await callGemini('gemini-flash-latest', prompt);
 };
 
 export const explainCode = async (code: string) => {
-    const prompt = `اشرح الكود التالي بالتفصيل وبشكل بسيط جدًا. استخدم اللغة العامية المصرية. الرد يكون بصيغة JSON بالSchema دي:\n{\n "explanation": "string",\n "breakdown": "string",\n "language": "string"\n}\n\n- **explanation**: شرح عام ومبسط للكود بيعمل إيه.\n- **breakdown**: شرح تفصيلي سطر بسطر أو جزء بجزء، استخدم markdown للتنسيق.\n- **language**: اللغة البرمجية المستخدمة.\n\nالكود:\n\`\`\`\n${code}\n\`\`\``;
+    const prompt = t('prompts.codeExplainer', { code });
     const result = await callGemini('gemini-3-pro-preview', prompt, true);
     return JSON.parse(result);
 };
 
 export const organizeTasks = async (input: string) => {
-    const prompt = `رتب المهام دي في جدول أولويات منطقي. المهام هي: "${input}".
-    الرد JSON Schema:
-    {
-      "tasks": [
-        { "task": "string", "priority": "High/Medium/Low", "estimated_time": "string", "category": "string" }
-      ],
-      "summary_advice": "string"
-    }`;
+    const prompt = t('prompts.taskManager', { input });
     const result = await callGemini('gemini-flash-latest', prompt, true);
     return JSON.parse(result);
 };
 
 export const comparePrices = async (product: string) => {
-    const prompt = `ابحث عن سعر "${product}" في المتاجر المصرية (أمازون مصر، نون، بي تك، إلخ) وقارن الأسعار.
-    اعمل جدول markdown بالأسعار والمتاجر، وتحته "الخلاصة" عن أفضل مكان للشراء حالياً. خليك دقيق واستخدم أحدث بيانات متاحة.`;
+    const prompt = t('prompts.priceComparator', { product });
     // We use gemini-flash-latest with grounding enabled (passed as true)
     return await callGemini('gemini-flash-latest', prompt, false, true);
 };
@@ -156,9 +131,9 @@ export const comparePrices = async (product: string) => {
 export const analyzeVoice = async (audioFile: File): Promise<AnalysisResult> => {
     console.log("Analyzing audio file (mock):", audioFile.name);
     return new Promise(resolve => setTimeout(() => resolve({
-        mood: "باين عليه متفائل بس قلقان شوية",
-        energy: "متوسطة",
-        roast: "صوتك بيقول إنك محتاج قهوة... أو إجازة طويلة.",
-        advice: "جرب تاخد نفس عميق قبل ما تسجل تاني، ريلاكس يا نجم."
+        mood: t('tools.voiceAnalysis.mockResults.mood'),
+        energy: t('tools.voiceAnalysis.mockResults.energy'),
+        roast: t('tools.voiceAnalysis.mockResults.roast'),
+        advice: t('tools.voiceAnalysis.mockResults.advice')
     }), 1000));
 };

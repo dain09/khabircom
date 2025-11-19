@@ -8,8 +8,10 @@ import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const AiTeacher: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'ai-teacher')!;
     const [topic, setTopic] = useState('');
     const [submittedTopic, setSubmittedTopic] = useState('');
@@ -24,28 +26,28 @@ const AiTeacher: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="اكتب أي موضوع أو مادة صعبة عليك، والأستاذ الفهلوي هيعملك خطة مذاكرة بسيطة ومضحكة عشان تنجز."
+            introText={t('tools.aiTeacher.intro')}
         >
             <div className="space-y-4">
                 <input
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="عايز خطة فهلوانية لمذاكرة إيه؟ (مثال: الفيزياء الكمية)"
+                    placeholder={t('tools.aiTeacher.placeholder')}
                     className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!topic.trim()}>
-                    اعملي خطة
+                    {t('tools.aiTeacher.submit')}
                 </Button>
             </div>
             {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`خطة فهلوانية لمذاكرة: ${submittedTopic || topic}`} copyText={result}>
+                <ResultCard title={t('tools.aiTeacher.resultTitle', { topic: submittedTopic || topic })} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

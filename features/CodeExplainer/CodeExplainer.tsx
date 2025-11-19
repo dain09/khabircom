@@ -13,6 +13,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface CodeResult {
     explanation: string;
@@ -21,6 +22,7 @@ interface CodeResult {
 }
 
 const CodeExplainer: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'code-explainer')!;
     const [code, setCode] = useState('');
     const { data: result, isLoading, error, execute } = useGemini<CodeResult, string>(explainCode);
@@ -52,33 +54,33 @@ const CodeExplainer: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="عندك كود برمجي مش فاهمه؟ الصقه هنا والخبير هيفصصهولك حتة حتة وبلغة بسيطة تقدر تفهمها."
+            introText={t('tools.codeExplainer.intro')}
         >
             <div className="space-y-4">
                 <AutoGrowTextarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="الصق الكود هنا..."
+                    placeholder={t('tools.codeExplainer.placeholder')}
                     className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-96 font-mono text-sm"
                     rows={8}
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!code.trim()}>
-                    اشرحلي الكود
+                    {t('tools.codeExplainer.submit')}
                 </Button>
             </div>
             {isLoading && <ResultCardSkeleton count={2} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="الخلاصة (الكود ده بيعمل إيه؟)" copyText={result?.explanation}>
+                    <ResultCard title={t('tools.codeExplainer.results.summary')} copyText={result?.explanation}>
                         <p>{result?.explanation}</p>
-                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400"><strong>اللغة المكتشفة:</strong> {result?.language}</p>
+                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400"><strong>{t('tools.codeExplainer.results.language')}:</strong> {result?.language}</p>
                     </ResultCard>
-                    <ResultCard title="التفصيل (شرح خطوة بخطوة)" copyText={result?.breakdown}>
+                    <ResultCard title={t('tools.codeExplainer.results.breakdown')} copyText={result?.breakdown}>
                          <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{

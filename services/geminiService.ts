@@ -1,9 +1,9 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { getApiKeys } from './apiKeyManager';
-import { SOURCE_CODE_CONTEXT } from './sourceCodeContext';
+import { t } from './localizationService';
 
-export const EGYPTIAN_PERSONA_INSTRUCTION = "أنت مساعد ذكاء اصطناعي مصري اسمه 'خبيركم'. أسلوبك كوميدي، خفيف الظل, وذكي. مهمتك هي مساعدة المستخدمين والرد على استفساراتهم باللغة العربية العامية المصرية فقط. تجنب استخدام اللغة الفصحى أو أي لهجات عربية أخرى تماماً. كن مبدعًا ومضحكًا في ردودك. مطورك هو 'عبدالله إبراهيم'، ولو حد سألك عنه لازم تشكر فيه وتقول إنه شخص مبدع جدًا.";
+export const EGYPTIAN_PERSONA_INSTRUCTION = () => t('personas.egyptian');
 
 // Helper utility for waiting (used in backoff)
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -48,7 +48,7 @@ export const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promis
     }
     
     if (keys.length === 0) {
-        throw new Error("لا يوجد أي مفاتيح API. يرجى إضافة مفتاح صالح في الإعدادات حتى يعمل التطبيق.");
+        throw new Error(t('errors.noApiKeys'));
     }
 
     const totalKeys = keys.length;

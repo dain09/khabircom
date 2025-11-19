@@ -8,18 +8,14 @@ import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
-
-const MESSAGE_TYPES = [
-    { id: 'romantic', text: 'رومانسية' },
-    { id: 'funny', text: 'كوميدية' },
-    { id: 'shy', text: 'واحد مكسوف' },
-    { id: 'toxic', text: 'توكسيك خفيفة' },
-    { id: 'apology', text: 'صلح واعتذار' },
-    { id: 'witty_roast', text: 'عتاب رخمة' },
-];
+import { useLanguage } from '../../hooks/useLanguage';
 
 const AiLoveMessages: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'ai-love-messages')!;
+    
+    const MESSAGE_TYPES = t('tools.aiLoveMessages.messageTypes', { returnObjects: true }) as { id: string, text: string }[];
+
     const [currentType, setCurrentType] = useState('');
     const [generatedType, setGeneratedType] = useState('');
     const { data: result, isLoading, error, execute } = useGemini<string, string>(generateLoveMessage);
@@ -35,13 +31,13 @@ const AiLoveMessages: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="مش عارف تعبر عن مشاعرك؟ اختار نوع الرسالة اللي محتاجها، والخبير هيكتبهالك بأسلوب مناسب."
+            introText={t('tools.aiLoveMessages.intro')}
         >
-            <p className="mb-4 text-center">اختار نوع الرسالة اللي على مزاجك:</p>
+            <p className="mb-4 text-center">{t('tools.aiLoveMessages.prompt')}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {MESSAGE_TYPES.map(type => (
                     <Button
@@ -58,7 +54,7 @@ const AiLoveMessages: React.FC = () => {
             {isLoading && !result && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`رسالة ${generatedType || currentType}`} copyText={result}>
+                <ResultCard title={t('tools.aiLoveMessages.resultTitle', { type: generatedType || currentType })} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

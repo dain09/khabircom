@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { LucideIcon, Info, X } from 'lucide-react';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ToolContainerProps {
     title: string;
@@ -13,6 +14,7 @@ interface ToolContainerProps {
 
 export const ToolContainer: React.FC<ToolContainerProps> = ({ title, description, icon: Icon, iconColor, children, introText }) => {
     const [isIntroVisible, setIntroVisible] = useState(true);
+    const { t } = useLanguage();
     
     return (
         <div className="h-full flex flex-col overflow-hidden">
@@ -33,7 +35,7 @@ export const ToolContainer: React.FC<ToolContainerProps> = ({ title, description
                                 <button
                                     onClick={() => setIntroVisible(false)}
                                     className="absolute top-1.5 end-1.5 p-1 rounded-full hover:bg-primary/20 transition-colors"
-                                    aria-label="إخفاء الإرشادات"
+                                    aria-label={t('toolContainer.hideIntro')}
                                 >
                                     <X size={16} />
                                 </button>

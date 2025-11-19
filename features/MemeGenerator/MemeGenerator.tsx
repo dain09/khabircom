@@ -8,8 +8,10 @@ import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ImageUpload } from '../../components/ui/ImageUpload';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const MemeGenerator: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'meme-generator')!;
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -37,11 +39,11 @@ const MemeGenerator: React.FC = () => {
 
     return (
         <ToolContainer
-            title={toolInfo.title}
-            description={toolInfo.description}
+            title={t(toolInfo.title)}
+            description={t(toolInfo.description)}
             icon={toolInfo.icon}
             iconColor={toolInfo.color}
-            introText="ارفع صورة والخبير هيقترح عليك كابشنز تحولها لميم جامد."
+            introText={t('tools.memeGenerator.intro')}
         >
             <div className="space-y-4">
                 
@@ -49,7 +51,7 @@ const MemeGenerator: React.FC = () => {
 
                 {imageFile && !suggestions && !isLoading && (
                     <Button onClick={handleSubmit} isLoading={isLoading} disabled={!imageFile}>
-                        اقترح ميمز
+                        {t('tools.memeGenerator.submit')}
                     </Button>
                 )}
                 
@@ -70,12 +72,12 @@ const MemeGenerator: React.FC = () => {
                             <p className="absolute top-2 left-2 right-2 p-1 break-words" style={{ WebkitTextStroke: '1px black', textShadow: '2px 2px 4px #000' }}>
                                 {selectedSuggestion}
                             </p>
-                            <img src={imagePreview} alt="Meme preview" className="w-full" />
+                            <img src={imagePreview} alt={t('tools.memeGenerator.previewAlt')} className="w-full" />
                         </div>
                         
                         {/* Suggestion Buttons */}
                         <div>
-                            <h3 className="text-lg font-semibold mb-2">اختار الكابشن:</h3>
+                            <h3 className="text-lg font-semibold mb-2">{t('tools.memeGenerator.selectCaption')}</h3>
                             <div className="flex flex-wrap gap-2">
                                 {suggestions.map((s, i) => (
                                     <button 
@@ -91,7 +93,7 @@ const MemeGenerator: React.FC = () => {
 
                         {/* Change Image Button */}
                         <Button onClick={() => handleImageSelect(null)} variant="secondary">
-                            غيّر الصورة
+                            {t('tools.memeGenerator.changeImage')}
                         </Button>
                     </div>
                 )}

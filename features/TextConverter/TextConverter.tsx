@@ -9,14 +9,7 @@ import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
-
-const STYLES = [
-    { id: 'formal', text: 'فصحى رسمية' },
-    { id: 'comic_fusha', text: 'فصحى كوميدية' },
-    { id: 'poet', text: 'أسلوب شاعر' },
-    { id: 'sheikh', text: 'أسلوب شيخ بينصح' },
-    { id: 'know_it_all', text: 'أسلوب فهلوي' },
-];
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface ConvertParams {
     text: string;
@@ -24,7 +17,11 @@ interface ConvertParams {
 }
 
 const TextConverter: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'text-converter')!;
+
+    const STYLES = t('tools.textConverter.styles', { returnObjects: true }) as { id: string, text: string }[];
+
     const [text, setText] = useState('');
     const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);
     const [submittedStyle, setSubmittedStyle] = useState<string | null>(null);
@@ -42,17 +39,17 @@ const TextConverter: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="اكتب أي نص واختار الأسلوب اللي عايزه، شوف الخبير هيحول كلامك العادي لكلام فخم أو كوميدي إزاي."
+            introText={t('tools.textConverter.intro')}
         >
             <div className="space-y-4">
                 <AutoGrowTextarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="اكتب النص الأصلي هنا..."
+                    placeholder={t('tools.textConverter.placeholder')}
                     className={`${baseInputClasses} resize-none max-h-72`}
                     rows={5}
                 />
@@ -64,13 +61,13 @@ const TextConverter: React.FC = () => {
                     {STYLES.map(s => <option key={s.id} value={s.id} className="bg-white dark:bg-slate-800 text-foreground dark:text-dark-foreground">{s.text}</option>)}
                 </select>
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
-                    حوّل
+                    {t('tools.textConverter.submit')}
                 </Button>
             </div>
             {isLoading && <ResultCardSkeleton />}
             {error && <ErrorDisplay message={error} />}
             {result && (
-                <ResultCard title={`النص بأسلوب: ${STYLES.find(s=>s.id === (submittedStyle || selectedStyle))?.text}`} copyText={result}>
+                <ResultCard title={t('tools.textConverter.resultTitle', { style: STYLES.find(s=>s.id === (submittedStyle || selectedStyle))?.text })} copyText={result}>
                     <p>{result}</p>
                 </ResultCard>
             )}

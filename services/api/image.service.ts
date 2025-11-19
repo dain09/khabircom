@@ -2,6 +2,7 @@
 import { GenerateContentResponse, Modality } from "@google/genai";
 import { fileToGenerativePart } from "../../utils/fileUtils";
 import { withApiKeyRotation, EGYPTIAN_PERSONA_INSTRUCTION } from "../geminiService";
+import { t } from '../localizationService';
 
 const callGemini = async (
     modelName: 'gemini-3-pro-preview' | 'gemini-flash-latest',
@@ -14,7 +15,7 @@ const callGemini = async (
           contents: { parts: prompt },
           config: { 
             responseMimeType: isJson ? 'application/json' : 'text/plain',
-            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION
+            systemInstruction: EGYPTIAN_PERSONA_INSTRUCTION()
           }
         });
         return response.text;
@@ -23,14 +24,14 @@ const callGemini = async (
 
 export const roastImage = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
-    const prompt = `حلل الصورة دي وطلعلي roast كوميدي، تحليل واقعي، ونصيحة لتحسين اللي في الصورة (سواء شخص، لبس، أوضة، أو أي حاجة). الرد يكون بصيغة JSON بالSchema دي:\n{\n  "roast": "string",\n  "analysis": "string",\n  "advice": "string"\n}`;
+    const prompt = t('prompts.imageRoast');
     const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
     return JSON.parse(result);
 };
 
 export const generateMemeSuggestions = async (imageFile: File) => {
     const imagePart = await fileToGenerativePart(imageFile);
-    const prompt = `اختر لي 5 اقتراحات ميم (كابشنز) تفرط من الضحك للصورة دي. الرد يكون بصيغة JSON بالSchema دي:\n{\n "suggestions": ["string", "string", "string", "string", "string"] \n}`;
+    const prompt = t('prompts.memeGenerator');
     const result = await callGemini('gemini-3-pro-preview', [imagePart, { text: prompt }], true);
     return JSON.parse(result).suggestions;
 };
@@ -56,7 +57,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
           }
         }
 
-        throw new Error("لم يتمكن الخبير من توليد الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
+        throw new Error(t('errors.imageGeneration'));
     });
 };
 
@@ -83,6 +84,6 @@ export const editImage = async ({ imageFile, prompt }: { imageFile: File, prompt
             }
         }
 
-        throw new Error("لم يتمكن الخبير من تعديل الصورة. حاول مرة أخرى بوصف مختلف أو تأكد أن طلبك لا يخالف سياسات الاستخدام.");
+        throw new Error(t('errors.imageEditing'));
     });
 };

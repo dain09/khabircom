@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { Sparkles, Copy, Check } from 'lucide-react';
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface ResultCardProps {
     title: string;
@@ -10,6 +12,7 @@ interface ResultCardProps {
 
 export const ResultCard: React.FC<ResultCardProps> = ({ title, children, className = '', copyText }) => {
     const [isCopied, setIsCopied] = useState(false);
+    const { t } = useLanguage();
 
     const handleCopy = () => {
         if (!copyText || !navigator.clipboard) return;
@@ -30,17 +33,17 @@ export const ResultCard: React.FC<ResultCardProps> = ({ title, children, classNa
                     <button
                         onClick={handleCopy}
                         className="flex items-center gap-1.5 p-1.5 text-xs text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-                        aria-label="نسخ النص"
+                        aria-label={t('resultCard.copyAria')}
                     >
                         {isCopied ? (
                             <>
                                 <Check size={14} className="text-green-500" />
-                                <span className="text-green-500">تم النسخ!</span>
+                                <span className="text-green-500">{t('resultCard.copied')}</span>
                             </>
                         ) : (
                             <>
                                 <Copy size={14} />
-                                <span>نسخ</span>
+                                <span>{t('resultCard.copy')}</span>
                             </>
                         )}
                     </button>

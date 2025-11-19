@@ -8,6 +8,7 @@ import { ToolProvider } from './contexts/ToolContext';
 import { MemoryProvider } from './contexts/MemoryContext';
 import { PersonaProvider } from './contexts/PersonaContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -17,18 +18,20 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <ToolProvider>
-        <ChatProvider>
-          <MemoryProvider>
-            <PersonaProvider>
-              <ToastProvider>
-                <App />
-              </ToastProvider>
-            </PersonaProvider>
-          </MemoryProvider>
-        </ChatProvider>
-      </ToolProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <ToolProvider>
+          <ChatProvider>
+            <MemoryProvider>
+              <PersonaProvider>
+                <ToastProvider>
+                  <App />
+                </ToastProvider>
+              </PersonaProvider>
+            </MemoryProvider>
+          </ChatProvider>
+        </ToolProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   </React.StrictMode>
 );

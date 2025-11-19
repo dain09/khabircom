@@ -4,12 +4,14 @@ import { ToolContainer } from '../../components/ToolContainer';
 import { TOOLS } from '../../constants';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useTool } from '../../hooks/useTool';
-import { SlidersHorizontal, Heart, Zap, User, BrainCircuit, Download, Upload, KeyRound, ShieldCheck, Database, CheckCircle2 } from 'lucide-react';
+import { SlidersHorizontal, Heart, Zap, User, BrainCircuit, Download, Upload, KeyRound, ShieldCheck, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../hooks/useToast';
 import { ApiKeyManager } from '../../components/ApiKeyManager';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const Settings: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'khabirkom-settings')!;
     const { persona, setHumor, setVerbosity, setInterests, setPersona } = usePersona();
     const { navigateTo } = useTool();
@@ -18,8 +20,6 @@ const Settings: React.FC = () => {
     const [isApiKeyManagerOpen, setApiKeyManagerOpen] = useState(false);
     const fileImportRef = useRef<HTMLInputElement>(null);
     
-    // Determine active persona for UI feedback
-    // Fahimkom Logic: Humor > 7 AND Verbosity < 5
     const activePersona = useMemo(() => {
         if (persona.humor > 7 && persona.verbosity < 5) return 'fahimkom';
         return 'khabirkom';
@@ -33,15 +33,15 @@ const Settings: React.FC = () => {
     const handlePreset = (type: 'khabirkom' | 'fahimkom') => {
         if (type === 'khabirkom') {
             setPersona({ ...persona, humor: 5, verbosity: 8 });
-            addToast('تمام، رجعتلك خبيركم الرزين والمفصل! 🧐');
+            addToast(t('tools.settings.presets.khabirkom.toast'));
         } else {
             setPersona({ ...persona, humor: 10, verbosity: 2 });
-            addToast('أهلين! أنا فهيمكم، هات من الآخر! 😂');
+            addToast(t('tools.settings.presets.fahimkom.toast'));
         }
     };
 
     const handleMoralSupport = () => {
-        addToast("جدع يا خبيركم، عاش يا وحش! 🔋❤️", { 
+        addToast(t('tools.settings.moralSupport.toast'), { 
             icon: <Heart className="text-red-500 fill-red-500 animate-pulse" />,
             duration: 4000
         });
@@ -53,6 +53,7 @@ const Settings: React.FC = () => {
             memory: localStorage.getItem('khabirkom-user-memory'),
             persona: localStorage.getItem('khabirkom-persona-settings'),
             recentTools: localStorage.getItem('khabirkom-recent-tools'),
+            favoriteTools: localStorage.getItem('khabirkom-favorite-tools'),
             theme: localStorage.getItem('theme'),
             timestamp: new Date().toISOString()
         };
@@ -66,6 +67,7 @@ const Settings: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        addToast(t('tools.settings.data.exportSuccess'), { icon: <Download size={16}/> });
     };
 
     const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +84,14 @@ const Settings: React.FC = () => {
                 if (data.memory) localStorage.setItem('khabirkom-user-memory', data.memory);
                 if (data.persona) localStorage.setItem('khabirkom-persona-settings', data.persona);
                 if (data.recentTools) localStorage.setItem('khabirkom-recent-tools', data.recentTools);
+                if (data.favoriteTools) localStorage.setItem('khabirkom-favorite-tools', data.favoriteTools);
                 if (data.theme) localStorage.setItem('theme', data.theme);
                 
-                alert('تم استعادة البيانات بنجاح! سيتم إعادة تحميل الصفحة.');
+                alert(t('tools.settings.data.importSuccess'));
                 window.location.reload();
             } catch (error) {
                 console.error("Import failed", error);
-                alert('فشل استيراد الملف. تأكد أنه ملف نسخ احتياطي صالح.');
+                alert(t('tools.settings.data.importError'));
             }
         };
         reader.readAsText(file);
@@ -116,18 +119,18 @@ const Settings: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="هنا غرفة التحكم في مخي. عايزني رزين؟ عايزني مسخره؟ عايز أخويا الصغير 'فهيمكم'؟ كله بإيدك."
+            introText={t('tools.settings.intro')}
         >
             <div className="space-y-10">
                 
                 {/* Presets Section */}
                 <div>
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <User size={20} className="text-primary"/> اختر الشخصية
+                        <User size={20} className="text-primary"/> {t('tools.settings.presets.title')}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <button 
@@ -143,8 +146,8 @@ const Settings: React.FC = () => {
                                 <BrainCircuit size={32} />
                             </div>
                             <div>
-                                <h4 className="font-bold text-lg">خبيركم (الأصلي)</h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">رزين، بيشرح بالتفصيل، وكوميديا موزونة.</p>
+                                <h4 className="font-bold text-lg">{t('tools.settings.presets.khabirkom.name')}</h4>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('tools.settings.presets.khabirkom.description')}</p>
                             </div>
                         </button>
 
@@ -161,8 +164,8 @@ const Settings: React.FC = () => {
                                 <Zap size={32} />
                             </div>
                             <div>
-                                <h4 className="font-bold text-lg">فهيمكم (أخويا الصغير)</h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">سريع، بيجيب من الآخر، وبيموت في الهزار.</p>
+                                <h4 className="font-bold text-lg">{t('tools.settings.presets.fahimkom.name')}</h4>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('tools.settings.presets.fahimkom.description')}</p>
                             </div>
                         </button>
                     </div>
@@ -173,29 +176,29 @@ const Settings: React.FC = () => {
                 {/* Fine Tuning Section */}
                 <div>
                      <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <SlidersHorizontal size={20} className="text-primary"/> التظبيط اليدوي
+                        <SlidersHorizontal size={20} className="text-primary"/> {t('tools.settings.manual.title')}
                     </h3>
                     <div className="space-y-8">
                         <SettingSlider
-                            label="مؤشر الهزار"
+                            label={t('tools.settings.manual.humor.label')}
                             value={persona.humor}
                             onChange={setHumor}
-                            minLabel="جد جدًا 😐"
-                            maxLabel="تحفيل للصبح 😂"
+                            minLabel={t('tools.settings.manual.humor.min')}
+                            maxLabel={t('tools.settings.manual.humor.max')}
                         />
                         
                         <SettingSlider
-                            label="مؤشر التفاصيل"
+                            label={t('tools.settings.manual.verbosity.label')}
                             value={persona.verbosity}
                             onChange={setVerbosity}
-                            minLabel="كلمة ورد غطاها ⚡"
-                            maxLabel="اشرحلي قصة حياتك 📜"
+                            minLabel={t('tools.settings.manual.verbosity.min')}
+                            maxLabel={t('tools.settings.manual.verbosity.max')}
                         />
 
                         <div className="space-y-2">
-                            <label htmlFor="interests" className="block font-semibold">اهتماماتك</label>
+                            <label htmlFor="interests" className="block font-semibold">{t('tools.settings.manual.interests.label')}</label>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                اكتب اهتماماتك (زي: برمجة, كورة, أفلام) مفصولة بـ "فاصلة". ده هيساعدني أركز عليها وأنا برغي معاك.
+                                {t('tools.settings.manual.interests.description')}
                             </p>
                             <input
                                 id="interests"
@@ -203,7 +206,7 @@ const Settings: React.FC = () => {
                                 value={tempInterests}
                                 onChange={(e) => setTempInterests(e.target.value)}
                                 onBlur={handleInterestsBlur}
-                                placeholder="برمجة, كورة, أفلام..."
+                                placeholder={t('tools.settings.manual.interests.placeholder')}
                                 className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60"
                             />
                         </div>
@@ -213,53 +216,61 @@ const Settings: React.FC = () => {
                 <div className="border-t border-slate-200 dark:border-slate-700 my-6"></div>
 
                 {/* Admin Zone - Data & Keys */}
-                <div className="relative p-6 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/20">
+                 <div className="relative p-6 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/20">
                     <div className="absolute -top-3 right-6 px-3 bg-background dark:bg-dark-card text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                        <ShieldCheck size={16} className="text-primary" /> المنطقة الإدارية
+                        <ShieldCheck size={16} className="text-primary" /> {t('tools.settings.admin.title')}
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* API Keys */}
-                        <div className="flex flex-col gap-2">
-                            <h4 className="font-bold text-sm text-slate-600 dark:text-slate-300">إعدادات الاتصال</h4>
-                            <Button 
-                                onClick={() => setApiKeyManagerOpen(true)} 
-                                className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm"
-                                icon={<KeyRound size={18} className="text-green-500"/>}
-                            >
-                                إدارة مفاتيح API
-                            </Button>
-                            <Button 
-                                onClick={() => navigateTo('memory-manager')} 
-                                className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm"
-                                icon={<Database size={18} className="text-pink-500"/>}
-                            >
-                                إدارة الذاكرة (البيانات المحفوظة)
-                            </Button>
+                    <div className="flex flex-col gap-6">
+                        {/* Connection & Memory */}
+                        <div>
+                            <h4 className="font-bold text-sm text-slate-600 dark:text-slate-300 mb-2 text-center">{t('tools.settings.admin.connection.title')}</h4>
+                            <div className="space-y-2">
+                                <button 
+                                    onClick={() => setApiKeyManagerOpen(true)}
+                                    className="w-full flex items-center justify-between p-3 h-12 text-start bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <KeyRound size={20} className="text-primary"/>
+                                        <span className="font-semibold text-sm text-foreground dark:text-dark-foreground">{t('tools.settings.admin.connection.apiKeys')}</span>
+                                    </div>
+                                    <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+                                </button>
+                                <button 
+                                    onClick={() => navigateTo('memory-manager')}
+                                    className="w-full flex items-center justify-between p-3 h-12 text-start bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <BrainCircuit size={20} className="text-pink-500"/>
+                                        <span className="font-semibold text-sm text-foreground dark:text-dark-foreground">{t('tools.settings.admin.connection.memory')}</span>
+                                    </div>
+                                    <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Data Export/Import */}
-                        <div className="flex flex-col gap-2">
-                            <h4 className="font-bold text-sm text-slate-600 dark:text-slate-300">النسخ الاحتياطي</h4>
-                            <div className="flex gap-2">
-                                <Button 
-                                    onClick={handleExportData} 
-                                    className="flex-1 justify-center bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm"
-                                    icon={<Download size={18} className="text-blue-500"/>}
+                        {/* Data */}
+                        <div>
+                            <h4 className="font-bold text-sm text-slate-600 dark:text-slate-300 mb-2 text-center">{t('tools.settings.data.title')}</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <button 
+                                    onClick={handleExportData}
+                                    className="w-full flex items-center justify-center gap-2 p-3 h-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
                                 >
-                                    تصدير
-                                </Button>
-                                <Button 
-                                    onClick={() => fileImportRef.current?.click()} 
-                                    className="flex-1 justify-center bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm"
-                                    icon={<Upload size={18} className="text-purple-500"/>}
+                                    <Download size={18} className="text-slate-500 group-hover:text-primary transition-colors"/>
+                                    <span className="font-semibold text-sm text-foreground dark:text-dark-foreground">{t('tools.settings.data.export')}</span>
+                                </button>
+                                <button 
+                                    onClick={() => fileImportRef.current?.click()}
+                                    className="w-full flex items-center justify-center gap-2 p-3 h-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
                                 >
-                                    استيراد
-                                </Button>
+                                    <Upload size={18} className="text-slate-500 group-hover:text-primary transition-colors"/>
+                                    <span className="font-semibold text-sm text-foreground dark:text-dark-foreground">{t('tools.settings.data.import')}</span>
+                                </button>
                                 <input type="file" ref={fileImportRef} onChange={handleImportData} accept=".json" className="hidden" />
                             </div>
-                            <p className="text-[10px] text-slate-400 mt-1">
-                                احفظ نسخة من بياناتك (المحادثات، الذاكرة، الإعدادات) عشان ما تضعش.
+                             <p className="text-[10px] text-slate-400 mt-2 text-center">
+                                {t('tools.settings.data.description')}
                             </p>
                         </div>
                     </div>
@@ -269,16 +280,16 @@ const Settings: React.FC = () => {
 
                 {/* Moral Support Section */}
                 <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 p-6 rounded-xl border border-pink-500/20 text-center">
-                    <h3 className="font-bold text-pink-600 dark:text-pink-400 mb-2">منطقة الدعم المعنوي</h3>
+                    <h3 className="font-bold text-pink-600 dark:text-pink-400 mb-2">{t('tools.settings.moralSupport.title')}</h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                        لو حسيت إني عملت شغل عالي النهاردة، دوس هنا عشان ترفع معنوياتي (السيرفر بيفرح والله).
+                        {t('tools.settings.moralSupport.description')}
                     </p>
                     <Button 
                         onClick={handleMoralSupport} 
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:-translate-y-1"
                         icon={<Heart className="fill-white" />}
                     >
-                        شحن معنوي
+                        {t('tools.settings.moralSupport.button')}
                     </Button>
                 </div>
 

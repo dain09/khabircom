@@ -9,6 +9,7 @@ import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { ImageUpload } from '../../components/ui/ImageUpload';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface RoastResult {
     roast: string;
@@ -17,6 +18,7 @@ interface RoastResult {
 }
 
 const ImageRoast: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'image-roast')!;
     const [imageFile, setImageFile] = useState<File | null>(null);
     const { data: result, isLoading, error, execute } = useGemini<RoastResult, File>(roastImage);
@@ -28,25 +30,25 @@ const ImageRoast: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="ارفع أي صورة، والخبير هيحللها ويقولك رأيه بصراحة تامة... وبطريقة كوميدية طبعًا!"
+            introText={t('tools.imageRoast.intro')}
         >
             <div className="space-y-4">
                 <ImageUpload onImageSelect={setImageFile} />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!imageFile}>
-                    حلل الصورة
+                    {t('tools.imageRoast.submit')}
                 </Button>
             </div>
             {isLoading && <ResultCardSkeleton count={3} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="التحفيل 🔥" copyText={result?.roast}>{result?.roast}</ResultCard>
-                    <ResultCard title="تحليل واقعي 🧐" copyText={result?.analysis}>{result?.analysis}</ResultCard>
-                    <ResultCard title="نصيحة الخبير 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
+                    <ResultCard title={t('tools.imageRoast.results.roast')} copyText={result?.roast}>{result?.roast}</ResultCard>
+                    <ResultCard title={t('tools.imageRoast.results.analysis')} copyText={result?.analysis}>{result?.analysis}</ResultCard>
+                    <ResultCard title={t('tools.imageRoast.results.advice')} copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

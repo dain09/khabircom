@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, X, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface ImageUploadProps {
     onImageSelect: (file: File | null) => void;
@@ -13,6 +14,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
     const [preview, setPreview] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { t } = useLanguage();
 
     const handleFileSelect = useCallback((file: File | undefined) => {
         setError(null); // Reset error on new selection
@@ -23,10 +25,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
             setPreview(previewUrl);
             onImageSelect(file);
         } else {
-            setError('الصيغة دي مش مدعومة. ارفع صورة PNG, JPG, أو WEBP.');
+            setError(t('imageUpload.unsupportedFormat'));
             onImageSelect(null);
         }
-    }, [onImageSelect]);
+    }, [onImageSelect, t]);
 
 
     const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,11 +75,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
             >
                 {preview ? (
                     <>
-                        <img src={preview} alt="معاينة الصورة" className="object-contain h-full w-full rounded-lg p-2" />
+                        <img src={preview} alt={t('imageUpload.previewAlt')} className="object-contain h-full w-full rounded-lg p-2" />
                         <button
                             onClick={handleRemoveImage}
                             className="absolute top-2 end-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
-                            aria-label="إزالة الصورة"
+                            aria-label={t('imageUpload.removeAria')}
                         >
                             <X size={18} />
                         </button>
@@ -85,8 +87,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, classNa
                 ) : (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                         <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
-                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">دوس هنا عشان ترفع صورة</span><br/> أو اسحبها وحطها هنا</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, WEBP</p>
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400" dangerouslySetInnerHTML={{ __html: t('imageUpload.prompt') }} />
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{t('imageUpload.supportedFormats')}</p>
                     </div>
                 )}
                 <input 

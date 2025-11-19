@@ -9,6 +9,7 @@ import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 interface RoastResult {
     roast: string;
@@ -18,6 +19,7 @@ interface RoastResult {
 }
 
 const TextRoast: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'text-roast')!;
     const [text, setText] = useState('');
     const { data: result, isLoading, error, execute } = useGemini<RoastResult, string>(roastText);
@@ -29,32 +31,32 @@ const TextRoast: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="اكتب أي حاجة تيجي في بالك، والخبير هيحللها لك بطريقته الخاصة: تحفيل، تصحيح، وشوية نصايح على الماشي."
+            introText={t('tools.textRoast.intro')}
         >
             <div className="space-y-4">
                 <AutoGrowTextarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="اكتب الجملة اللي عايز تحفّل عليها هنا..."
+                    placeholder={t('tools.textRoast.placeholder')}
                     className="w-full p-3 bg-white/20 dark:bg-dark-card/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 rounded-lg rounded-bl-none focus:ring-2 focus:ring-primary focus:outline-none transition-colors shadow-inner placeholder:text-slate-500 dark:placeholder:text-slate-400/60 resize-none max-h-72"
                     rows={5}
                 />
                 <Button onClick={handleSubmit} isLoading={isLoading} disabled={!text.trim()}>
-                    ابعت
+                    {t('tools.textRoast.submit')}
                 </Button>
             </div>
             {isLoading && <ResultCardSkeleton count={4} />}
             {error && <ErrorDisplay message={error} />}
             {result && (
                 <div className="mt-6 space-y-4">
-                    <ResultCard title="التحفيل 🔥" copyText={result?.roast}>{result?.roast}</ResultCard>
-                    <ResultCard title="التصحيح اللغوي 🤓" copyText={result?.corrected}>{result?.corrected}</ResultCard>
-                    <ResultCard title="تحليل نفسي على الماشي 🤔" copyText={result?.analysis}>{result?.analysis}</ResultCard>
-                    <ResultCard title="نصيحة الخبير 💡" copyText={result?.advice}>{result?.advice}</ResultCard>
+                    <ResultCard title={t('tools.textRoast.results.roast')} copyText={result?.roast}>{result?.roast}</ResultCard>
+                    <ResultCard title={t('tools.textRoast.results.corrected')} copyText={result?.corrected}>{result?.corrected}</ResultCard>
+                    <ResultCard title={t('tools.textRoast.results.analysis')} copyText={result?.analysis}>{result?.analysis}</ResultCard>
+                    <ResultCard title={t('tools.textRoast.results.advice')} copyText={result?.advice}>{result?.advice}</ResultCard>
                 </div>
             )}
         </ToolContainer>

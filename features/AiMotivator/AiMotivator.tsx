@@ -9,8 +9,10 @@ import { TOOLS } from '../../constants';
 import { useGemini } from '../../hooks/useGemini';
 import { RefreshCw } from 'lucide-react';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const AiMotivator: React.FC = () => {
+    const { t } = useLanguage();
     const toolInfo = TOOLS.find(t => t.id === 'ai-motivator')!;
     const { data: motivation, isLoading, error, execute } = useGemini<string, void>(
         () => getGrumpyMotivation()
@@ -23,24 +25,24 @@ const AiMotivator: React.FC = () => {
 
     return (
         <ToolContainer 
-            title={toolInfo.title} 
-            description={toolInfo.description} 
+            title={t(toolInfo.title)} 
+            description={t(toolInfo.description)} 
             icon={toolInfo.icon} 
             iconColor={toolInfo.color}
-            introText="محتاج دفعة بس مش من النوع التقليدي؟ الخبير هيديلك تحفيز على طريقته الخاصة... جهز نفسك."
+            introText={t('tools.aiMotivator.intro')}
         >
             <div className="text-center p-4 flex flex-col justify-center items-center h-full">
                 {isLoading && <ResultCardSkeleton />}
                 {error && <ErrorDisplay message={error} />}
                 {motivation && (
-                    <ResultCard title="جرعة تحفيز على السريع" copyText={motivation}>
+                    <ResultCard title={t('tools.aiMotivator.resultTitle')} copyText={motivation}>
                         <blockquote className="text-2xl lg:text-3xl font-bold italic text-center leading-relaxed">
                            "{motivation}"
                         </blockquote>
                     </ResultCard>
                 )}
                 <Button onClick={() => execute()} isLoading={isLoading} className="mt-8" icon={<RefreshCw />}>
-                    اديني واحدة تانية
+                    {t('tools.aiMotivator.submit')}
                 </Button>
             </div>
         </ToolContainer>

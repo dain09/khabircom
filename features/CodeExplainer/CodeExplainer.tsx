@@ -11,7 +11,6 @@ import { AutoGrowTextarea } from '../../components/ui/AutoGrowTextarea';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ResultCardSkeleton } from '../../components/ui/ResultCardSkeleton';
 import { useLanguage } from '../../hooks/useLanguage';
 
@@ -20,6 +19,51 @@ interface CodeResult {
     breakdown: string;
     language: string;
 }
+
+// Local definition of a theme for code blocks to avoid import errors
+const okaidia = {
+  "code[class*=\"language-\"]": {
+    "color": "#f8f8f2",
+    "background": "none",
+    "textShadow": "0 1px rgba(0, 0, 0, 0.3)",
+    "fontFamily": "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
+    "fontSize": "1em",
+    "textAlign": "left",
+    "whiteSpace": "pre",
+    "wordSpacing": "normal",
+    "wordBreak": "normal",
+    "lineHeight": "1.5",
+    "direction": "ltr",
+    "tabSize": "4",
+    "hyphens": "none"
+  },
+  "pre[class*=\"language-\"]": {
+    "color": "#f8f8f2",
+    "background": "#272822",
+    "textShadow": "0 1px rgba(0, 0, 0, 0.3)",
+    "fontFamily": "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
+    "fontSize": "1em",
+    "textAlign": "left",
+    "whiteSpace": "pre",
+    "wordSpacing": "normal",
+    "wordBreak": "normal",
+    "lineHeight": "1.5",
+    "direction": "ltr",
+    "tabSize": "4",
+    "hyphens": "none",
+    "padding": "1em",
+    "margin": ".5em 0",
+    "overflow": "auto",
+    "borderRadius": "0.3em"
+  },
+  "comment": { "color": "#8292a2" },
+  "string": { "color": "#e6db74" },
+  "number": { "color": "#ae81ff" },
+  "keyword": { "color": "#f92672" },
+  "function": { "color": "#a6e22e" },
+  "operator": { "color": "#f8f8f2" },
+  "class-name": { "color": "#f92672" }
+};
 
 const CodeExplainer: React.FC = () => {
     const { t } = useLanguage();

@@ -13,12 +13,53 @@ import { TOOLS } from '../../constants';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useMemory } from '../../hooks/useMemory';
 import { usePersona } from '../../contexts/PersonaContext';
 import { useToast } from '../../hooks/useToast';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useLanguage } from '../../hooks/useLanguage';
+
+// Local definition of a dark theme for code blocks to avoid import errors
+const vscDarkPlus = {
+  "code[class*=\"language-\"]": {
+    "color": "#d4d4d4",
+    "background": "none",
+    "fontFamily": "Menlo, Monaco, Consolas, \"Andale Mono\", \"Ubuntu Mono\", \"Courier New\", monospace",
+    "fontSize": "13px",
+    "textAlign": "left",
+    "whiteSpace": "pre",
+    "wordSpacing": "normal",
+    "wordBreak": "normal",
+    "lineHeight": "1.5",
+    "direction": "ltr",
+    "tabSize": "4",
+    "hyphens": "none"
+  },
+  "pre[class*=\"language-\"]": {
+    "color": "#d4d4d4",
+    "background": "#1e1e1e",
+    "fontFamily": "Menlo, Monaco, Consolas, \"Andale Mono\", \"Ubuntu Mono\", \"Courier New\", monospace",
+    "fontSize": "13px",
+    "textAlign": "left",
+    "whiteSpace": "pre",
+    "wordSpacing": "normal",
+    "wordBreak": "normal",
+    "lineHeight": "1.5",
+    "direction": "ltr",
+    "tabSize": "4",
+    "hyphens": "none",
+    "padding": "1em",
+    "margin": ".5em 0",
+    "overflow": "auto"
+  },
+  "comment": { "color": "#6a9955" },
+  "string": { "color": "#ce9178" },
+  "number": { "color": "#b5cea8" },
+  "keyword": { "color": "#569cd6" },
+  "function": { "color": "#dcdcaa" },
+  "operator": { "color": "#d4d4d4" },
+  "class-name": { "color": "#4ec9b0" }
+};
 
 // --- Dashboard Sub-Components ---
 
@@ -499,7 +540,7 @@ export const Chat: React.FC = () => {
                                         {msg.role === 'user' ? <User className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Bot className={`w-5 h-5 ${msg.senderName === t('personas.fahimkom.name') ? 'text-orange-500' : 'text-primary'}`} />}
                                     </div>
                                     <div className={`flex flex-col gap-1 min-w-0 w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                                        <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5">{msg.role === 'model' ? msg.senderName : t('chat.you')}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 px-2 mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{msg.role === 'model' ? msg.senderName : t('chat.you')}</p>
                                         {editingMessage?.id === msg.id ? (
                                             <div className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-primary rounded-2xl shadow-lg">
                                                 <AutoGrowTextarea value={editingMessage.text} onChange={e => setEditingMessage({...editingMessage, text: e.target.value})} className="w-full bg-transparent outline-none text-sm"/>

@@ -369,7 +369,7 @@ const arTranslations = {
                 { "id": "twitter_short", "text": "تويتر (في السريع) 🐦" },
                 { "id": "instagram_caption", "text": "انستجرام (كابشن) 📸" },
                 { "id": "promotional", "text": "إعلان (بيع) 📢" },
-                { "id": "question", "text": "سؤال للنقاش 🤔"
+                { "id": "question", "text": "سؤال للنقاش 🤔" }
             ],
             "resultTitle": "بوست {{type}} جاهز"
         },

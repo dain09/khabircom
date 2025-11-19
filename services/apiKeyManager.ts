@@ -15,14 +15,27 @@ export const initializeApiKeys = () => {
             console.error("Error reading from localStorage", e);
         }
 
-        // 2. Check process.env.API_KEY (Standard System/Node Env)
+        // 2. Check Environment Variables (Vite & Standard)
+        let envKeysString = '';
+        
+        // Check Vite env
+        if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEYS) {
+            envKeysString = import.meta.env.VITE_API_KEYS;
+        } 
+        // Check Standard Node env (fallback)
         // @ts-ignore
-        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-            // @ts-ignore
-            const sysKey = process.env.API_KEY;
-            if (sysKey && !keys.includes(sysKey)) {
-                keys.push(sysKey);
-            }
+        else if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+             // @ts-ignore
+            envKeysString = process.env.API_KEY;
+        }
+
+        if (envKeysString) {
+            const newKeys = envKeysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
+            newKeys.forEach(key => {
+                if (!keys.includes(key)) {
+                    keys.push(key);
+                }
+            });
         }
 
         // 3. Save back to localStorage if we found keys

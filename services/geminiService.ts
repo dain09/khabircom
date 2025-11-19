@@ -40,11 +40,24 @@ const retryWithBackoff = async <T>(
 export const withApiKeyRotation = async <T>(apiCall: (ai: GoogleGenAI) => Promise<T>): Promise<T> => {
     let keys = getApiKeys();
     
-    // Fallback: If no keys in storage, check process.env.API_KEY directly.
-    // @ts-ignore
-    const processKey = typeof process !== 'undefined' && process.env?.API_KEY;
-    if (processKey && !keys.includes(processKey)) {
-        keys = [...keys, processKey];
+    // Fallback: If no keys in storage, check environment variables.
+    if (keys.length === 0) {
+        let envKeysString = '';
+        if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEYS) {
+            envKeysString = import.meta.env.VITE_API_KEYS;
+        }
+        // @ts-ignore
+        else if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+            // @ts-ignore
+            envKeysString = process.env.API_KEY;
+        }
+
+        if (envKeysString) {
+             const newKeys = envKeysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
+             if (newKeys.length > 0) {
+                 keys = newKeys;
+             }
+        }
     }
     
     if (keys.length === 0) {
